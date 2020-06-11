@@ -1,0 +1,18 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->files()
+    ->in(__DIR__.'/src')
+    ->in(__DIR__.'/tests')
+    ->name('*.php')
+;
+
+return PhpCsFixer\Config::create()
+    ->setUsingCache(true)
+    ->setRiskyAllowed(true)
+    ->setRules(array(
+        '@PSR2' => true,
+        '@Symfony' => true,
+        'array_syntax' => array('syntax' => 'long'),
+    ))
+    ->setFinder($finder);

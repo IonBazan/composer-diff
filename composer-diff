@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+foreach ([__DIR__.'/../../autoload.php', __DIR__.'/../autoload.php', __DIR__.'/vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        require_once $file;
+        break;
+    }
+}
+
+unset($file);
+
+use IonBazan\ComposerDiff\Command\DiffCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$application->add(new DiffCommand());
+$application->setDefaultCommand('diff',  true);
+$application->run();

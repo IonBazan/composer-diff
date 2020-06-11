@@ -1,0 +1,33 @@
+{
+    "name": "ion-bazan/composer-diff",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ion Bazan",
+            "email": "ion.bazan@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.3.2 || ^7.0 || ^8.0",
+        "ext-json": "*",
+        "composer-plugin-api": "^1.1 || ^2.0",
+        "composer/composer": "^1.1 || ^2.0",
+        "symfony/console": "dev-master"
+    },
+    "require-dev": {},
+    "config": {
+        "platform-check": false
+    },
+    "extra": {
+        "class": "IonBazan\\ComposerDiff\\Plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "IonBazan\\ComposerDiff\\": "src"
+        }
+    },
+    "bin": [
+        "composer-diff"
+    ]
+}
