@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff;
 
-use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MarkdownTable
@@ -106,11 +105,7 @@ class MarkdownTable
             return $this->columnWidths[$column];
         }
 
-        foreach (array_merge($this->headers, $this->rows) as $row) {
-            if ($row instanceof TableSeparator) {
-                continue;
-            }
-
+        foreach (array_merge(array($this->headers), $this->rows) as $row) {
             $lengths[] = strlen($row[$column]);
         }
 

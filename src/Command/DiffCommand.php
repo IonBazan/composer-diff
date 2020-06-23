@@ -49,13 +49,18 @@ class DiffCommand extends BaseCommand
 
     protected function displayTable(array $operations, $header, OutputInterface $output)
     {
+        if (!\count($operations)) {
+            return;
+        }
+
         $table = new MarkdownTable($output);
+        $table->setHeaders(array($header, 'Base', 'Target'));
 
         foreach ($operations as $operation) {
             $table->addRow($this->getTableRow($operation));
         }
 
-        $table->setHeaders(array($header, 'Base', 'Target'))->render();
+        $table->render();
         $output->writeln('');
     }
 

@@ -23,13 +23,13 @@ class Plugin implements PluginInterface, Capable, CommandProvider
 
     public function getCommands()
     {
-        return array(new DiffCommand($this->composer));
+        return array(new DiffCommand());
     }
 
     public function getCapabilities()
     {
         return array(
-            CommandProvider::class => static::class,
+            'Composer\Plugin\Capability\CommandProvider' => 'IonBazan\ComposerDiff\Plugin',
         );
     }
 }

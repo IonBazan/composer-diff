@@ -53,19 +53,19 @@ class PackageDiffTest extends TestCase
      */
     public function testGitUsage(array $expected, $dev, $withPlatform)
     {
-        $gitDir = __DIR__.'/test-git';
         $diff = new PackageDiff();
-        @mkdir($gitDir);
-        chdir($gitDir);
-        exec('git init');
-        exec('git config user.name test');
-        exec('git config user.email test@example.com');
-        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
-        exec('git add composer.lock && git commit -m "init"');
-        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
-        $operations = $diff->getPackageDiff('HEAD:composer.lock', 'composer.lock', $dev, $withPlatform);
+        $this->prepareGit();
+        $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform);
 
         $this->assertSame($expected, array_map(array($this, 'operationToString'), $operations));
+    }
+
+    public function testInvalidGitRef()
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit();
+        $this->expectException('RuntimeException');
+        $diff->getPackageDiff('invalid-ref', '');
     }
 
     public function operationsProvider()
@@ -121,6 +121,19 @@ class PackageDiffTest extends TestCase
                 false,
             ),
         );
+    }
+
+    private function prepareGit()
+    {
+        $gitDir = __DIR__.'/test-git';
+        @mkdir($gitDir);
+        chdir($gitDir);
+        exec('git init');
+        exec('git config user.name test');
+        exec('git config user.email test@example.com');
+        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
+        exec('git add composer.lock && git commit -m "init"');
+        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
     }
 
     private function operationToString(OperationInterface $operation)
