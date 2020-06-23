@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class PackageDiffTest extends TestCase
 {
-    const TEST_GIT_DIR = __DIR__.'/test-git';
-    const FIXTURES_BASE = __DIR__.'/fixtures/base';
     /**
      * @param string[] $expected
      * @param bool $dev
@@ -24,8 +22,8 @@ class PackageDiffTest extends TestCase
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
-            self::FIXTURES_BASE.'/composer.lock',
-            self::FIXTURES_TARGET.'/composer.lock',
+            __DIR__.'/fixtures/base/composer.lock',
+            __DIR__.'/fixtures/target/composer.lock',
             $dev,
             $withPlatform
         );
@@ -33,14 +31,12 @@ class PackageDiffTest extends TestCase
         $this->assertSame($expected, array_map(array($this, 'operationToString'), $operations));
     }
 
-    const FIXTURES_TARGET = __DIR__.'/fixtures/target';
-
     public function testSameBaseAndTarget()
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
-            self::FIXTURES_BASE.'/composer.lock',
-            self::FIXTURES_BASE.'/composer.lock',
+            __DIR__.'/fixtures/base/composer.lock',
+            __DIR__.'/fixtures/base/composer.lock',
             true,
             true
         );
@@ -57,12 +53,16 @@ class PackageDiffTest extends TestCase
      */
     public function testGitUsage(array $expected, $dev, $withPlatform)
     {
+        $gitDir = __DIR__.'/test-git';
         $diff = new PackageDiff();
-        chdir(self::TEST_GIT_DIR);
+        @mkdir($gitDir);
+        chdir($gitDir);
         exec('git init');
-        file_put_contents(self::TEST_GIT_DIR.'/composer.lock', file_get_contents(self::FIXTURES_BASE.'/composer.lock'));
+        exec('git config user.name test');
+        exec('git config user.email test@example.com');
+        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
         exec('git add composer.lock && git commit -m "init"');
-        file_put_contents(self::TEST_GIT_DIR.'/composer.lock', file_get_contents(self::FIXTURES_TARGET.'/composer.lock'));
+        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
         $operations = $diff->getPackageDiff('HEAD:composer.lock', 'composer.lock', $dev, $withPlatform);
 
         $this->assertSame($expected, array_map(array($this, 'operationToString'), $operations));

@@ -3,3 +3,4 @@
 /.php_cs.cache
 /.php_cs
 /tests/fixtures/**/vendor/
+/tests/test-git/
