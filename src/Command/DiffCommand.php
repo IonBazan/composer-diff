@@ -15,6 +15,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DiffCommand extends BaseCommand
 {
+    /**
+     * @var PackageDiff
+     */
+    protected $packageDiff;
+
+    public function __construct(PackageDiff $packageDiff)
+    {
+        $this->packageDiff = $packageDiff;
+
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this->setName('diff')
@@ -32,15 +44,14 @@ class DiffCommand extends BaseCommand
         $base = $input->getOption('base');
         $target = $input->getOption('target');
         $withPlatform = $input->getOption('with-platform');
-        $diff = new PackageDiff();
 
         if (!$input->getOption('no-prod')) {
-            $operations = $diff->getPackageDiff($base, $target, false, $withPlatform);
+            $operations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
             $this->displayTable($operations, 'Prod Packages', $output);
         }
 
         if (!$input->getOption('no-dev')) {
-            $operations = $diff->getPackageDiff($base, $target, true, $withPlatform);
+            $operations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform);
             $this->displayTable($operations, 'Dev Packages', $output);
         }
 

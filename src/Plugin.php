@@ -23,7 +23,7 @@ class Plugin implements PluginInterface, Capable, CommandProvider
 
     public function getCommands()
     {
-        return array(new DiffCommand());
+        return array(new DiffCommand(new PackageDiff()));
     }
 
     public function getCapabilities()

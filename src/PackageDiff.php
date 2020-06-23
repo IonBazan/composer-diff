@@ -99,7 +99,7 @@ class PackageDiff
         }
 
         $output = array();
-        exec('git show '.escapeshellarg($path), $output, $exit);
+        @exec('git show '.escapeshellarg($path), $output, $exit);
 
         if (0 !== $exit) {
             throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s', $originalPath, $path));
