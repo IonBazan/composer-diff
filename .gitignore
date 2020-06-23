@@ -5,3 +5,4 @@
 /tests/fixtures/**/vendor/
 /tests/test-git/
 /coverage/
+/.phpunit.result.cache

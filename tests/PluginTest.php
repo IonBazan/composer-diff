@@ -11,8 +11,8 @@ class PluginTest extends TestCase
 {
     public function testPlugin()
     {
-        $composer = $this->createMock('Composer\Composer');
-        $io = $this->createMock('Composer\IO\IOInterface');
+        $composer = $this->getMockBuilder('Composer\Composer')->getMock();
+        $io = $this->getMockBuilder('Composer\IO\IOInterface')->getMock();
 
         $plugin = new Plugin();
         $plugin->activate($composer, $io);
