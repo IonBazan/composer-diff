@@ -1,0 +1,16 @@
+{
+    "name": "test/test",
+    "require": {
+        "symfony/event-dispatcher": "^2.8",
+        "doctrine/dbal": "^2.10"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.2"
+    },
+    "authors": [
+        {
+            "name": "Ion Bazan",
+            "email": "ion.bazan@gmail.com"
+        }
+    ]
+}

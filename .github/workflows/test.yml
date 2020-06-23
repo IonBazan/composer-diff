@@ -1,0 +1,50 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  php:
+    name: PHP ${{ matrix.php-versions }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions:
+          - '5.3'
+#          - '5.4'
+#          - '5.5'
+          - '5.6'
+#          - '7.0'
+#          - '7.1'
+#          - '7.2'
+#          - '7.3'
+          - '7.4'
+#        include:
+#          - php-versions: '8.0'
+#            composer-flags: '--ignore-platform-reqs'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: json
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install Composer dependencies
+        run: composer install -n --prefer-dist ${{ matrix.composer-flags }}
+      - name: Run Tests
+        run: vendor/bin/simple-phpunit
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v1
+#      - name: Run mutation tests
+#        if: ${{ matrix.php-versions < 8.0 }}
+#        env:
+#          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+#        run: vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4

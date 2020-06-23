@@ -57,7 +57,7 @@ class PackageDiff
      *
      * @return ArrayRepository
      */
-    protected function loadPackages($path, $dev, $withPlatform = true)
+    private function loadPackages($path, $dev, $withPlatform = true)
     {
         $data = \json_decode($this->getFileContents($path), true);
         $loader = new ArrayLoader();
@@ -80,9 +80,9 @@ class PackageDiff
     /**
      * @param string $path
      *
-     * @return string|null
+     * @return string
      */
-    protected function getFileContents($path)
+    private function getFileContents($path)
     {
         $originalPath = $path;
 
