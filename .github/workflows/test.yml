@@ -8,18 +8,19 @@ jobs:
       fail-fast: false
       matrix:
         php-versions:
-          - '5.3'
-#          - '5.4'
-#          - '5.5'
+          - '5.4'
+          - '5.5'
           - '5.6'
-#          - '7.0'
-#          - '7.1'
-#          - '7.2'
-#          - '7.3'
+          - '7.0'
+          - '7.1'
+          - '7.2'
+          - '7.3'
           - '7.4'
-#        include:
-#          - php-versions: '8.0'
-#            composer-flags: '--ignore-platform-reqs'
+        include:
+          - php-versions: '5.3'
+              composer-flags: '--prefer-lowest'
+          - php-versions: '8.0'
+            composer-flags: '--ignore-platform-reqs'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,7 +39,7 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
-        run: composer install -n --prefer-dist ${{ matrix.composer-flags }}
+        run: composer update -n --prefer-dist ${{ matrix.composer-flags }}
       - name: Run Tests
         run: vendor/bin/simple-phpunit
 #      - name: Upload coverage to Codecov
