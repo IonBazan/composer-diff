@@ -38,21 +38,9 @@ class MarkdownTable
     {
         $this->rows = array();
 
-        return $this->addRows($rows);
-    }
-
-    public function addRows(array $rows)
-    {
         foreach ($rows as $row) {
-            $this->addRow($row);
+            $this->rows[] = array_values($row);
         }
-
-        return $this;
-    }
-
-    public function addRow(array $row)
-    {
-        $this->rows[] = array_values($row);
 
         return $this;
     }

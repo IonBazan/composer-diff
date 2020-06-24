@@ -64,14 +64,14 @@ class DiffCommand extends BaseCommand
             return;
         }
 
-        $table = new MarkdownTable($output);
-        $table->setHeaders(array($header, 'Base', 'Target'));
+        $rows = array();
 
         foreach ($operations as $operation) {
-            $table->addRow($this->getTableRow($operation));
+            $rows[] = $this->getTableRow($operation);
         }
 
-        $table->render();
+        $table = new MarkdownTable($output);
+        $table->setHeaders(array($header, 'Base', 'Target'))->setRows($rows)->render();
         $output->writeln('');
     }
 
