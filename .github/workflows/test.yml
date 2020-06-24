@@ -9,13 +9,13 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         php-versions:
-#          - '5.4'
-#          - '5.5'
-#          - '5.6'
-#          - '7.0'
-#          - '7.1'
-#          - '7.2'
-#          - '7.3'
+          - '5.4'
+          - '5.5'
+          - '5.6'
+          - '7.0'
+          - '7.1'
+          - '7.2'
+          - '7.3'
           - '7.4'
         include:
           - php-versions: '5.3'
@@ -49,8 +49,3 @@ jobs:
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
-#      - name: Run mutation tests
-#        if: ${{ matrix.php-versions < 8.0 }}
-#        env:
-#          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-#        run: vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4

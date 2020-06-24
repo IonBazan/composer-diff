@@ -22,5 +22,7 @@ class PluginTest extends TestCase
             $plugin->getCapabilities()
         );
         $this->assertEquals(array($command), $plugin->getCommands());
+        $plugin->deactivate($composer, $io);
+        $plugin->uninstall($composer, $io);
     }
 }
