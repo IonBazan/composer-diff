@@ -32,4 +32,12 @@ class Plugin implements PluginInterface, Capable, CommandProvider
             'Composer\Plugin\Capability\CommandProvider' => 'IonBazan\ComposerDiff\Plugin',
         );
     }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+    }
 }
