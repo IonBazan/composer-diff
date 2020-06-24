@@ -7,7 +7,6 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\PackageDiff;
-use PHPUnit\Framework\TestCase;
 
 class PackageDiffTest extends TestCase
 {
@@ -64,11 +63,7 @@ class PackageDiffTest extends TestCase
     {
         $diff = new PackageDiff();
         $this->prepareGit();
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('RuntimeException');
-        } else {
-            $this->setExpectedException('RuntimeException');
-        }
+        $this->setExpectedException('RuntimeException');
         $diff->getPackageDiff('invalid-ref', '');
     }
 

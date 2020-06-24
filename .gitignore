@@ -5,4 +5,5 @@
 /tests/fixtures/**/vendor/
 /tests/test-git/
 /coverage/
+/clover.xml
 /.phpunit.result.cache

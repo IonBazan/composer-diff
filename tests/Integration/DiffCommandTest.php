@@ -4,7 +4,7 @@ namespace IonBazan\ComposerDiff\Tests\Integration;
 
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
-use PHPUnit\Framework\TestCase;
+use IonBazan\ComposerDiff\Tests\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class DiffCommandTest extends TestCase

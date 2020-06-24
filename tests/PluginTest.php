@@ -5,7 +5,6 @@ namespace IonBazan\ComposerDiff\Tests;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Plugin;
-use PHPUnit\Framework\TestCase;
 
 class PluginTest extends TestCase
 {
