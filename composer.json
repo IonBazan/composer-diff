@@ -1,6 +1,17 @@
 {
     "name": "ion-bazan/composer-diff",
     "type": "composer-plugin",
+    "description": "Compares composer.lock changes and generates Markdown report so you can use it in PR description.",
+    "keywords": [
+        "composer",
+        "composer.lock",
+        "diff",
+        "packages",
+        "markdown",
+        "pullrequest",
+        "github",
+        "packagist"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -14,9 +25,9 @@
         "composer-plugin-api": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^4.2 || ^5.0",
         "composer/composer": "^1.1 || ^2.0",
-        "symfony/console": "^2.3 || ^3.0 || ^4.0 || ^5.0"
+        "symfony/console": "^2.3 || ^3.0 || ^4.0 || ^5.0",
+        "symfony/phpunit-bridge": "^4.2 || ^5.0"
     },
     "config": {
         "platform": {

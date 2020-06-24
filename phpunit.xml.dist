@@ -32,6 +32,6 @@
     </filter>
     <logging>
         <log type="coverage-clover" target="clover.xml" />
-        <log type="coverage-html" target="coverage.xml" />
+        <log type="coverage-html" target="coverage" />
     </logging>
 </phpunit>
