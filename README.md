@@ -64,6 +64,7 @@ composer diff # Displays packages changed in current git tree compared with HEAD
  - `--no-dev` - ignore dev dependencies (`require-dev`)
  - `--no-prod` - ignore prod dependencies (`require`)
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
+ - `--format` (`-f`) - output format (mdtable, mdlist) - default: `mdtable`
  
 ## Advanced usage
 
@@ -71,6 +72,7 @@ composer diff # Displays packages changed in current git tree compared with HEAD
 composer diff -b master:composer.lock -t develop:composer.lock -p # Compare master and develop branches, including platform dependencies
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
+composer diff -f mdlist # Output as Markdown list instead of table
 ```
 
 

@@ -12,8 +12,8 @@ class PackageDiffTest extends TestCase
 {
     /**
      * @param string[] $expected
-     * @param bool $dev
-     * @param bool $withPlatform
+     * @param bool     $dev
+     * @param bool     $withPlatform
      *
      * @dataProvider operationsProvider
      */
@@ -45,8 +45,8 @@ class PackageDiffTest extends TestCase
 
     /**
      * @param string[] $expected
-     * @param bool $dev
-     * @param bool $withPlatform
+     * @param bool     $dev
+     * @param bool     $withPlatform
      *
      * @dataProvider operationsProvider
      */

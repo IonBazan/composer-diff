@@ -1,6 +1,6 @@
 <?php
 
-namespace IonBazan\ComposerDiff;
+namespace IonBazan\ComposerDiff\Formatter\Helper;
 
 use Symfony\Component\Console\Output\OutputInterface;
 

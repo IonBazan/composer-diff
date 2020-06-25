@@ -2,6 +2,8 @@
 
 namespace IonBazan\ComposerDiff\Tests;
 
+use Composer\Package\PackageInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -19,5 +21,20 @@ abstract class TestCase extends BaseTestCase
         } else {
             parent::setExpectedException($exception, $message, $code);
         }
+    }
+
+    /**
+     * @param string $name
+     * @param string $version
+     *
+     * @return MockObject&PackageInterface
+     */
+    protected function getPackage($name, $version)
+    {
+        $package = $this->getMockBuilder('Composer\Package\PackageInterface')->getMock();
+        $package->method('getName')->willReturn($name);
+        $package->method('getFullPrettyVersion')->willReturn($version);
+
+        return $package;
     }
 }

@@ -11,7 +11,6 @@ class DiffCommandTest extends TestCase
 {
     /**
      * @param string $expectedOutput
-     * @param array  $input
      *
      * @dataProvider commandArgumentsDataProvider
      */
@@ -67,7 +66,7 @@ OUTPUT
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '-p' => null,
-                )
+                ),
             ),
             'no-dev' => array(
                 <<<OUTPUT
@@ -86,7 +85,7 @@ OUTPUT
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-dev' => null,
-                )
+                ),
             ),
             'no-prod' => array(
                 <<<OUTPUT
@@ -120,7 +119,7 @@ OUTPUT
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-prod' => null,
-                )
+                ),
             ),
             'reversed, with platform' => array(
                 <<<OUTPUT
@@ -163,7 +162,7 @@ OUTPUT
                     '--base' => __DIR__.'/../fixtures/target/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                )
+                ),
             ),
             'no changes' => array(
                 '',
@@ -171,7 +170,7 @@ OUTPUT
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                )
+                ),
             ),
         );
     }
