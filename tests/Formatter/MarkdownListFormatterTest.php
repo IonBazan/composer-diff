@@ -14,8 +14,9 @@ Test
 ====
 
  - Install a/package-1 (1.0.0)
- - Update a/package-2 (1.0.0 => 1.2.0)
- - Remove a/package-3 (0.1.1)
+ - Upgrade a/package-2 (1.0.0 => 1.2.0)
+ - Downgrade a/package-3 (2.0.0 => 1.1.1)
+ - Uninstall a/package-4 (0.1.1)
 
 
 OUTPUT;

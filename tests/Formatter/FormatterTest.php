@@ -27,7 +27,8 @@ abstract class FormatterTest extends TestCase
         $formatter->render(array(
             new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
             new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
-            new UninstallOperation($this->getPackage('a/package-3', '0.1.1')),
+            new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
+            new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
         ), 'Test');
         $this->assertSame($this->getSampleOutput(), $this->getDisplay($output));
     }

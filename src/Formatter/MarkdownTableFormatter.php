@@ -9,7 +9,7 @@ use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Formatter\Helper\MarkdownTable;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MarkdownTableFormatter implements Formatter
+class MarkdownTableFormatter extends AbstractFormatter
 {
     /**
      * @var OutputInterface

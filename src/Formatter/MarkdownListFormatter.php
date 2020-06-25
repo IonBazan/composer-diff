@@ -8,7 +8,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MarkdownListFormatter implements Formatter
+class MarkdownListFormatter extends AbstractFormatter
 {
     /**
      * @var OutputInterface
@@ -55,7 +55,8 @@ class MarkdownListFormatter implements Formatter
 
         if ($operation instanceof UpdateOperation) {
             return sprintf(
-                ' - Update %s (%s => %s)',
+                ' - %s %s (%s => %s)',
+                self::isUpgrade($operation) ? 'Upgrade' : 'Downgrade',
                 $operation->getInitialPackage()->getName(),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion()
@@ -64,7 +65,7 @@ class MarkdownListFormatter implements Formatter
 
         if ($operation instanceof UninstallOperation) {
             return sprintf(
-                ' - Remove %s (%s)',
+                ' - Uninstall %s (%s)',
                 $operation->getPackage()->getName(),
                 $operation->getPackage()->getFullPrettyVersion()
             );

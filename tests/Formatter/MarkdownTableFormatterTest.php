@@ -14,7 +14,8 @@ class MarkdownTableFormatterTest extends FormatterTest
 |-------------|-------|---------|
 | a/package-1 | New   | 1.0.0   |
 | a/package-2 | 1.0.0 | 1.2.0   |
-| a/package-3 | 0.1.1 | Removed |
+| a/package-3 | 2.0.0 | 1.1.1   |
+| a/package-4 | 0.1.1 | Removed |
 
 
 OUTPUT;
