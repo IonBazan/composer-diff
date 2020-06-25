@@ -29,7 +29,7 @@ class MarkdownTable
 
     public function setHeaders(array $headers)
     {
-        $this->headers = array_values($headers);
+        $this->headers = $headers;
 
         return $this;
     }
@@ -39,7 +39,7 @@ class MarkdownTable
         $this->rows = array();
 
         foreach ($rows as $row) {
-            $this->rows[] = array_values($row);
+            $this->rows[] = $row;
         }
 
         return $this;

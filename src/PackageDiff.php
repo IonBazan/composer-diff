@@ -22,7 +22,7 @@ class PackageDiff
      *
      * @return OperationInterface[]
      */
-    public function getPackageDiff($from, $to, $dev = false, $withPlatform = true)
+    public function getPackageDiff($from, $to, $dev, $withPlatform)
     {
         $oldPackages = $this->loadPackages($from, $dev, $withPlatform);
         $targetPackages = $this->loadPackages($to, $dev, $withPlatform);
@@ -57,7 +57,7 @@ class PackageDiff
      *
      * @return ArrayRepository
      */
-    private function loadPackages($path, $dev, $withPlatform = true)
+    private function loadPackages($path, $dev, $withPlatform)
     {
         $data = \json_decode($this->getFileContents($path), true);
         $loader = new ArrayLoader();
@@ -91,7 +91,7 @@ class PackageDiff
         }
 
         if (filter_var($path, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) || file_exists($path)) {
-            return (string) file_get_contents($path);
+            return file_get_contents($path);
         }
 
         if (false === strpos($originalPath, ':')) {
@@ -99,7 +99,7 @@ class PackageDiff
         }
 
         $output = array();
-        @exec('git show '.escapeshellarg($path), $output, $exit);
+        @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
 
         if (0 !== $exit) {
             throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s', $originalPath, $path));

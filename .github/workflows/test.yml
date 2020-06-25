@@ -49,3 +49,11 @@ jobs:
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+      - name: Run mutation tests
+        if: ${{ matrix.php-versions == 7.4 && matrix.operating-system == 'ubuntu-latest' }}
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+        run: |
+          composer req infection/infection
+          vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4
+

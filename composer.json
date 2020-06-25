@@ -34,9 +34,6 @@
         "symfony/console": "To use the binary without composer runtime"
     },
     "config": {
-        "platform": {
-            "php": "5.3.9"
-        },
         "platform-check": false
     },
     "extra": {

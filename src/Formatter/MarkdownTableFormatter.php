@@ -41,7 +41,7 @@ class MarkdownTableFormatter implements Formatter
         $this->output->writeln('');
     }
 
-    protected function getTableRow(OperationInterface $operation)
+    private function getTableRow(OperationInterface $operation)
     {
         if ($operation instanceof InstallOperation) {
             return array(

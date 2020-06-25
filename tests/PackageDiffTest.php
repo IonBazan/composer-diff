@@ -64,7 +64,7 @@ class PackageDiffTest extends TestCase
         $diff = new PackageDiff();
         $this->prepareGit();
         $this->setExpectedException('RuntimeException');
-        $diff->getPackageDiff('invalid-ref', '');
+        $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
     public function operationsProvider()

@@ -43,7 +43,7 @@ class MarkdownListFormatter implements Formatter
     /**
      * @return string
      */
-    protected function getRow(OperationInterface $operation)
+    private function getRow(OperationInterface $operation)
     {
         if ($operation instanceof InstallOperation) {
             return sprintf(
