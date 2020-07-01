@@ -11,14 +11,20 @@ class MarkdownTable
      */
     protected $output;
 
+    /**
+     * @var string[]
+     */
     protected $headers = array();
 
+    /**
+     * @var string[][]
+     */
     protected $rows = array();
 
     /**
      * Column widths cache.
      *
-     * @var array
+     * @var int[]
      */
     private $columnWidths = array();
 
@@ -27,6 +33,11 @@ class MarkdownTable
         $this->output = $output;
     }
 
+    /**
+     * @param string[] $headers
+     *
+     * @return $this
+     */
     public function setHeaders(array $headers)
     {
         $this->headers = $headers;
@@ -34,6 +45,11 @@ class MarkdownTable
         return $this;
     }
 
+    /**
+     * @param string[][] $rows
+     *
+     * @return $this
+     */
     public function setRows(array $rows)
     {
         $this->rows = array();
@@ -45,6 +61,9 @@ class MarkdownTable
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function render()
     {
         $this->renderRow($this->headers);
@@ -55,11 +74,21 @@ class MarkdownTable
         }
     }
 
+    /**
+     * @param string[] $row
+     *
+     * @return void
+     */
     private function renderRow(array $row)
     {
         $this->output->writeln(sprintf('| %s |', implode(' | ', $this->prepareRow($row))));
     }
 
+    /**
+     * @param string[] $row
+     *
+     * @return string[]
+     */
     private function prepareRow(array $row)
     {
         $line = array();
@@ -71,6 +100,9 @@ class MarkdownTable
         return $line;
     }
 
+    /**
+     * @return void
+     */
     private function renderHorizontalLine()
     {
         $line = array();
@@ -82,16 +114,29 @@ class MarkdownTable
         $this->output->writeln(sprintf('|%s|', implode('|', $line)));
     }
 
+    /**
+     * @param string[] $row
+     * @param int      $column
+     *
+     * @return string
+     */
     private function prepareCell(array $row, $column)
     {
         return str_pad($row[$column], $this->getColumnWidth($column));
     }
 
+    /**
+     * @param int $column
+     *
+     * @return int
+     */
     private function getColumnWidth($column)
     {
         if (isset($this->columnWidths[$column])) {
             return $this->columnWidths[$column];
         }
+
+        $lengths = array();
 
         foreach (array_merge(array($this->headers), $this->rows) as $row) {
             $lengths[] = strlen($row[$column]);

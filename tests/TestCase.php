@@ -24,16 +24,37 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * @param string $name
-     * @param string $version
+     * @param string      $name
+     * @param string      $version
+     * @param string|null $fullVersion
      *
      * @return MockObject&PackageInterface
      */
-    protected function getPackage($name, $version)
+    protected function getPackage($name, $version, $fullVersion = null)
     {
         $package = $this->getMockBuilder('Composer\Package\PackageInterface')->getMock();
         $package->method('getName')->willReturn($name);
-        $package->method('getFullPrettyVersion')->willReturn($version);
+        $package->method('getVersion')->willReturn($version);
+        $package->method('getPrettyVersion')->willReturn($version);
+        $package->method('getFullPrettyVersion')->willReturn(null !== $fullVersion ? $fullVersion : $version);
+
+        return $package;
+    }
+
+    /**
+     * @param string      $name
+     * @param string      $version
+     * @param string      $sourceUrl
+     * @param string|null $sourceReference
+     *
+     * @return mixed
+     */
+    protected function getPackageWithSource($name, $version, $sourceUrl, $sourceReference = null)
+    {
+        $package = $this->getPackage($name, $version, $sourceReference);
+        $package->method('getSourceUrl')->willReturn($sourceUrl);
+        $package->method('getSourceReference')->willReturn($sourceReference);
+        $package->method('isDev')->willReturn(0 === strpos($version, 'dev-') || '-dev' === substr($version, -4));
 
         return $package;
     }

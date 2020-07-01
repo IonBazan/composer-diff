@@ -6,24 +6,13 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class MarkdownListFormatter extends AbstractFormatter
+class MarkdownListFormatter extends MarkdownFormatter
 {
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    public function __construct(OutputInterface $output)
-    {
-        $this->output = $output;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function render(array $operations, $title)
+    public function render(array $operations, $title, $withUrls)
     {
         if (!\count($operations)) {
             return;
@@ -34,40 +23,50 @@ class MarkdownListFormatter extends AbstractFormatter
         $this->output->writeln('');
 
         foreach ($operations as $operation) {
-            $this->output->writeln($this->getRow($operation));
+            $this->output->writeln($this->getRow($operation, $withUrls));
         }
 
         $this->output->writeln('');
     }
 
     /**
+     * @param bool $withUrls
+     *
      * @return string
      */
-    private function getRow(OperationInterface $operation)
+    private function getRow(OperationInterface $operation, $withUrls)
     {
+        $url = $withUrls ? $this->formatUrl($this->getUrl($operation), 'Compare') : null;
+        $url = (null !== $url) ? ' '.$url : '';
+
         if ($operation instanceof InstallOperation) {
             return sprintf(
-                ' - Install %s (%s)',
+                ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s',
                 $operation->getPackage()->getName(),
-                $operation->getPackage()->getFullPrettyVersion()
+                $operation->getPackage()->getFullPrettyVersion(),
+                $url
             );
         }
 
         if ($operation instanceof UpdateOperation) {
+            $isUpgrade = self::isUpgrade($operation);
+
             return sprintf(
-                ' - %s %s (%s => %s)',
-                self::isUpgrade($operation) ? 'Upgrade' : 'Downgrade',
+                ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s',
+                $isUpgrade ? 'Upgrade' : 'Downgrade',
                 $operation->getInitialPackage()->getName(),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
-                $operation->getTargetPackage()->getFullPrettyVersion()
+                $operation->getTargetPackage()->getFullPrettyVersion(),
+                $url
             );
         }
 
         if ($operation instanceof UninstallOperation) {
             return sprintf(
-                ' - Uninstall %s (%s)',
+                ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s',
                 $operation->getPackage()->getName(),
-                $operation->getPackage()->getFullPrettyVersion()
+                $operation->getPackage()->getFullPrettyVersion(),
+                $url
             );
         }
 

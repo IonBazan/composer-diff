@@ -11,6 +11,9 @@ class PluginTest extends TestCase
     public function testPlugin()
     {
         $composer = $this->getMockBuilder('Composer\Composer')->getMock();
+        $config = $this->getMockBuilder('Composer\Config')->disableOriginalConstructor()->getMock();
+        $config->method('get')->with('gitlab-domains')->willReturn(array());
+        $composer->method('getConfig')->willReturn($config);
         $io = $this->getMockBuilder('Composer\IO\IOInterface')->getMock();
 
         $plugin = new Plugin();

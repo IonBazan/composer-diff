@@ -19,14 +19,17 @@ class DiffCommandTest extends TestCase
     public function testItGeneratesReportInGivenFormat($expectedOutput, array $options)
     {
         $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
-        $tester = new CommandTester(new DiffCommand($diff));
+        $tester = new CommandTester(new DiffCommand($diff, array('gitlab2.org')));
         $diff->expects($this->once())
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), false, false)
             ->willReturn(array(
-                new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
-                new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
-                new UninstallOperation($this->getPackage('a/package-3', '0.1.1')),
+                new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
+                new UninstallOperation($this->getPackageWithSource('a/package-3', '0.1.1', 'github.com')),
+                new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org')),
+                new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
+                new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
             ))
         ;
         $result = $tester->execute($options);
@@ -44,12 +47,54 @@ class DiffCommandTest extends TestCase
 | a/package-1   | New   | 1.0.0   |
 | a/package-2   | 1.0.0 | 1.2.0   |
 | a/package-3   | 0.1.1 | Removed |
+| a/package-4   | 0.1.1 | Removed |
+| a/package-5   | 0.1.1 | Removed |
+| a/package-6   | 0.1.1 | Removed |
 
 
 OUTPUT
                 ,
                 array(
                     '--no-dev' => null,
+                ),
+            ),
+            'Markdown with URLs' => array(
+                <<<OUTPUT
+| Prod Packages | Base  | Target  | Link                                       |
+|---------------|-------|---------|--------------------------------------------|
+| a/package-1   | New   | 1.0.0   | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | 1.0.0 | 1.2.0   | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | 0.1.1 | Removed | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | 0.1.1 | Removed | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | 0.1.1 | Removed | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | 0.1.1 | Removed |                                            |
+
+
+OUTPUT
+            ,
+                array(
+                    '--no-dev' => null,
+                    '-l' => null,
+                ),
+            ),
+            'Markdown with URLs and custom gitlab domains' => array(
+                <<<OUTPUT
+| Prod Packages | Base  | Target  | Link                                       |
+|---------------|-------|---------|--------------------------------------------|
+| a/package-1   | New   | 1.0.0   | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | 1.0.0 | 1.2.0   | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | 0.1.1 | Removed | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | 0.1.1 | Removed | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | 0.1.1 | Removed | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | 0.1.1 | Removed | [Compare](gitlab3.org/tags/0.1.1)          |
+
+
+OUTPUT
+            ,
+                array(
+                    '--no-dev' => null,
+                    '-l' => null,
+                    '--gitlab-domains' => array('gitlab3.org'),
                 ),
             ),
             'Markdown list' => array(
@@ -60,6 +105,9 @@ Prod Packages
  - Install a/package-1 (1.0.0)
  - Upgrade a/package-2 (1.0.0 => 1.2.0)
  - Uninstall a/package-3 (0.1.1)
+ - Uninstall a/package-4 (0.1.1)
+ - Uninstall a/package-5 (0.1.1)
+ - Uninstall a/package-6 (0.1.1)
 
 
 OUTPUT

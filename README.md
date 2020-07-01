@@ -65,7 +65,9 @@ composer diff # Displays packages changed in current git tree compared with HEAD
  - `--no-dev` - ignore dev dependencies (`require-dev`)
  - `--no-prod` - ignore prod dependencies (`require`)
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
+ - `--with-links` (`-l`) - include compare/release URLs
  - `--format` (`-f`) - output format (mdtable, mdlist) - default: `mdtable`
+ - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
  
 ## Advanced usage
 

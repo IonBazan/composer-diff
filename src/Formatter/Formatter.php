@@ -9,8 +9,14 @@ interface Formatter
     /**
      * @param OperationInterface[] $operations
      * @param string               $title
+     * @param bool                 $withUrls
      *
      * @return void
      */
-    public function render(array $operations, $title);
+    public function render(array $operations, $title, $withUrls);
+
+    /**
+     * @return string|null
+     */
+    public function getUrl(OperationInterface $operation);
 }

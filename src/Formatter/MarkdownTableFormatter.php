@@ -7,24 +7,13 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Formatter\Helper\MarkdownTable;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class MarkdownTableFormatter extends AbstractFormatter
+class MarkdownTableFormatter extends MarkdownFormatter
 {
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    public function __construct(OutputInterface $output)
-    {
-        $this->output = $output;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function render(array $operations, $title)
+    public function render(array $operations, $title, $withUrls)
     {
         if (!\count($operations)) {
             return;
@@ -33,14 +22,29 @@ class MarkdownTableFormatter extends AbstractFormatter
         $rows = array();
 
         foreach ($operations as $operation) {
-            $rows[] = $this->getTableRow($operation);
+            $row = $this->getTableRow($operation);
+
+            if ($withUrls) {
+                $row[] = $this->formatUrl($this->getUrl($operation), 'Compare');
+            }
+
+            $rows[] = $row;
         }
 
         $table = new MarkdownTable($this->output);
-        $table->setHeaders(array($title, 'Base', 'Target'))->setRows($rows)->render();
+        $headers = array($title, 'Base', 'Target');
+
+        if ($withUrls) {
+            $headers[] = 'Link';
+        }
+
+        $table->setHeaders($headers)->setRows($rows)->render();
         $this->output->writeln('');
     }
 
+    /**
+     * @return string[]
+     */
     private function getTableRow(OperationInterface $operation)
     {
         if ($operation instanceof InstallOperation) {

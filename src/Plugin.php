@@ -16,14 +16,20 @@ class Plugin implements PluginInterface, Capable, CommandProvider
      */
     protected $composer;
 
+    /**
+     * @return void
+     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCommands()
     {
-        return array(new DiffCommand(new PackageDiff()));
+        return array(new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains')));
     }
 
     public function getCapabilities()
@@ -33,10 +39,16 @@ class Plugin implements PluginInterface, Capable, CommandProvider
         );
     }
 
+    /**
+     * @return void
+     */
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
 
+    /**
+     * @return void
+     */
     public function uninstall(Composer $composer, IOInterface $io)
     {
     }
