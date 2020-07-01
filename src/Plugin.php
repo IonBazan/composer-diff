@@ -4,12 +4,10 @@ namespace IonBazan\ComposerDiff;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
-use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
-use IonBazan\ComposerDiff\Command\DiffCommand;
 
-class Plugin implements PluginInterface, Capable, CommandProvider
+class Plugin implements PluginInterface, Capable
 {
     /**
      * @var Composer
@@ -24,18 +22,10 @@ class Plugin implements PluginInterface, Capable, CommandProvider
         $this->composer = $composer;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCommands()
-    {
-        return array(new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains')));
-    }
-
     public function getCapabilities()
     {
         return array(
-            'Composer\Plugin\Capability\CommandProvider' => 'IonBazan\ComposerDiff\Plugin',
+            'Composer\Plugin\Capability\CommandProvider' => 'IonBazan\ComposerDiff\Command\CommandProvider',
         );
     }
 
