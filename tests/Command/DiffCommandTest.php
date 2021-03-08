@@ -42,14 +42,14 @@ class DiffCommandTest extends TestCase
         return array(
             'Markdown table' => array(
                 <<<OUTPUT
-| Prod Packages | Action   | Base  | Target |
-|---------------|----------|-------|--------|
-| a/package-1   | New      | -     | 1.0.0  |
-| a/package-2   | Upgraded | 1.0.0 | 1.2.0  |
-| a/package-3   | Removed  | 0.1.1 | -      |
-| a/package-4   | Removed  | 0.1.1 | -      |
-| a/package-5   | Removed  | 0.1.1 | -      |
-| a/package-6   | Removed  | 0.1.1 | -      |
+| Prod Packages | Operation | Base  | Target |
+|---------------|-----------|-------|--------|
+| a/package-1   | New       | -     | 1.0.0  |
+| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  |
+| a/package-3   | Removed   | 0.1.1 | -      |
+| a/package-4   | Removed   | 0.1.1 | -      |
+| a/package-5   | Removed   | 0.1.1 | -      |
+| a/package-6   | Removed   | 0.1.1 | -      |
 
 
 OUTPUT
@@ -61,14 +61,14 @@ OUTPUT
             ),
             'Markdown with URLs' => array(
                 <<<OUTPUT
-| Prod Packages | Action   | Base  | Target | Link                                       |
-|---------------|----------|-------|--------|--------------------------------------------|
-| a/package-1   | New      | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | Upgraded | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | Removed  | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | Removed  | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | Removed  | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | Removed  | 0.1.1 | -      |                                            |
+| Prod Packages | Operation | Base  | Target | Link                                       |
+|---------------|-----------|-------|--------|--------------------------------------------|
+| a/package-1   | New       | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed   | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed   | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed   | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed   | 0.1.1 | -      |                                            |
 
 
 OUTPUT
@@ -81,14 +81,14 @@ OUTPUT
             ),
             'Markdown with URLs and custom gitlab domains' => array(
                 <<<OUTPUT
-| Prod Packages | Action   | Base  | Target | Link                                       |
-|---------------|----------|-------|--------|--------------------------------------------|
-| a/package-1   | New      | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | Upgraded | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | Removed  | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | Removed  | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | Removed  | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | Removed  | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)          |
+| Prod Packages | Operation | Base  | Target | Link                                       |
+|---------------|-----------|-------|--------|--------------------------------------------|
+| a/package-1   | New       | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed   | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed   | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed   | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed   | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)          |
 
 
 OUTPUT
@@ -117,6 +117,57 @@ OUTPUT
                 array(
                     '--no-dev' => null,
                     '-f' => 'mdlist',
+                ),
+            ),
+            'JSON' => array(
+                json_encode(
+                    array(
+                    'packages' => array(
+                            'a/package-1' => array(
+                                    'name' => 'a/package-1',
+                                    'operation' => 'install',
+                                    'version_base' => null,
+                                    'version_target' => '1.0.0',
+                                ),
+                            'a/package-2' => array(
+                                    'name' => 'a/package-2',
+                                    'operation' => 'upgrade',
+                                    'version_base' => '1.0.0',
+                                    'version_target' => '1.2.0',
+                                ),
+                            'a/package-3' => array(
+                                    'name' => 'a/package-3',
+                                    'operation' => 'remove',
+                                    'version_base' => '0.1.1',
+                                    'version_target' => null,
+                                ),
+                            'a/package-4' => array(
+                                    'name' => 'a/package-4',
+                                    'operation' => 'remove',
+                                    'version_base' => '0.1.1',
+                                    'version_target' => null,
+                                ),
+                            'a/package-5' => array(
+                                    'name' => 'a/package-5',
+                                    'operation' => 'remove',
+                                    'version_base' => '0.1.1',
+                                    'version_target' => null,
+                                ),
+                            'a/package-6' => array(
+                                    'name' => 'a/package-6',
+                                    'operation' => 'remove',
+                                    'version_base' => '0.1.1',
+                                    'version_target' => null,
+                                ),
+                        ),
+                    'packages-dev' => array(
+                        ),
+                ),
+                128
+                ).PHP_EOL,
+                array(
+                    '--no-dev' => null,
+                    '-f' => 'json',
                 ),
             ),
         );

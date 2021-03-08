@@ -12,7 +12,16 @@ class MarkdownListFormatter extends MarkdownFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(array $operations, $title, $withUrls)
+    public function render(array $prodOperations, array $devOperations, $withUrls)
+    {
+        $this->renderSingle($prodOperations, 'Prod Packages', $withUrls);
+        $this->renderSingle($devOperations, 'Dev Packages', $withUrls);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renderSingle(array $operations, $title, $withUrls)
     {
         if (!\count($operations)) {
             return;

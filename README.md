@@ -14,16 +14,16 @@ Generates packages changes report in Markdown format by comparing `composer.lock
 
 ## Example output
 
-| Prod Packages                      | Action   | Base    | Target  |
-|------------------------------------|----------|---------|---------|
-| psr/event-dispatcher               | New      | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New      | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New      | -       | v2.1.2  |
-| symfony/polyfill-php80             | New      | -       | v1.17.1 |
-| php                                | New      | -       | >=5.3   |
+| Prod Packages                      | Operation | Base    | Target  |
+|------------------------------------|-----------|---------|---------|
+| psr/event-dispatcher               | New       | -       | 1.0.0   |
+| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
+| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
+| symfony/polyfill-php80             | New       | -       | v1.17.1 |
+| php                                | New       | -       | >=5.3   |
 
-| Dev Packages                       | Action     | Base  | Target |
+| Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
 | phpunit/php-code-coverage          | Downgraded | 8.0.2 | 7.0.10 |
 | phpunit/php-file-iterator          | Downgraded | 3.0.2 | 2.0.2  |
@@ -66,7 +66,7 @@ composer diff # Displays packages changed in current git tree compared with HEAD
  - `--no-prod` - ignore prod dependencies (`require`)
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
  - `--with-links` (`-l`) - include compare/release URLs
- - `--format` (`-f`) - output format (mdtable, mdlist) - default: `mdtable`
+ - `--format` (`-f`) - output format (mdtable, mdlist, json) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
  
 ## Advanced usage
@@ -75,7 +75,24 @@ composer diff # Displays packages changed in current git tree compared with HEAD
 composer diff -b master:composer.lock -t develop:composer.lock -p # Compare master and develop branches, including platform dependencies
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
-composer diff -f mdlist # Output as Markdown list instead of table
+composer diff -f json # Output as JSON instead of table
 ```
 
+# Similar packages
+
+While there are several existing packages offering similar functionality:
+
+ - [jbzoo/composer-diff](https://packagist.org/packages/jbzoo/composer-diff) - requires PHP 7.2+, no composer plugin support
+ - [josefglatz/composer-diff-plugin](https://packagist.org/packages/josefglatz/composer-diff-plugin) - works only right after install/update
+ - [davidrjonas/composer-lock-diff](https://packagist.org/packages/davidrjonas/composer-lock-diff) - does not work as composer plugin
+
+This package offers:
+
+ - Support for wide range of PHP versions, starting from 5.3.2 up to 8.0 and newer.
+ - No dependencies if you run it as composer plugin.
+ - Both standalone executable and composer plugin interface - you choose how you want to use it.
+ - Allows generating reports in several formats.
+ - Extra Gitlab domains support.
+ - 100% test coverage.
+ - MIT license.
 

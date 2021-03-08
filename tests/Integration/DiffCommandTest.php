@@ -27,16 +27,16 @@ class DiffCommandTest extends TestCase
         return array(
             'with platform' => array(
                 <<<OUTPUT
-| Prod Packages                      | Action   | Base    | Target  |
-|------------------------------------|----------|---------|---------|
-| psr/event-dispatcher               | New      | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New      | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New      | -       | v2.1.2  |
-| symfony/polyfill-php80             | New      | -       | v1.17.1 |
-| php                                | New      | -       | >=5.3   |
+| Prod Packages                      | Operation | Base    | Target  |
+|------------------------------------|-----------|---------|---------|
+| psr/event-dispatcher               | New       | -       | 1.0.0   |
+| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
+| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
+| symfony/polyfill-php80             | New       | -       | v1.17.1 |
+| php                                | New       | -       | >=5.3   |
 
-| Dev Packages                       | Action     | Base  | Target |
+| Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
 | phpunit/php-code-coverage          | Downgraded | 8.0.2 | 7.0.10 |
 | phpunit/php-file-iterator          | Downgraded | 3.0.2 | 2.0.2  |
@@ -70,13 +70,13 @@ OUTPUT
             ),
             'no-dev' => array(
                 <<<OUTPUT
-| Prod Packages                      | Action   | Base    | Target  |
-|------------------------------------|----------|---------|---------|
-| psr/event-dispatcher               | New      | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New      | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New      | -       | v2.1.2  |
-| symfony/polyfill-php80             | New      | -       | v1.17.1 |
+| Prod Packages                      | Operation | Base    | Target  |
+|------------------------------------|-----------|---------|---------|
+| psr/event-dispatcher               | New       | -       | 1.0.0   |
+| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
+| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
+| symfony/polyfill-php80             | New       | -       | v1.17.1 |
 
 
 OUTPUT
@@ -89,7 +89,7 @@ OUTPUT
             ),
             'no-prod' => array(
                 <<<OUTPUT
-| Dev Packages                       | Action     | Base  | Target |
+| Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
 | phpunit/php-code-coverage          | Downgraded | 8.0.2 | 7.0.10 |
 | phpunit/php-file-iterator          | Downgraded | 3.0.2 | 2.0.2  |
@@ -123,7 +123,7 @@ OUTPUT
             ),
             'reversed, with platform' => array(
                 <<<OUTPUT
-| Prod Packages                      | Action     | Base    | Target  |
+| Prod Packages                      | Operation  | Base    | Target  |
 |------------------------------------|------------|---------|---------|
 | symfony/event-dispatcher           | Downgraded | v5.1.2  | v2.8.52 |
 | psr/event-dispatcher               | Removed    | 1.0.0   | -       |
@@ -132,28 +132,28 @@ OUTPUT
 | symfony/polyfill-php80             | Removed    | v1.17.1 | -       |
 | php                                | Removed    | >=5.3   | -       |
 
-| Dev Packages                       | Action   | Base   | Target |
-|------------------------------------|----------|--------|--------|
-| phpunit/php-code-coverage          | Upgraded | 7.0.10 | 8.0.2  |
-| phpunit/php-file-iterator          | Upgraded | 2.0.2  | 3.0.2  |
-| phpunit/php-invoker                | New      | -      | 3.0.1  |
-| phpunit/php-text-template          | Upgraded | 1.2.1  | 2.0.1  |
-| phpunit/php-timer                  | Upgraded | 2.1.2  | 5.0.0  |
-| phpunit/php-token-stream           | Upgraded | 3.1.1  | 4.0.2  |
-| phpunit/phpunit                    | Upgraded | 8.5.8  | 9.2.5  |
-| sebastian/code-unit                | New      | -      | 1.0.3  |
-| sebastian/code-unit-reverse-lookup | Upgraded | 1.0.1  | 2.0.1  |
-| sebastian/comparator               | Upgraded | 3.0.2  | 4.0.2  |
-| sebastian/diff                     | Upgraded | 3.0.2  | 4.0.1  |
-| sebastian/environment              | Upgraded | 4.2.3  | 5.1.1  |
-| sebastian/exporter                 | Upgraded | 3.1.2  | 4.0.1  |
-| sebastian/global-state             | Upgraded | 3.0.0  | 4.0.0  |
-| sebastian/object-enumerator        | Upgraded | 3.0.3  | 4.0.1  |
-| sebastian/object-reflector         | Upgraded | 1.1.1  | 2.0.1  |
-| sebastian/recursion-context        | Upgraded | 3.0.0  | 4.0.1  |
-| sebastian/resource-operations      | Upgraded | 2.0.1  | 3.0.1  |
-| sebastian/type                     | Upgraded | 1.1.3  | 2.1.0  |
-| sebastian/version                  | Upgraded | 2.0.1  | 3.0.0  |
+| Dev Packages                       | Operation | Base   | Target |
+|------------------------------------|-----------|--------|--------|
+| phpunit/php-code-coverage          | Upgraded  | 7.0.10 | 8.0.2  |
+| phpunit/php-file-iterator          | Upgraded  | 2.0.2  | 3.0.2  |
+| phpunit/php-invoker                | New       | -      | 3.0.1  |
+| phpunit/php-text-template          | Upgraded  | 1.2.1  | 2.0.1  |
+| phpunit/php-timer                  | Upgraded  | 2.1.2  | 5.0.0  |
+| phpunit/php-token-stream           | Upgraded  | 3.1.1  | 4.0.2  |
+| phpunit/phpunit                    | Upgraded  | 8.5.8  | 9.2.5  |
+| sebastian/code-unit                | New       | -      | 1.0.3  |
+| sebastian/code-unit-reverse-lookup | Upgraded  | 1.0.1  | 2.0.1  |
+| sebastian/comparator               | Upgraded  | 3.0.2  | 4.0.2  |
+| sebastian/diff                     | Upgraded  | 3.0.2  | 4.0.1  |
+| sebastian/environment              | Upgraded  | 4.2.3  | 5.1.1  |
+| sebastian/exporter                 | Upgraded  | 3.1.2  | 4.0.1  |
+| sebastian/global-state             | Upgraded  | 3.0.0  | 4.0.0  |
+| sebastian/object-enumerator        | Upgraded  | 3.0.3  | 4.0.1  |
+| sebastian/object-reflector         | Upgraded  | 1.1.1  | 2.0.1  |
+| sebastian/recursion-context        | Upgraded  | 3.0.0  | 4.0.1  |
+| sebastian/resource-operations      | Upgraded  | 2.0.1  | 3.0.1  |
+| sebastian/type                     | Upgraded  | 1.1.3  | 2.1.0  |
+| sebastian/version                  | Upgraded  | 2.0.1  | 3.0.0  |
 
 
 OUTPUT

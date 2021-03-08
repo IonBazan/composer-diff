@@ -4,6 +4,7 @@ namespace IonBazan\ComposerDiff\Command;
 
 use Composer\Command\BaseCommand;
 use IonBazan\ComposerDiff\Formatter\Formatter;
+use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
 use IonBazan\ComposerDiff\PackageDiff;
@@ -48,7 +49,7 @@ class DiffCommand extends BaseCommand
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist)', 'mdtable')
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Gitlab domains', array())
         ;
     }
@@ -66,15 +67,18 @@ class DiffCommand extends BaseCommand
 
         $formatter = $this->getFormatter($input, $output);
 
+        $prodOperations = array();
+        $devOperations = array();
+
         if (!$input->getOption('no-prod')) {
-            $operations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
-            $formatter->render($operations, 'Prod Packages', $withUrls);
+            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
         }
 
         if (!$input->getOption('no-dev')) {
-            $operations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform);
-            $formatter->render($operations, 'Dev Packages', $withUrls);
+            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform);
         }
+
+        $formatter->render($prodOperations, $devOperations, $withUrls);
 
         return 0;
     }
@@ -87,6 +91,8 @@ class DiffCommand extends BaseCommand
         $urlGenerators = new GeneratorContainer($this->gitlabDomains);
 
         switch ($input->getOption('format')) {
+            case 'json':
+                return new JsonFormatter($output, $urlGenerators);
             case 'mdlist':
                 return new MarkdownListFormatter($output, $urlGenerators);
             // case 'mdtable':

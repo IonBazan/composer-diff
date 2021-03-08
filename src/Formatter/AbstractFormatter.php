@@ -75,14 +75,6 @@ abstract class AbstractFormatter implements Formatter
     }
 
     /**
-     * @param string $url
-     * @param string $title
-     *
-     * @return string
-     */
-    abstract protected function formatUrl($url, $title);
-
-    /**
      * @return bool
      */
     protected static function isUpgrade(UpdateOperation $operation)

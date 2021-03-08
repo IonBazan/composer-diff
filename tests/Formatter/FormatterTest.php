@@ -19,8 +19,8 @@ abstract class FormatterTest extends TestCase
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->render(array(), 'Test', true);
-        $this->assertEmpty($this->getDisplay($output));
+        $formatter->render(array(), array(), true);
+        $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
     public function testGetUrlReturnsNullForInvalidOperation()
@@ -41,17 +41,19 @@ abstract class FormatterTest extends TestCase
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $packages = array(
+        $prodPackages = array(
             new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
             new InstallOperation($this->getPackage('a/no-link-1', '1.0.0')),
             new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
             new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
             new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
+        );
+        $devPackages = array(
             new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
             new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
             new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
         );
-        $formatter->render($packages, 'Test', $withUrls);
+        $formatter->render($prodPackages, $devPackages, $withUrls);
         $this->assertSame($this->getSampleOutput($withUrls), $this->getDisplay($output));
     }
 
@@ -61,7 +63,7 @@ abstract class FormatterTest extends TestCase
         $this->setExpectedException('InvalidArgumentException', 'Invalid operation');
         $this->getFormatter($output, $this->getGenerators())->render(array(
             $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock(),
-        ), 'Test', false);
+        ), array(), false);
     }
 
     /**
@@ -77,6 +79,14 @@ abstract class FormatterTest extends TestCase
     abstract protected function getSampleOutput($withUrls);
 
     /**
+     * @return string
+     */
+    protected static function getEmptyOutput()
+    {
+        return '';
+    }
+
+    /**
      * @return false|string
      */
     protected function getDisplay(OutputInterface $output)
@@ -89,7 +99,7 @@ abstract class FormatterTest extends TestCase
     /**
      * @return MockObject&GeneratorContainer
      */
-    private function getGenerators()
+    protected function getGenerators()
     {
         $generator = $this->getMockBuilder('IonBazan\ComposerDiff\Url\UrlGenerator')->getMock();
         $generator->method('getCompareUrl')->willReturnCallback(function (PackageInterface $base, PackageInterface $target) {
