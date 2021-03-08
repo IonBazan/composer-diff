@@ -6,7 +6,7 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use IonBazan\ComposerDiff\Formatter\Helper\MarkdownTable;
+use IonBazan\ComposerDiff\Formatter\Helper\Table;
 
 class MarkdownTableFormatter extends MarkdownFormatter
 {
@@ -31,8 +31,8 @@ class MarkdownTableFormatter extends MarkdownFormatter
             $rows[] = $row;
         }
 
-        $table = new MarkdownTable($this->output);
-        $headers = array($title, 'Base', 'Target');
+        $table = new Table($this->output);
+        $headers = array($title, 'Action', 'Base', 'Target');
 
         if ($withUrls) {
             $headers[] = 'Link';
@@ -50,7 +50,8 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof InstallOperation) {
             return array(
                 $operation->getPackage()->getName(),
-                'New',
+                '<fg=green>New</>',
+                '-',
                 $operation->getPackage()->getFullPrettyVersion(),
             );
         }
@@ -58,6 +59,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 $operation->getInitialPackage()->getName(),
+                self::isUpgrade($operation) ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>',
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
             );
@@ -66,8 +68,9 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UninstallOperation) {
             return array(
                 $operation->getPackage()->getName(),
+                '<fg=red>Removed</>',
                 $operation->getPackage()->getFullPrettyVersion(),
-                'Removed',
+                '-',
             );
         }
 

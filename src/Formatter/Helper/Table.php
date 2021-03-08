@@ -4,7 +4,7 @@ namespace IonBazan\ComposerDiff\Formatter\Helper;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MarkdownTable
+class Table
 {
     /**
      * @var OutputInterface
@@ -122,7 +122,9 @@ class MarkdownTable
      */
     private function prepareCell(array $row, $column)
     {
-        return str_pad($row[$column], $this->getColumnWidth($column));
+        $cleanLength = OutputHelper::strlenWithoutDecoration($this->output->getFormatter(), $row[$column]);
+
+        return sprintf('%s%s', $row[$column], str_repeat(' ', $this->getColumnWidth($column) - $cleanLength));
     }
 
     /**
@@ -139,7 +141,7 @@ class MarkdownTable
         $lengths = array();
 
         foreach (array_merge(array($this->headers), $this->rows) as $row) {
-            $lengths[] = strlen($row[$column]);
+            $lengths[] = OutputHelper::strlenWithoutDecoration($this->output->getFormatter(), $row[$column]);
         }
 
         return $this->columnWidths[$column] = max($lengths);

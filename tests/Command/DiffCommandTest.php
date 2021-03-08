@@ -42,32 +42,33 @@ class DiffCommandTest extends TestCase
         return array(
             'Markdown table' => array(
                 <<<OUTPUT
-| Prod Packages | Base  | Target  |
-|---------------|-------|---------|
-| a/package-1   | New   | 1.0.0   |
-| a/package-2   | 1.0.0 | 1.2.0   |
-| a/package-3   | 0.1.1 | Removed |
-| a/package-4   | 0.1.1 | Removed |
-| a/package-5   | 0.1.1 | Removed |
-| a/package-6   | 0.1.1 | Removed |
+| Prod Packages | Action   | Base  | Target |
+|---------------|----------|-------|--------|
+| a/package-1   | New      | -     | 1.0.0  |
+| a/package-2   | Upgraded | 1.0.0 | 1.2.0  |
+| a/package-3   | Removed  | 0.1.1 | -      |
+| a/package-4   | Removed  | 0.1.1 | -      |
+| a/package-5   | Removed  | 0.1.1 | -      |
+| a/package-6   | Removed  | 0.1.1 | -      |
 
 
 OUTPUT
                 ,
                 array(
                     '--no-dev' => null,
+                    '-f' => 'mdtable',
                 ),
             ),
             'Markdown with URLs' => array(
                 <<<OUTPUT
-| Prod Packages | Base  | Target  | Link                                       |
-|---------------|-------|---------|--------------------------------------------|
-| a/package-1   | New   | 1.0.0   | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | 1.0.0 | 1.2.0   | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | 0.1.1 | Removed | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | 0.1.1 | Removed | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | 0.1.1 | Removed | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | 0.1.1 | Removed |                                            |
+| Prod Packages | Action   | Base  | Target | Link                                       |
+|---------------|----------|-------|--------|--------------------------------------------|
+| a/package-1   | New      | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed  | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed  | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed  | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed  | 0.1.1 | -      |                                            |
 
 
 OUTPUT
@@ -75,18 +76,19 @@ OUTPUT
                 array(
                     '--no-dev' => null,
                     '-l' => null,
+                    '-f' => 'anything',
                 ),
             ),
             'Markdown with URLs and custom gitlab domains' => array(
                 <<<OUTPUT
-| Prod Packages | Base  | Target  | Link                                       |
-|---------------|-------|---------|--------------------------------------------|
-| a/package-1   | New   | 1.0.0   | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | 1.0.0 | 1.2.0   | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | 0.1.1 | Removed | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | 0.1.1 | Removed | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | 0.1.1 | Removed | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | 0.1.1 | Removed | [Compare](gitlab3.org/tags/0.1.1)          |
+| Prod Packages | Action   | Base  | Target | Link                                       |
+|---------------|----------|-------|--------|--------------------------------------------|
+| a/package-1   | New      | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed  | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed  | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed  | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed  | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)          |
 
 
 OUTPUT

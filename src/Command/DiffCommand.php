@@ -89,7 +89,7 @@ class DiffCommand extends BaseCommand
         switch ($input->getOption('format')) {
             case 'mdlist':
                 return new MarkdownListFormatter($output, $urlGenerators);
-            case 'mdtable':
+            // case 'mdtable':
             default:
                 return new MarkdownTableFormatter($output, $urlGenerators);
         }
