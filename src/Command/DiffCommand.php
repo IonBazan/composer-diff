@@ -9,6 +9,7 @@ use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,6 +44,8 @@ class DiffCommand extends BaseCommand
     {
         $this->setName('diff')
             ->setDescription('Displays package diff')
+            ->addArgument('base', InputArgument::OPTIONAL, 'Base composer.lock file path or git ref')
+            ->addArgument('target', InputArgument::OPTIONAL, 'Target composer.lock file path or git ref')
             ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base composer.lock file path or git ref', 'HEAD:composer.lock')
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target composer.lock file path or git ref', 'composer.lock')
             ->addOption('no-dev', null, InputOption::VALUE_NONE, 'Ignore dev dependencies')
@@ -59,8 +62,8 @@ class DiffCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $base = $input->getOption('base');
-        $target = $input->getOption('target');
+        $base = $input->getArgument('base') !== null ? $input->getArgument('base') : $input->getOption('base');
+        $target = $input->getArgument('target') !== null ? $input->getArgument('target') :$input->getOption('target');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));

@@ -87,6 +87,25 @@ OUTPUT
                     '--no-dev' => null,
                 ),
             ),
+            'no-dev with arguments' => array(
+                <<<OUTPUT
+| Prod Packages                      | Operation | Base    | Target  |
+|------------------------------------|-----------|---------|---------|
+| psr/event-dispatcher               | New       | -       | 1.0.0   |
+| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
+| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
+| symfony/polyfill-php80             | New       | -       | v1.17.1 |
+
+
+OUTPUT
+            ,
+                array(
+                    'base' => __DIR__.'/../fixtures/base/composer.lock',
+                    'target' => __DIR__.'/../fixtures/target/composer.lock',
+                    '--no-dev' => null,
+                ),
+            ),
             'no-prod' => array(
                 <<<OUTPUT
 | Dev Packages                       | Operation  | Base  | Target |

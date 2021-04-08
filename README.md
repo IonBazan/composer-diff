@@ -72,7 +72,8 @@ composer diff # Displays packages changed in current git tree compared with HEAD
 ## Advanced usage
 
 ```shell script
-composer diff -b master:composer.lock -t develop:composer.lock -p # Compare master and develop branches, including platform dependencies
+composer diff master # Compare current composer.lock with the one on master branch
+composer diff master:composer.lock develop:composer.lock -p # Compare master and develop branches, including platform dependencies
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table
