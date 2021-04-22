@@ -47,6 +47,7 @@ abstract class FormatterTest extends TestCase
             new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
             new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
             new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
+            new UpdateOperation($this->getPackage('php', '>=7.4.6'), $this->getPackage('php', '^8.0')),
         );
         $devPackages = array(
             new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
@@ -114,7 +115,7 @@ abstract class FormatterTest extends TestCase
             ->getMock();
         $generators->method('get')
             ->willReturnCallback(function (PackageInterface $package) use ($generator) {
-                if (false !== strpos($package->getName(), 'a/no-link')) {
+                if ('php' === $package->getName() || false !== strpos($package->getName(), 'a/no-link')) {
                     return null;
                 }
 
