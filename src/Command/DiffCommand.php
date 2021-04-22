@@ -62,8 +62,8 @@ class DiffCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $base = $input->getArgument('base') !== null ? $input->getArgument('base') : $input->getOption('base');
-        $target = $input->getArgument('target') !== null ? $input->getArgument('target') :$input->getOption('target');
+        $base = null !== $input->getArgument('base') ? $input->getArgument('base') : $input->getOption('base');
+        $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));

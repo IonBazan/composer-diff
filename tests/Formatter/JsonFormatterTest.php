@@ -121,6 +121,13 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.1.1',
                                 'compare' => null,
                             ),
+                        'php' => array(
+                            'name' => 'php',
+                            'operation' => 'upgrade',
+                            'version_base' => '>=7.4.6',
+                            'version_target' => '^8.0',
+                            'compare' => null,
+                        ),
                     ),
                 'packages-dev' => array(
                         'a/package-5' => array(
@@ -179,6 +186,12 @@ class JsonFormatterTest extends FormatterTest
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
+                ),
+                'php' => array(
+                    'name' => 'php',
+                    'operation' => 'upgrade',
+                    'version_base' => '>=7.4.6',
+                    'version_target' => '^8.0',
                 ),
             ),
             'packages-dev' => array(
