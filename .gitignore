@@ -1,7 +1,7 @@
 /vendor
 /composer.lock
-/.php_cs.cache
-/.php_cs
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
 /tests/fixtures/**/vendor/
 /tests/test-git/
 /coverage/

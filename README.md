@@ -25,7 +25,7 @@ composer global require ion-bazan/composer-diff
 ```shell script
 composer diff # Displays packages changed in current git tree compared with HEAD
 composer diff --help # Display detailed usage instructions
-``` 
+```
 
 ## Example output
 
