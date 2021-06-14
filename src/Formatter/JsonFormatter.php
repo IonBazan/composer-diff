@@ -6,6 +6,7 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\PackageDiff;
 
 class JsonFormatter extends AbstractFormatter
 {
@@ -78,7 +79,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 'name' => $operation->getInitialPackage()->getName(),
-                'operation' => self::isUpgrade($operation) ? 'upgrade' : 'downgrade',
+                'operation' => PackageDiff::isUpgrade($operation) ? 'upgrade' : 'downgrade',
                 'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
                 'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
             );

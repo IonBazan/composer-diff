@@ -7,6 +7,7 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Formatter\Helper\Table;
+use IonBazan\ComposerDiff\PackageDiff;
 
 class MarkdownTableFormatter extends MarkdownFormatter
 {
@@ -68,7 +69,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 $operation->getInitialPackage()->getName(),
-                self::isUpgrade($operation) ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>',
+                PackageDiff::isUpgrade($operation) ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>',
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
             );

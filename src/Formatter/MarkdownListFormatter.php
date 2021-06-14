@@ -6,6 +6,7 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\PackageDiff;
 
 class MarkdownListFormatter extends MarkdownFormatter
 {
@@ -58,7 +59,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UpdateOperation) {
-            $isUpgrade = self::isUpgrade($operation);
+            $isUpgrade = PackageDiff::isUpgrade($operation);
 
             return sprintf(
                 ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s',

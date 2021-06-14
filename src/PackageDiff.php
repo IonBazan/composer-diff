@@ -9,6 +9,9 @@ use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Repository\ArrayRepository;
+use Composer\Semver\Semver;
+use Composer\Semver\VersionParser;
+use UnexpectedValueException;
 
 class PackageDiff
 {
@@ -48,6 +51,23 @@ class PackageDiff
         }
 
         return $operations;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isUpgrade(UpdateOperation $operation)
+    {
+        $versionParser = new VersionParser();
+        try {
+            $normalizedFrom = $versionParser->normalize($operation->getInitialPackage()->getVersion());
+            $normalizedTo = $versionParser->normalize($operation->getTargetPackage()->getVersion());
+        } catch (UnexpectedValueException $e) {
+            return true; // Consider as upgrade if versions are not parsable
+        }
+        $sorted = Semver::sort(array($normalizedTo, $normalizedFrom));
+
+        return $sorted[0] === $normalizedFrom;
     }
 
     /**

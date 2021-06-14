@@ -3,6 +3,8 @@
 namespace IonBazan\ComposerDiff\Command;
 
 use Composer\Command\BaseCommand;
+use Composer\DependencyResolver\Operation\OperationInterface;
+use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
@@ -16,6 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DiffCommand extends BaseCommand
 {
+    const CHANGES_PROD = 2;
+    const CHANGES_DEV = 4;
+    const DOWNGRADES_PROD = 8;
+    const DOWNGRADES_DEV = 16;
     /**
      * @var PackageDiff
      */
@@ -54,43 +60,61 @@ class DiffCommand extends BaseCommand
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
+            ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
-The <comment>%command.name%</comment> command displays all dependency changes between two <info>composer.lock</info> files.
-By default, it will compare current filesystem changes with git <info>HEAD</info>:
+The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
 
-    <comment>%command.full_name%</comment>
+By default, it will compare current filesystem changes with git <comment>HEAD</comment>:
+
+    <info>%command.full_name%</info>
 
 To compare with specific branch, pass its name as argument:
 
-    <comment>%command.full_name% master</comment>
+    <info>%command.full_name% master</info>
     
 You can specify any valid git refs to compare with:
 
-    <comment>%command.full_name% HEAD~3 be4aabc</comment>
+    <info>%command.full_name% HEAD~3 be4aabc</info>
     
 You can also use more verbose syntax for <info>base</info> and <info>target</info> options:
 
-    <comment>%command.full_name% --base master --target composer.lock</comment>
+    <info>%command.full_name% --base master --target composer.lock</info>
     
 To compare files in specific path, use following syntax:
 
-    <comment>%command.full_name% master:subdirectory/composer.lock /path/to/another/composer.lock</comment>
+    <info>%command.full_name% master:subdirectory/composer.lock /path/to/another/composer.lock</info>
     
-By default, <info>platform</info> dependencies are hidden. Add <comment>--with-platform</comment> option to include them in the report:
+By default, <info>platform</info> dependencies are hidden. Add <info>--with-platform</info> option to include them in the report:
  
-    <comment>%command.full_name% --with-platform</comment>
+    <info>%command.full_name% --with-platform</info>
 
-Use <comment>--with-links</comment> to include release and compare URLs in the report:
+Use <info>--with-links</info> to include release and compare URLs in the report:
 
-    <comment>%command.full_name% --with-links</comment>
+    <info>%command.full_name% --with-links</info>
     
-You can customize output format by specifying it with <comment>--format</comment> option. Choose between <info>mdtable</info>, <info>mdlist</info> and <info>json</info>:
+You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment> and <comment>json</comment>:
 
-    <comment>%command.full_name% --format=json</comment>
+    <info>%command.full_name% --format=json</info>
 
-Hide <info>dev</info> dependencies using <comment>--no-dev</comment> option:
+Hide <info>dev</info> dependencies using <info>--no-dev</info> option:
 
-    <comment>%command.full_name% --no-dev</comment>
+    <info>%command.full_name% --no-dev</info>
+
+Passing <info>--strict</info> option may help you to disallow changes or downgrades by returning non-zero exit code:
+
+    <info>%command.full_name% --strict</info>
+
+Exit code
+---------
+
+Exit code of the command is built using following bit flags:
+
+*  0 - OK.
+*  1 - General error.
+*  2 - There were changes in prod packages.
+*  4 - There were changes is dev packages.
+*  8 - There were downgrades in prod packages.
+* 16 - There were downgrades in dev packages.
 EOF
             )
         ;
@@ -122,7 +146,50 @@ EOF
 
         $formatter->render($prodOperations, $devOperations, $withUrls);
 
-        return 0;
+        return $input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0;
+    }
+
+    /**
+     * @param OperationInterface[] $prodOperations
+     * @param OperationInterface[] $devOperations
+     *
+     * @return int Exit code
+     */
+    private function getExitCode(array $prodOperations, array $devOperations)
+    {
+        $exitCode = 0;
+
+        if (!empty($prodOperations)) {
+            $exitCode = self::CHANGES_PROD;
+
+            if ($this->hasDowngrades($prodOperations)) {
+                $exitCode |= self::DOWNGRADES_PROD;
+            }
+        }
+
+        if (!empty($devOperations)) {
+            $exitCode |= self::CHANGES_DEV;
+
+            if ($this->hasDowngrades($devOperations)) {
+                $exitCode |= self::DOWNGRADES_DEV;
+            }
+        }
+
+        return $exitCode;
+    }
+
+    /**
+     * @param OperationInterface[] $operations
+     *
+     * @return bool
+     */
+    private function hasDowngrades(array $operations)
+    {
+        $downgrades = array_filter($operations, function (OperationInterface $operation) {
+            return $operation instanceof UpdateOperation && !PackageDiff::isUpgrade($operation);
+        });
+
+        return !empty($downgrades);
     }
 
     /**

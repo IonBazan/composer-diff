@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Tests\Command;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Command\DiffCommand;
@@ -30,6 +31,7 @@ class DiffCommandTest extends TestCase
                 new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
+                new UpdateOperation($this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-7', '1.0.0', 'github.com')),
             ))
         ;
         $result = $tester->execute($options);
@@ -37,19 +39,90 @@ class DiffCommandTest extends TestCase
         $this->assertSame($expectedOutput, $tester->getDisplay());
     }
 
+    /**
+     * @param int                  $exitCode
+     * @param OperationInterface[] $prodOperations
+     * @param OperationInterface[] $devOperations
+     *
+     * @dataProvider strictDataProvider
+     */
+    public function testStrictMode($exitCode, array $prodOperations, array $devOperations)
+    {
+        $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
+        $tester = new CommandTester(new DiffCommand($diff, array('gitlab2.org')));
+        $diff->expects($this->exactly(2))
+            ->method('getPackageDiff')
+            ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false)
+            ->willReturnOnConsecutiveCalls($prodOperations, $devOperations)
+        ;
+        $this->assertSame($exitCode, $tester->execute(array('--strict' => null)));
+    }
+
+    public function strictDataProvider()
+    {
+        return array(
+            'No changes' => array(0, array(), array()),
+            'Changes in prod and dev' => array(
+                6,
+                array(
+                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
+                ),
+                array(
+                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
+                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+                ),
+            ),
+            'Downgrades in prod and changes in dev' => array(
+                14,
+                array(
+                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
+                ),
+                array(
+                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
+                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+                ),
+            ),
+            'Changes in prod and downgrades in dev' => array(
+                22,
+                array(
+                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
+                ),
+                array(
+                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
+                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+                ),
+            ),
+            'Downgrades in both' => array(
+                30,
+                array(
+                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
+                ),
+                array(
+                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
+                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+                ),
+            ),
+        );
+    }
+
     public function outputDataProvider()
     {
         return array(
             'Markdown table' => array(
                 <<<OUTPUT
-| Prod Packages | Operation | Base  | Target |
-|---------------|-----------|-------|--------|
-| a/package-1   | New       | -     | 1.0.0  |
-| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  |
-| a/package-3   | Removed   | 0.1.1 | -      |
-| a/package-4   | Removed   | 0.1.1 | -      |
-| a/package-5   | Removed   | 0.1.1 | -      |
-| a/package-6   | Removed   | 0.1.1 | -      |
+| Prod Packages | Operation  | Base  | Target |
+|---------------|------------|-------|--------|
+| a/package-1   | New        | -     | 1.0.0  |
+| a/package-2   | Upgraded   | 1.0.0 | 1.2.0  |
+| a/package-3   | Removed    | 0.1.1 | -      |
+| a/package-4   | Removed    | 0.1.1 | -      |
+| a/package-5   | Removed    | 0.1.1 | -      |
+| a/package-6   | Removed    | 0.1.1 | -      |
+| a/package-7   | Downgraded | 1.2.0 | 1.0.0  |
 
 
 OUTPUT
@@ -61,14 +134,15 @@ OUTPUT
             ),
             'Markdown with URLs' => array(
                 <<<OUTPUT
-| Prod Packages | Operation | Base  | Target | Link                                       |
-|---------------|-----------|-------|--------|--------------------------------------------|
-| a/package-1   | New       | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | Removed   | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | Removed   | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | Removed   | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | Removed   | 0.1.1 | -      |                                            |
+| Prod Packages | Operation  | Base  | Target | Link                                       |
+|---------------|------------|-------|--------|--------------------------------------------|
+| a/package-1   | New        | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded   | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed    | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed    | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed    | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed    | 0.1.1 | -      |                                            |
+| a/package-7   | Downgraded | 1.2.0 | 1.0.0  | [Compare](github.com/compare/1.2.0..1.0.0) |
 
 
 OUTPUT
@@ -81,14 +155,15 @@ OUTPUT
             ),
             'Markdown with URLs and custom gitlab domains' => array(
                 <<<OUTPUT
-| Prod Packages | Operation | Base  | Target | Link                                       |
-|---------------|-----------|-------|--------|--------------------------------------------|
-| a/package-1   | New       | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
-| a/package-2   | Upgraded  | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
-| a/package-3   | Removed   | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
-| a/package-4   | Removed   | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
-| a/package-5   | Removed   | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
-| a/package-6   | Removed   | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)          |
+| Prod Packages | Operation  | Base  | Target | Link                                       |
+|---------------|------------|-------|--------|--------------------------------------------|
+| a/package-1   | New        | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)   |
+| a/package-2   | Upgraded   | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0..1.2.0) |
+| a/package-3   | Removed    | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)   |
+| a/package-4   | Removed    | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)           |
+| a/package-5   | Removed    | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)          |
+| a/package-6   | Removed    | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)          |
+| a/package-7   | Downgraded | 1.2.0 | 1.0.0  | [Compare](github.com/compare/1.2.0..1.0.0) |
 
 
 OUTPUT
@@ -110,6 +185,7 @@ Prod Packages
  - Uninstall a/package-4 (0.1.1)
  - Uninstall a/package-5 (0.1.1)
  - Uninstall a/package-6 (0.1.1)
+ - Downgrade a/package-7 (1.2.0 => 1.0.0)
 
 
 OUTPUT
@@ -158,6 +234,12 @@ OUTPUT
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
+                                ),
+                            'a/package-7' => array(
+                                'name' => 'a/package-7',
+                                'operation' => 'downgrade',
+                                'version_base' => '1.2.0',
+                                'version_target' => '1.0.0',
                                 ),
                         ),
                     'packages-dev' => array(
