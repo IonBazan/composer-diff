@@ -40,7 +40,7 @@ class GitlabGenerator extends GitGenerator
         $baseMaintainer = $this->getUser($initialPackage);
         $targetMaintainer = $this->getUser($targetPackage);
         if ($baseMaintainer !== $targetMaintainer ) {
-            return null;
+            return $this->getReleaseUrl($targetPackage); // Could not get a compare URL, using release URL instead
         }
 
         return sprintf('%s/compare/%s...%s', $baseUrl, $this->getCompareRef($initialPackage), $this->getCompareRef($targetPackage));
