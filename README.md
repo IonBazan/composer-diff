@@ -10,7 +10,22 @@
 
 Generates packages changes report in Markdown format by comparing `composer.lock` files. Compares with last-commited changes by default.
 
+## Now available as [GitHub Action](https://github.com/marketplace/actions/composer-diff)!
+
 ![preview](preview.png)
+
+# Installation
+
+```shell script
+composer global require ion-bazan/composer-diff
+```
+
+# Usage
+
+```shell script
+composer diff # Displays packages changed in current git tree compared with HEAD
+composer diff --help # Display detailed usage instructions
+``` 
 
 ## Example output
 
@@ -45,18 +60,6 @@ Generates packages changes report in Markdown format by comparing `composer.lock
 | sebastian/version                  | Downgraded | 3.0.0 | 2.0.1  |
 | phpunit/php-invoker                | Removed    | 3.0.1 | -      |
 | sebastian/code-unit                | Removed    | 1.0.3 | -      |
-
-# Installation
-
-```shell script
-composer global require ion-bazan/composer-diff
-```
- 
-# Usage
-
-```shell script
-composer diff # Displays packages changed in current git tree compared with HEAD
-``` 
 
 ## Options
 
@@ -94,6 +97,7 @@ This package offers:
  - Both standalone executable and composer plugin interface - you choose how you want to use it.
  - Allows generating reports in several formats.
  - Extra Gitlab domains support.
+ - [GitHub Action](https://github.com/marketplace/actions/composer-diff) with example workflow
  - 100% test coverage.
  - MIT license.
 

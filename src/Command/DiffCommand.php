@@ -43,17 +43,56 @@ class DiffCommand extends BaseCommand
     protected function configure()
     {
         $this->setName('diff')
-            ->setDescription('Displays package diff')
-            ->addArgument('base', InputArgument::OPTIONAL, 'Base composer.lock file path or git ref')
-            ->addArgument('target', InputArgument::OPTIONAL, 'Target composer.lock file path or git ref')
-            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base composer.lock file path or git ref', 'HEAD:composer.lock')
-            ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target composer.lock file path or git ref', 'composer.lock')
+            ->setDescription('Compares composer.lock files and shows package changes')
+            ->addArgument('base', InputArgument::OPTIONAL, 'Base (original) composer.lock file path or git ref')
+            ->addArgument('target', InputArgument::OPTIONAL, 'Target (modified) composer.lock file path or git ref')
+            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base (original) composer.lock file path or git ref', 'HEAD:composer.lock')
+            ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target (modified) composer.lock file path or git ref', 'composer.lock')
             ->addOption('no-dev', null, InputOption::VALUE_NONE, 'Ignore dev dependencies')
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json)', 'mdtable')
-            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Gitlab domains', array())
+            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
+            ->setHelp(<<<'EOF'
+The <comment>%command.name%</comment> command displays all dependency changes between two <info>composer.lock</info> files.
+By default, it will compare current filesystem changes with git <info>HEAD</info>:
+
+    <comment>%command.full_name%</comment>
+
+To compare with specific branch, pass its name as argument:
+
+    <comment>%command.full_name% master</comment>
+    
+You can specify any valid git refs to compare with:
+
+    <comment>%command.full_name% HEAD~3 be4aabc</comment>
+    
+You can also use more verbose syntax for <info>base</info> and <info>target</info> options:
+
+    <comment>%command.full_name% --base master --target composer.lock</comment>
+    
+To compare files in specific path, use following syntax:
+
+    <comment>%command.full_name% master:subdirectory/composer.lock /path/to/another/composer.lock</comment>
+    
+By default, <info>platform</info> dependencies are hidden. Add <comment>--with-platform</comment> option to include them in the report:
+ 
+    <comment>%command.full_name% --with-platform</comment>
+
+Use <comment>--with-links</comment> to include release and compare URLs in the report:
+
+    <comment>%command.full_name% --with-links</comment>
+    
+You can customize output format by specifying it with <comment>--format</comment> option. Choose between <info>mdtable</info>, <info>mdlist</info> and <info>json</info>:
+
+    <comment>%command.full_name% --format=json</comment>
+
+Hide <info>dev</info> dependencies using <comment>--no-dev</comment> option:
+
+    <comment>%command.full_name% --no-dev</comment>
+EOF
+            )
         ;
     }
 
