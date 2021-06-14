@@ -7,11 +7,8 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
-use Composer\Semver\Semver;
-use Composer\Semver\VersionParser;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
-use UnexpectedValueException;
 
 abstract class AbstractFormatter implements Formatter
 {
@@ -73,22 +70,5 @@ abstract class AbstractFormatter implements Formatter
         }
 
         return $generator->getReleaseUrl($package);
-    }
-
-    /**
-     * @return bool
-     */
-    protected static function isUpgrade(UpdateOperation $operation)
-    {
-        $versionParser = new VersionParser();
-        try {
-            $normalizedFrom = $versionParser->normalize($operation->getInitialPackage()->getVersion());
-            $normalizedTo = $versionParser->normalize($operation->getTargetPackage()->getVersion());
-        } catch (UnexpectedValueException $e) {
-            return true; // Consider as upgrade if versions are not parsable
-        }
-        $sorted = Semver::sort(array($normalizedTo, $normalizedFrom));
-
-        return $sorted[0] === $normalizedFrom;
     }
 }

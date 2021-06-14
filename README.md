@@ -82,6 +82,21 @@ composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table
 ```
 
+### Strict mode
+
+To help you control your dependencies, you may pass `--strict` option when running in CI. If there are any changes detected, a non-zero exit code will be returned.
+
+Exit code of the command is built using following bit flags:
+
+*  `0` - OK.
+*  `1` - General error.
+*  `2` - There were changes in prod packages.
+*  `4` - There were changes is dev packages.
+*  `8` - There were downgrades in prod packages.
+* `16` - There were downgrades in dev packages.
+
+You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
+
 # Similar packages
 
 While there are several existing packages offering similar functionality:
