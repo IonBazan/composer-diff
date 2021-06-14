@@ -66,12 +66,12 @@ class GitlabGeneratorTest extends GeneratorTest
             'compare with base fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/IonBazan/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git'),
-                null,
+                'https://gitlab.acme.org/acme/package/tags/3.12.1',
             ),
             'compare with head fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/IonBazan/package.git'),
-                null,
+                'https://gitlab.acme.org/IonBazan/package/tags/3.12.1',
             ),
             'compare with different repository provider' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
@@ -91,7 +91,7 @@ class GitlabGeneratorTest extends GeneratorTest
             'compare with base fork from subgroups' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/Ion/Bazan/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/ac/me/package.git'),
-                null,
+                'https://gitlab.acme.org/ac/me/package/tags/3.12.1',
             ),
         );
     }
