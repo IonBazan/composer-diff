@@ -26,8 +26,16 @@ class GitlabGeneratorTest extends GeneratorTest
                 'https://gitlab.acme.org/acme/package/tags/3.12.1',
             ),
             'dev version' => array(
-                $this->getPackageWithSource('acme/package', 'dev-master', 'git@gitlab.acme.org:acme/package'),
+                $this->getPackageWithSource('acme/package', 'dev-master', 'git@gitlab.acme.org:ac/me/package'),
                 null,
+            ),
+            'https in subgroup' => array(
+                $this->getPackageWithSource('ac/me/package', '3.12.1', 'https://gitlab.acme.org/ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package/tags/3.12.1',
+            ),
+            'ssh in subgroup' => array(
+                $this->getPackageWithSource('ac/me/package', '3.12.1', 'git@gitlab.acme.org:ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package/tags/3.12.1',
             ),
         );
     }
@@ -58,17 +66,32 @@ class GitlabGeneratorTest extends GeneratorTest
             'compare with base fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/IonBazan/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git'),
-                'https://gitlab.acme.org/IonBazan/package/compare/3.12.0...acme:3.12.1',
+                'https://gitlab.acme.org/acme/package/tags/3.12.1',
             ),
             'compare with head fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/IonBazan/package.git'),
-                'https://gitlab.acme.org/acme/package/compare/3.12.0...IonBazan:3.12.1',
+                'https://gitlab.acme.org/IonBazan/package/tags/3.12.1',
             ),
             'compare with different repository provider' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.org/acme/package.git'),
                 null,
+            ),
+            'compare from https in subgroup' => array(
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/ac/me/package'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/ac/me/package'),
+                'https://gitlab.acme.org/ac/me/package/compare/3.12.0...3.12.1',
+            ),
+            'compare from ssh in subgroup' => array(
+                $this->getPackageWithSource('acme/package', '3.12.0', 'git@gitlab.acme.org:ac/me/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@gitlab.acme.org:ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package/compare/3.12.0...3.12.1',
+            ),
+            'compare with base fork from subgroups' => array(
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/Ion/Bazan/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package/tags/3.12.1',
             ),
         );
     }

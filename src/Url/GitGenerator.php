@@ -38,7 +38,7 @@ abstract class GitGenerator implements UrlGenerator
     protected function getUser(PackageInterface $package)
     {
         return preg_replace(
-            "/^https:\/\/{$this->getQuotedDomain()}\/([^\/]+)\/([^\/]+)$/",
+            "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
             '$1',
             $this->getRepositoryUrl($package)
         );
@@ -50,7 +50,7 @@ abstract class GitGenerator implements UrlGenerator
     protected function getRepo(PackageInterface $package)
     {
         return preg_replace(
-            "/^https:\/\/{$this->getQuotedDomain()}\/([^\/]+)\/([^\/]+)$/",
+            "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
             '$2',
             $this->getRepositoryUrl($package)
         );
@@ -62,7 +62,7 @@ abstract class GitGenerator implements UrlGenerator
     protected function getRepositoryUrl(PackageInterface $package)
     {
         $httpsUrl = preg_replace(
-            "/^git@({$this->getQuotedDomain()}):([^\/]+)\/([^\/]+)(\.git)?$/",
+            "/^git@({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
             'https://$1/$2/$3',
             $package->getSourceUrl()
         );
