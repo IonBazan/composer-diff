@@ -3,8 +3,8 @@
 namespace IonBazan\ComposerDiff\Command;
 
 use Composer\Command\BaseCommand;
-use Composer\DependencyResolver\Operation\OperationInterface;
-use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
@@ -133,8 +133,8 @@ EOF
 
         $formatter = $this->getFormatter($input, $output);
 
-        $prodOperations = array();
-        $devOperations = array();
+        $prodOperations = new DiffEntries(array());
+        $devOperations = new DiffEntries(array());
 
         if (!$input->getOption('no-prod')) {
             $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
@@ -150,27 +150,24 @@ EOF
     }
 
     /**
-     * @param OperationInterface[] $prodOperations
-     * @param OperationInterface[] $devOperations
-     *
      * @return int Exit code
      */
-    private function getExitCode(array $prodOperations, array $devOperations)
+    private function getExitCode(DiffEntries $prodEntries, DiffEntries $devEntries)
     {
         $exitCode = 0;
 
-        if (!empty($prodOperations)) {
+        if (count($prodEntries)) {
             $exitCode = self::CHANGES_PROD;
 
-            if ($this->hasDowngrades($prodOperations)) {
+            if ($this->hasDowngrades($prodEntries)) {
                 $exitCode |= self::DOWNGRADES_PROD;
             }
         }
 
-        if (!empty($devOperations)) {
+        if (count($devEntries)) {
             $exitCode |= self::CHANGES_DEV;
 
-            if ($this->hasDowngrades($devOperations)) {
+            if ($this->hasDowngrades($devEntries)) {
                 $exitCode |= self::DOWNGRADES_DEV;
             }
         }
@@ -179,17 +176,18 @@ EOF
     }
 
     /**
-     * @param OperationInterface[] $operations
-     *
      * @return bool
      */
-    private function hasDowngrades(array $operations)
+    private function hasDowngrades(DiffEntries $entries)
     {
-        $downgrades = array_filter($operations, function (OperationInterface $operation) {
-            return $operation instanceof UpdateOperation && !PackageDiff::isUpgrade($operation);
-        });
+        /** @var DiffEntry $entry */
+        foreach ($entries as $entry) {
+            if ($entry->isDowngrade()) {
+                return true;
+            }
+        }
 
-        return !empty($downgrades);
+        return false;
     }
 
     /**

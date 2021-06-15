@@ -24,7 +24,7 @@ class DiffCommandTest extends TestCase
         $diff->expects($this->once())
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), false, false)
-            ->willReturn(array(
+            ->willReturn($this->getEntries(array(
                 new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
                 new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
                 new UninstallOperation($this->getPackageWithSource('a/package-3', '0.1.1', 'github.com')),
@@ -32,7 +32,7 @@ class DiffCommandTest extends TestCase
                 new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
                 new UpdateOperation($this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-7', '1.0.0', 'github.com')),
-            ))
+            )))
         ;
         $result = $tester->execute($options);
         $this->assertSame(0, $result);
@@ -53,7 +53,7 @@ class DiffCommandTest extends TestCase
         $diff->expects($this->exactly(2))
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false)
-            ->willReturnOnConsecutiveCalls($prodOperations, $devOperations)
+            ->willReturnOnConsecutiveCalls($this->getEntries($prodOperations), $this->getEntries($devOperations))
         ;
         $this->assertSame($exitCode, $tester->execute(array('--strict' => null)));
     }

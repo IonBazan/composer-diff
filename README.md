@@ -1,5 +1,7 @@
 # Composer Diff Plugin
 
+[![PHP 5.3+ | 7.x | 8.x](https://img.shields.io/badge/PHP-^5.3_|_^7_|_^8-blue.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
+[![Composer v1 | v2](https://img.shields.io/badge/Composer-^1.1_|_^2-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![Latest version](https://img.shields.io/packagist/v/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/IonBazan/composer-diff/Tests)](https://github.com/IonBazan/composer-diff/actions)
 [![PHP version](https://img.shields.io/packagist/php-v/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)

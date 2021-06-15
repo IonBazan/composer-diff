@@ -2,30 +2,28 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use Composer\DependencyResolver\Operation\OperationInterface;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 interface Formatter
 {
     /**
-     * @param OperationInterface[] $prodOperations
-     * @param OperationInterface[] $devOperations
-     * @param bool                 $withUrls
+     * @param bool $withUrls
      *
      * @return void
      */
-    public function render(array $prodOperations, array $devOperations, $withUrls);
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls);
 
     /**
-     * @param OperationInterface[] $operations
-     * @param string               $title
-     * @param bool                 $withUrls
+     * @param string $title
+     * @param bool   $withUrls
      *
      * @return void
      */
-    public function renderSingle(array $operations, $title, $withUrls);
+    public function renderSingle(DiffEntries $entries, $title, $withUrls);
 
     /**
      * @return string|null
      */
-    public function getUrl(OperationInterface $operation);
+    public function getUrl(DiffEntry $entry);
 }

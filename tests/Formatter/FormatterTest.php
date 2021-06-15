@@ -6,6 +6,8 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
@@ -19,7 +21,7 @@ abstract class FormatterTest extends TestCase
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->render(array(), array(), true);
+        $formatter->render(new DiffEntries(array()), new DiffEntries(array()), true);
         $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
@@ -28,7 +30,7 @@ abstract class FormatterTest extends TestCase
         $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
         $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $this->assertNull($formatter->getUrl($operation));
+        $this->assertNull($formatter->getUrl(new DiffEntry($operation)));
     }
 
     /**
@@ -54,7 +56,7 @@ abstract class FormatterTest extends TestCase
             new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
             new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
         );
-        $formatter->render($prodPackages, $devPackages, $withUrls);
+        $formatter->render($this->getEntries($prodPackages), $this->getEntries($devPackages), $withUrls);
         $this->assertSame($this->getSampleOutput($withUrls), $this->getDisplay($output));
     }
 
@@ -62,9 +64,9 @@ abstract class FormatterTest extends TestCase
     {
         $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
         $this->setExpectedException('InvalidArgumentException', 'Invalid operation');
-        $this->getFormatter($output, $this->getGenerators())->render(array(
+        $this->getFormatter($output, $this->getGenerators())->render($this->getEntries(array(
             $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock(),
-        ), array(), false);
+        )), $this->getEntries(array()), false);
     }
 
     /**

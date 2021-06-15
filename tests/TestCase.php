@@ -2,7 +2,10 @@
 
 namespace IonBazan\ComposerDiff\Tests;
 
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -57,5 +60,17 @@ abstract class TestCase extends BaseTestCase
         $package->method('isDev')->willReturn(0 === strpos($version, 'dev-') || '-dev' === substr($version, -4));
 
         return $package;
+    }
+
+    /**
+     * @param OperationInterface[] $operations
+     *
+     * @return DiffEntries
+     */
+    protected function getEntries(array $operations)
+    {
+        return new DiffEntries(array_map(function (OperationInterface $operation) {
+            return new DiffEntry($operation);
+        }, $operations));
     }
 }

@@ -3,30 +3,30 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use IonBazan\ComposerDiff\PackageDiff;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class JsonFormatter extends AbstractFormatter
 {
     /**
      * {@inheritdoc}
      */
-    public function render(array $prodOperations, array $devOperations, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
     {
         $this->format(array(
-            'packages' => $this->transformOperations($prodOperations, $withUrls),
-            'packages-dev' => $this->transformOperations($devOperations, $withUrls),
+            'packages' => $this->transformEntries($prodEntries, $withUrls),
+            'packages-dev' => $this->transformEntries($devEntries, $withUrls),
         ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(array $operations, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls)
     {
-        $this->format($this->transformOperations($operations, $withUrls));
+        $this->format($this->transformEntries($entries, $withUrls));
     }
 
     /**
@@ -40,20 +40,19 @@ class JsonFormatter extends AbstractFormatter
     }
 
     /**
-     * @param OperationInterface[] $operations
-     * @param bool                 $withUrls
+     * @param bool $withUrls
      *
      * @return array<array<string, string|null>>
      */
-    private function transformOperations(array $operations, $withUrls)
+    private function transformEntries(DiffEntries $entries, $withUrls)
     {
         $rows = array();
 
-        foreach ($operations as $operation) {
-            $row = $this->transformOperation($operation);
+        foreach ($entries as $entry) {
+            $row = $this->transformEntry($entry);
 
             if ($withUrls) {
-                $row['compare'] = $this->getUrl($operation);
+                $row['compare'] = $this->getUrl($entry);
             }
 
             $rows[$row['name']] = $row;
@@ -65,12 +64,14 @@ class JsonFormatter extends AbstractFormatter
     /**
      * @return array<string, string|null>
      */
-    private function transformOperation(OperationInterface $operation)
+    private function transformEntry(DiffEntry $entry)
     {
+        $operation = $entry->getOperation();
+
         if ($operation instanceof InstallOperation) {
             return array(
                 'name' => $operation->getPackage()->getName(),
-                'operation' => 'install',
+                'operation' => $entry->getType(),
                 'version_base' => null,
                 'version_target' => $operation->getPackage()->getFullPrettyVersion(),
             );
@@ -79,7 +80,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 'name' => $operation->getInitialPackage()->getName(),
-                'operation' => PackageDiff::isUpgrade($operation) ? 'upgrade' : 'downgrade',
+                'operation' => $entry->getType(),
                 'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
                 'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
             );
@@ -88,7 +89,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof UninstallOperation) {
             return array(
                 'name' => $operation->getPackage()->getName(),
-                'operation' => 'remove',
+                'operation' => $entry->getType(),
                 'version_base' => $operation->getPackage()->getFullPrettyVersion(),
                 'version_target' => null,
             );

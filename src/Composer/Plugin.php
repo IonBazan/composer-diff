@@ -1,6 +1,6 @@
 <?php
 
-namespace IonBazan\ComposerDiff;
+namespace IonBazan\ComposerDiff\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
