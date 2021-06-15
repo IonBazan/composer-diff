@@ -21,6 +21,9 @@ jobs:
           - '8.0'
           - '8.1'
         include:
+          - php-versions: '7.0'
+            composer-flags: '--prefer-lowest'
+            operating-system: ubuntu-latest
           - php-versions: '5.3'
             composer-flags: '--prefer-lowest'
             operating-system: ubuntu-latest
