@@ -17,6 +17,7 @@
     <php>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
         <env name="COMPOSER_DISABLE_XDEBUG_WARN" value="1"/>
+        <env name="COMPOSER_ROOT_VERSION" value="1.x-dev"/>
     </php>
     <testsuites>
         <testsuite name="Composer Diff Test Suite">
