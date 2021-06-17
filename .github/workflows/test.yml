@@ -2,12 +2,13 @@ name: Tests
 on: [push, pull_request]
 jobs:
   php:
-    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} Composer ${{ matrix.composer }}
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
+        composer: [v2]
         php-versions:
           - '5.3'
           - '5.4'
@@ -23,11 +24,14 @@ jobs:
         include:
           - php-versions: '7.0'
             composer-flags: '--prefer-lowest'
+            composer: v1
             operating-system: ubuntu-latest
           - php-versions: '5.3'
             composer-flags: '--prefer-lowest'
+            composer: v1 # Global composer should be in same version as locally installed one
             operating-system: ubuntu-latest
           - php-versions: '8.0'
+            composer: v2
             operating-system: windows-latest
     steps:
       - name: Checkout
@@ -38,6 +42,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: json
           coverage: xdebug
+          tools: composer:${{ matrix.composer }}
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
