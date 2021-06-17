@@ -2,9 +2,14 @@
 
 namespace IonBazan\ComposerDiff\Tests\Integration;
 
+use Composer\Composer;
+use Composer\Console\Application;
+use Composer\IO\IOInterface;
+use Composer\IO\NullIO;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Tests\TestCase;
+use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class DiffCommandTest extends TestCase
@@ -18,6 +23,29 @@ class DiffCommandTest extends TestCase
     {
         $tester = new CommandTester(new DiffCommand(new PackageDiff()));
         $result = $tester->execute($input);
+        $this->assertSame(0, $result);
+        $this->assertSame($expectedOutput, $tester->getDisplay());
+    }
+
+    /**
+     * @param string $expectedOutput
+     *
+     * @dataProvider commandArgumentsDataProvider
+     */
+    public function testComposerApplication($expectedOutput, array $input)
+    {
+        if (version_compare('2.0', Composer::VERSION, '>=')) {
+            $this->markTestSkipped('This test works properly only on Composer 2');
+        }
+
+        array_unshift($input, 'diff');
+        $app = new ComposerApplication();
+        $app->setIO(new NullIO());
+        $app->setAutoExit(false);
+        $composer = $app->getComposer();
+        $composer->getPluginManager()->registerPackage($composer->getPackage(), true);
+        $tester = new ApplicationTester($app);
+        $result = $tester->run($input);
         $this->assertSame(0, $result);
         $this->assertSame($expectedOutput, $tester->getDisplay());
     }
@@ -192,5 +220,13 @@ OUTPUT
                 ),
             ),
         );
+    }
+}
+
+class ComposerApplication extends Application
+{
+    public function setIO(IOInterface $io)
+    {
+        $this->io = $io;
     }
 }

@@ -19,7 +19,11 @@ jobs:
           - '7.3'
           - '7.4'
           - '8.0'
+          - '8.1'
         include:
+          - php-versions: '7.0'
+            composer-flags: '--prefer-lowest'
+            operating-system: ubuntu-latest
           - php-versions: '5.3'
             composer-flags: '--prefer-lowest'
             operating-system: ubuntu-latest
@@ -50,15 +54,14 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
       - name: Run mutation tests
-        if: ${{ matrix.php-versions == 7.4 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.0 && matrix.operating-system == 'ubuntu-latest' }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
           composer req infection/infection
           vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4
       - name: Run phpstan
-        if: ${{ matrix.php-versions >= 7.1 && matrix.php-versions < 8.0 }}
+        if: ${{ matrix.php-versions == 8.0 && matrix.operating-system == 'ubuntu-latest' }}
         run: |
           composer req phpstan/phpstan
-          vendor/bin/phpstan analyse src -l 6
-
+          vendor/bin/phpstan

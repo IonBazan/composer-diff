@@ -37,7 +37,7 @@
         "platform-check": false
     },
     "extra": {
-        "class": "IonBazan\\ComposerDiff\\Plugin"
+        "class": "IonBazan\\ComposerDiff\\Composer\\Plugin"
     },
     "autoload": {
         "psr-4": {

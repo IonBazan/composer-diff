@@ -3,39 +3,39 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Helper\Table;
-use IonBazan\ComposerDiff\PackageDiff;
 
 class MarkdownTableFormatter extends MarkdownFormatter
 {
     /**
      * {@inheritdoc}
      */
-    public function render(array $prodOperations, array $devOperations, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
     {
-        $this->renderSingle($prodOperations, 'Prod Packages', $withUrls);
-        $this->renderSingle($devOperations, 'Dev Packages', $withUrls);
+        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
+        $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(array $operations, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls)
     {
-        if (!\count($operations)) {
+        if (!\count($entries)) {
             return;
         }
 
         $rows = array();
 
-        foreach ($operations as $operation) {
-            $row = $this->getTableRow($operation);
+        foreach ($entries as $entry) {
+            $row = $this->getTableRow($entry);
 
             if ($withUrls) {
-                $row[] = $this->formatUrl($this->getUrl($operation), 'Compare');
+                $row[] = $this->formatUrl($this->getUrl($entry), 'Compare');
             }
 
             $rows[] = $row;
@@ -55,8 +55,9 @@ class MarkdownTableFormatter extends MarkdownFormatter
     /**
      * @return string[]
      */
-    private function getTableRow(OperationInterface $operation)
+    private function getTableRow(DiffEntry $entry)
     {
+        $operation = $entry->getOperation();
         if ($operation instanceof InstallOperation) {
             return array(
                 $operation->getPackage()->getName(),
@@ -69,7 +70,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 $operation->getInitialPackage()->getName(),
-                PackageDiff::isUpgrade($operation) ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>',
+                $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
             );

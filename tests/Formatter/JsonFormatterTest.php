@@ -26,7 +26,7 @@ class JsonFormatterTest extends FormatterTest
         );
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->renderSingle($sampleData, 'test', true);
+        $formatter->renderSingle($this->getEntries($sampleData), 'test', true);
 
         $this->assertSame(self::formatOutput(array(
             'a/package-1' => array(
@@ -66,7 +66,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/package-5' => array(
                     'name' => 'a/package-5',
-                    'operation' => 'downgrade',
+                    'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
                     'compare' => 'https://example.com/c/dev-master..1.1.1',
@@ -123,7 +123,7 @@ class JsonFormatterTest extends FormatterTest
                             ),
                         'php' => array(
                             'name' => 'php',
-                            'operation' => 'upgrade',
+                            'operation' => 'change',
                             'version_base' => '>=7.4.6',
                             'version_target' => '^8.0',
                             'compare' => null,
@@ -132,7 +132,7 @@ class JsonFormatterTest extends FormatterTest
                 'packages-dev' => array(
                         'a/package-5' => array(
                                 'name' => 'a/package-5',
-                                'operation' => 'downgrade',
+                                'operation' => 'change',
                                 'version_base' => 'dev-master 1234567',
                                 'version_target' => '1.1.1',
                                 'compare' => 'https://example.com/c/dev-master..1.1.1',
@@ -189,7 +189,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
                 'php' => array(
                     'name' => 'php',
-                    'operation' => 'upgrade',
+                    'operation' => 'change',
                     'version_base' => '>=7.4.6',
                     'version_target' => '^8.0',
                 ),
@@ -197,7 +197,7 @@ class JsonFormatterTest extends FormatterTest
             'packages-dev' => array(
                 'a/package-5' => array(
                     'name' => 'a/package-5',
-                    'operation' => 'downgrade',
+                    'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
                 ),

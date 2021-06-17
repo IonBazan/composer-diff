@@ -1,8 +1,9 @@
 <?php
 
-namespace IonBazan\ComposerDiff\Tests;
+namespace IonBazan\ComposerDiff\Tests\Composer;
 
-use IonBazan\ComposerDiff\Plugin;
+use IonBazan\ComposerDiff\Composer\Plugin;
+use IonBazan\ComposerDiff\Tests\TestCase;
 
 class PluginTest extends TestCase
 {

@@ -3,28 +3,28 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use IonBazan\ComposerDiff\PackageDiff;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class MarkdownListFormatter extends MarkdownFormatter
 {
     /**
      * {@inheritdoc}
      */
-    public function render(array $prodOperations, array $devOperations, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
     {
-        $this->renderSingle($prodOperations, 'Prod Packages', $withUrls);
-        $this->renderSingle($devOperations, 'Dev Packages', $withUrls);
+        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
+        $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(array $operations, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls)
     {
-        if (!\count($operations)) {
+        if (!\count($entries)) {
             return;
         }
 
@@ -32,8 +32,8 @@ class MarkdownListFormatter extends MarkdownFormatter
         $this->output->writeln(str_repeat('=', strlen($title)));
         $this->output->writeln('');
 
-        foreach ($operations as $operation) {
-            $this->output->writeln($this->getRow($operation, $withUrls));
+        foreach ($entries as $entry) {
+            $this->output->writeln($this->getRow($entry, $withUrls));
         }
 
         $this->output->writeln('');
@@ -44,10 +44,11 @@ class MarkdownListFormatter extends MarkdownFormatter
      *
      * @return string
      */
-    private function getRow(OperationInterface $operation, $withUrls)
+    private function getRow(DiffEntry $entry, $withUrls)
     {
-        $url = $withUrls ? $this->formatUrl($this->getUrl($operation), 'Compare') : null;
+        $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
         $url = (null !== $url) ? ' '.$url : '';
+        $operation = $entry->getOperation();
 
         if ($operation instanceof InstallOperation) {
             return sprintf(
@@ -59,11 +60,9 @@ class MarkdownListFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UpdateOperation) {
-            $isUpgrade = PackageDiff::isUpgrade($operation);
-
             return sprintf(
                 ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s',
-                $isUpgrade ? 'Upgrade' : 'Downgrade',
+                ucfirst($entry->getType()),
                 $operation->getInitialPackage()->getName(),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),

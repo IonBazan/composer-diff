@@ -3,9 +3,9 @@
 namespace IonBazan\ComposerDiff\Tests;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\PackageDiff;
 
 class PackageDiffTest extends TestCase
@@ -27,7 +27,7 @@ class PackageDiffTest extends TestCase
             $withPlatform
         );
 
-        $this->assertSame($expected, array_map(array($this, 'operationToString'), $operations));
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getIterator()->getArrayCopy()));
     }
 
     public function testSameBaseAndTarget()
@@ -56,7 +56,7 @@ class PackageDiffTest extends TestCase
         $this->prepareGit();
         $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform);
 
-        $this->assertSame($expected, array_map(array($this, 'operationToString'), $operations));
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getIterator()->getArrayCopy()));
     }
 
     public function testInvalidGitRef()
@@ -135,8 +135,10 @@ class PackageDiffTest extends TestCase
         file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
     }
 
-    private function operationToString(OperationInterface $operation)
+    private function entryToString(DiffEntry $entry)
     {
+        $operation = $entry->getOperation();
+
         if ($operation instanceof InstallOperation) {
             return sprintf('install %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
         }

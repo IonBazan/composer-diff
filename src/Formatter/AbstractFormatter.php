@@ -3,10 +3,10 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,8 +31,10 @@ abstract class AbstractFormatter implements Formatter
     /**
      * @return string|null
      */
-    public function getUrl(OperationInterface $operation)
+    public function getUrl(DiffEntry $entry)
     {
+        $operation = $entry->getOperation();
+
         if ($operation instanceof UpdateOperation) {
             return $this->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
         }
