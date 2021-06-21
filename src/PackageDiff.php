@@ -33,7 +33,7 @@ class PackageDiff
 
         foreach ($targetPackages->getPackages() as $newPackage) {
             if ($oldPackage = $oldPackages->findPackage($newPackage->getName(), '*')) {
-                if ($oldPackage->getUniqueName() !== $newPackage->getUniqueName()) {
+                if ($oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()) {
                     $operations[] = new UpdateOperation($oldPackage, $newPackage);
                 }
 
