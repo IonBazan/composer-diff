@@ -2,7 +2,8 @@
     "name": "test/test",
     "require": {
         "symfony/event-dispatcher": "^2.8",
-        "doctrine/dbal": "^2.10"
+        "doctrine/dbal": "^2.10",
+        "roave/security-advisories": "dev-master#3c97c13"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.2"

@@ -73,6 +73,7 @@ class PackageDiffTest extends TestCase
             'prod, with platform' => array(
                 array(
                     'install psr/event-dispatcher 1.0.0',
+                    'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
                     'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
                     'install symfony/event-dispatcher-contracts v2.1.2',
@@ -85,6 +86,7 @@ class PackageDiffTest extends TestCase
             'prod, no platform' => array(
                 array(
                     'install psr/event-dispatcher 1.0.0',
+                    'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
                     'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
                     'install symfony/event-dispatcher-contracts v2.1.2',

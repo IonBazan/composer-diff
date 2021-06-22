@@ -59,14 +59,15 @@ class DiffCommandTest extends TestCase
         return array(
             'with platform' => array(
                 <<<OUTPUT
-| Prod Packages                      | Operation | Base    | Target  |
-|------------------------------------|-----------|---------|---------|
-| psr/event-dispatcher               | New       | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
-| symfony/polyfill-php80             | New       | -       | v1.17.1 |
-| php                                | New       | -       | >=5.3   |
+| Prod Packages                      | Operation | Base               | Target             |
+|------------------------------------|-----------|--------------------|--------------------|
+| psr/event-dispatcher               | New       | -                  | 1.0.0              |
+| roave/security-advisories          | Changed   | dev-master 3c97c13 | dev-master ac36586 |
+| symfony/deprecation-contracts      | New       | -                  | v2.1.2             |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52            | v5.1.2             |
+| symfony/event-dispatcher-contracts | New       | -                  | v2.1.2             |
+| symfony/polyfill-php80             | New       | -                  | v1.17.1            |
+| php                                | New       | -                  | >=5.3              |
 
 | Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
@@ -102,13 +103,14 @@ OUTPUT
             ),
             'no-dev' => array(
                 <<<OUTPUT
-| Prod Packages                      | Operation | Base    | Target  |
-|------------------------------------|-----------|---------|---------|
-| psr/event-dispatcher               | New       | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
-| symfony/polyfill-php80             | New       | -       | v1.17.1 |
+| Prod Packages                      | Operation | Base               | Target             |
+|------------------------------------|-----------|--------------------|--------------------|
+| psr/event-dispatcher               | New       | -                  | 1.0.0              |
+| roave/security-advisories          | Changed   | dev-master 3c97c13 | dev-master ac36586 |
+| symfony/deprecation-contracts      | New       | -                  | v2.1.2             |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52            | v5.1.2             |
+| symfony/event-dispatcher-contracts | New       | -                  | v2.1.2             |
+| symfony/polyfill-php80             | New       | -                  | v1.17.1            |
 
 
 OUTPUT
@@ -121,13 +123,14 @@ OUTPUT
             ),
             'no-dev with arguments' => array(
                 <<<OUTPUT
-| Prod Packages                      | Operation | Base    | Target  |
-|------------------------------------|-----------|---------|---------|
-| psr/event-dispatcher               | New       | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
-| symfony/polyfill-php80             | New       | -       | v1.17.1 |
+| Prod Packages                      | Operation | Base               | Target             |
+|------------------------------------|-----------|--------------------|--------------------|
+| psr/event-dispatcher               | New       | -                  | 1.0.0              |
+| roave/security-advisories          | Changed   | dev-master 3c97c13 | dev-master ac36586 |
+| symfony/deprecation-contracts      | New       | -                  | v2.1.2             |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52            | v5.1.2             |
+| symfony/event-dispatcher-contracts | New       | -                  | v2.1.2             |
+| symfony/polyfill-php80             | New       | -                  | v1.17.1            |
 
 
 OUTPUT
@@ -174,14 +177,15 @@ OUTPUT
             ),
             'reversed, with platform' => array(
                 <<<OUTPUT
-| Prod Packages                      | Operation  | Base    | Target  |
-|------------------------------------|------------|---------|---------|
-| symfony/event-dispatcher           | Downgraded | v5.1.2  | v2.8.52 |
-| psr/event-dispatcher               | Removed    | 1.0.0   | -       |
-| symfony/deprecation-contracts      | Removed    | v2.1.2  | -       |
-| symfony/event-dispatcher-contracts | Removed    | v2.1.2  | -       |
-| symfony/polyfill-php80             | Removed    | v1.17.1 | -       |
-| php                                | Removed    | >=5.3   | -       |
+| Prod Packages                      | Operation  | Base               | Target             |
+|------------------------------------|------------|--------------------|--------------------|
+| roave/security-advisories          | Changed    | dev-master ac36586 | dev-master 3c97c13 |
+| symfony/event-dispatcher           | Downgraded | v5.1.2             | v2.8.52            |
+| psr/event-dispatcher               | Removed    | 1.0.0              | -                  |
+| symfony/deprecation-contracts      | Removed    | v2.1.2             | -                  |
+| symfony/event-dispatcher-contracts | Removed    | v2.1.2             | -                  |
+| symfony/polyfill-php80             | Removed    | v1.17.1            | -                  |
+| php                                | Removed    | >=5.3              | -                  |
 
 | Dev Packages                       | Operation | Base   | Target |
 |------------------------------------|-----------|--------|--------|
