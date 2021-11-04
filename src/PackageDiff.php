@@ -6,15 +6,63 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Repository\ArrayRepository;
+use Composer\Repository\RepositoryInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class PackageDiff
 {
     const LOCKFILE = 'composer.lock';
+
+    /**
+     * @return DiffEntries
+     */
+    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages)
+    {
+        $operations = array();
+
+        foreach ($targetPackages->getPackages() as $newPackage) {
+            $matchingPackages = $oldPackages->findPackages($newPackage->getName());
+
+            if ($newPackage instanceof AliasPackage) {
+                continue;
+            }
+
+            if (0 === count($matchingPackages)) {
+                $operations[] = new InstallOperation($newPackage);
+
+                continue;
+            }
+
+            foreach ($matchingPackages as $oldPackage) {
+                if ($oldPackage instanceof AliasPackage) {
+                    continue;
+                }
+
+                if ($oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()) {
+                    $operations[] = new UpdateOperation($oldPackage, $newPackage);
+                }
+            }
+        }
+
+        foreach ($oldPackages->getPackages() as $oldPackage) {
+            if ($oldPackage instanceof AliasPackage) {
+                continue;
+            }
+
+            if (!$targetPackages->findPackage($oldPackage->getName(), '*')) {
+                $operations[] = new UninstallOperation($oldPackage);
+            }
+        }
+
+        return new DiffEntries(array_map(function (OperationInterface $operation) {
+            return new DiffEntry($operation);
+        }, $operations));
+    }
 
     /**
      * @param string $from
@@ -26,32 +74,10 @@ class PackageDiff
      */
     public function getPackageDiff($from, $to, $dev, $withPlatform)
     {
-        $oldPackages = $this->loadPackages($from, $dev, $withPlatform);
-        $targetPackages = $this->loadPackages($to, $dev, $withPlatform);
-
-        $operations = array();
-
-        foreach ($targetPackages->getPackages() as $newPackage) {
-            if ($oldPackage = $oldPackages->findPackage($newPackage->getName(), '*')) {
-                if ($oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()) {
-                    $operations[] = new UpdateOperation($oldPackage, $newPackage);
-                }
-
-                continue;
-            }
-
-            $operations[] = new InstallOperation($newPackage);
-        }
-
-        foreach ($oldPackages->getPackages() as $oldPackage) {
-            if (!$targetPackages->findPackage($oldPackage->getName(), '*')) {
-                $operations[] = new UninstallOperation($oldPackage);
-            }
-        }
-
-        return new DiffEntries(array_map(function (OperationInterface $operation) {
-            return new DiffEntry($operation);
-        }, $operations));
+        return $this->getDiff(
+            $this->loadPackages($from, $dev, $withPlatform),
+            $this->loadPackages($to, $dev, $withPlatform)
+        );
     }
 
     /**

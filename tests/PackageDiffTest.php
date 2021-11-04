@@ -5,6 +5,10 @@ namespace IonBazan\ComposerDiff\Tests;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\AliasPackage;
+use Composer\Package\Package;
+use Composer\Repository\ArrayRepository;
+use Composer\Repository\RepositoryInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\PackageDiff;
 
@@ -27,7 +31,7 @@ class PackageDiffTest extends TestCase
             $withPlatform
         );
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getIterator()->getArrayCopy()));
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
     }
 
     public function testSameBaseAndTarget()
@@ -45,6 +49,19 @@ class PackageDiffTest extends TestCase
 
     /**
      * @param string[] $expected
+     *
+     * @dataProvider diffOperationsProvider
+     */
+    public function testDiff(array $expected, RepositoryInterface $oldRepository, RepositoryInterface $newRepository)
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getDiff($oldRepository, $newRepository);
+
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+    }
+
+    /**
+     * @param string[] $expected
      * @param bool     $dev
      * @param bool     $withPlatform
      *
@@ -56,7 +73,7 @@ class PackageDiffTest extends TestCase
         $this->prepareGit();
         $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform);
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getIterator()->getArrayCopy()));
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
     }
 
     public function testInvalidGitRef()
@@ -65,6 +82,51 @@ class PackageDiffTest extends TestCase
         $this->prepareGit();
         $this->setExpectedException('RuntimeException');
         $diff->getPackageDiff('invalid-ref', '', true, true);
+    }
+
+    public function diffOperationsProvider()
+    {
+        return array(
+            'update alias version' => array(
+                array(),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '1.0', '1.0'),
+                )),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
+                )),
+            ),
+            'same alias version but different actual package version' => array(
+                array(
+                    'update vendor/package-a from 1.0 to 2.0',
+                ),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '1.0', '1.0'),
+                )),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '2.0', '2.0'), '1.0', '1.0'),
+                )),
+            ),
+            'uninstall aliased package' => array(
+                array(
+                    'uninstall vendor/package-a 1.0',
+                ),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
+                )),
+                new ArrayRepository(array(
+                )),
+            ),
+            'add aliased package' => array(
+                array(
+                    'install vendor/package-a 1.0',
+                ),
+                new ArrayRepository(array()),
+                new ArrayRepository(array(
+                    new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
+                )),
+            ),
+        );
     }
 
     public function operationsProvider()
