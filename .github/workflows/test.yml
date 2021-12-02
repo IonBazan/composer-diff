@@ -55,7 +55,6 @@ jobs:
       - name: Install Composer dependencies
         run: composer update -n --prefer-dist ${{ matrix.composer-flags }}
       - name: Run Tests
-        if: ${{ matrix.php-versions == 8.0 && matrix.operating-system == 'ubuntu-latest' }}
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
