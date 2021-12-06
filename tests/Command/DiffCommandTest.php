@@ -252,6 +252,17 @@ OUTPUT
                     '-f' => 'json',
                 ),
             ),
+            'GitHub' => array(
+                <<<OUTPUT
+::notice title=Prod Packages:: - Install a/package-1 (1.0.0)%0A - Upgrade a/package-2 (1.0.0 => 1.2.0)%0A - Uninstall a/package-3 (0.1.1)%0A - Uninstall a/package-4 (0.1.1)%0A - Uninstall a/package-5 (0.1.1)%0A - Uninstall a/package-6 (0.1.1)%0A - Downgrade a/package-7 (1.2.0 => 1.0.0)
+
+OUTPUT
+                ,
+                array(
+                    '--no-dev' => null,
+                    '-f' => 'github',
+                ),
+            ),
         );
     }
 }
