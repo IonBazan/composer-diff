@@ -6,6 +6,7 @@ use Composer\Command\BaseCommand;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
+use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
@@ -58,7 +59,7 @@ class DiffCommand extends BaseCommand
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json)', 'mdtable')
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
@@ -202,6 +203,8 @@ EOF
                 return new JsonFormatter($output, $urlGenerators);
             case 'mdlist':
                 return new MarkdownListFormatter($output, $urlGenerators);
+            case 'github':
+                return new GitHubFormatter($output, $urlGenerators);
             // case 'mdtable':
             default:
                 return new MarkdownTableFormatter($output, $urlGenerators);
