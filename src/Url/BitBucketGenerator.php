@@ -55,4 +55,12 @@ class BitBucketGenerator extends GitGenerator
     {
         return sprintf('%s/src/%s', $this->getRepositoryUrl($package), $package->isDev() ? $package->getSourceReference() : $package->getPrettyVersion());
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProjectUrl(PackageInterface $package)
+    {
+        return $this->getRepositoryUrl($package);
+    }
 }

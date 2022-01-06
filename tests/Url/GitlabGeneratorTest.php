@@ -40,6 +40,40 @@ class GitlabGeneratorTest extends GeneratorTest
         );
     }
 
+    public function projectUrlProvider()
+    {
+        return array(
+            'with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git'),
+                'https://gitlab.acme.org/acme/package',
+            ),
+            'without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package'),
+                'https://gitlab.acme.org/acme/package',
+            ),
+            'ssh with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@gitlab.acme.org:acme/package.git'),
+                'https://gitlab.acme.org/acme/package',
+            ),
+            'ssh without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@gitlab.acme.org:acme/package'),
+                'https://gitlab.acme.org/acme/package',
+            ),
+            'dev version' => array(
+                $this->getPackageWithSource('acme/package', 'dev-master', 'git@gitlab.acme.org:ac/me/package'),
+                'https://gitlab.acme.org/ac/me/package',
+            ),
+            'https in subgroup' => array(
+                $this->getPackageWithSource('ac/me/package', '3.12.1', 'https://gitlab.acme.org/ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package',
+            ),
+            'ssh in subgroup' => array(
+                $this->getPackageWithSource('ac/me/package', '3.12.1', 'git@gitlab.acme.org:ac/me/package.git'),
+                'https://gitlab.acme.org/ac/me/package',
+            ),
+        );
+    }
+
     public function compareUrlProvider()
     {
         return array(

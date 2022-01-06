@@ -20,4 +20,9 @@ interface UrlGenerator
      * @return string|null
      */
     public function getReleaseUrl(PackageInterface $package);
+
+    /**
+     * @return string|null
+     */
+    public function getProjectUrl(PackageInterface $package);
 }

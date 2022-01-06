@@ -32,7 +32,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         $rows = array();
 
         foreach ($entries as $entry) {
-            $row = $this->getTableRow($entry);
+            $row = $this->getTableRow($entry, $withUrls);
 
             if ($withUrls) {
                 $row[] = $this->formatUrl($this->getUrl($entry), 'Compare');
@@ -53,14 +53,17 @@ class MarkdownTableFormatter extends MarkdownFormatter
     }
 
     /**
+     * @param bool $withUrls
      * @return string[]
      */
-    private function getTableRow(DiffEntry $entry)
+    private function getTableRow(DiffEntry $entry, $withUrls)
     {
         $operation = $entry->getOperation();
         if ($operation instanceof InstallOperation) {
+            $packageName = $operation->getPackage()->getName();
+            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
             return array(
-                $operation->getPackage()->getName(),
+                $packageUrl ?: $packageName,
                 '<fg=green>New</>',
                 '-',
                 $operation->getPackage()->getFullPrettyVersion(),
@@ -68,8 +71,10 @@ class MarkdownTableFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UpdateOperation) {
+            $packageName = $operation->getInitialPackage()->getName();
+            $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
             return array(
-                $operation->getInitialPackage()->getName(),
+                $projectUrl ?: $packageName,
                 $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
@@ -77,8 +82,10 @@ class MarkdownTableFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UninstallOperation) {
+            $packageName = $operation->getPackage()->getName();
+            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
             return array(
-                $operation->getPackage()->getName(),
+                $packageUrl ?: $packageName,
                 '<fg=red>Removed</>',
                 $operation->getPackage()->getFullPrettyVersion(),
                 '-',

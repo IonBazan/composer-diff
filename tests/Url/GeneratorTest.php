@@ -28,9 +28,21 @@ abstract class GeneratorTest extends TestCase
         $this->assertSame($expectedUrl, $this->getGenerator()->getReleaseUrl($package));
     }
 
+    /**
+     * @param string|null $expectedUrl
+     *
+     * @dataProvider projectUrlProvider
+     */
+    public function testProjectUrl(PackageInterface $package, $expectedUrl)
+    {
+        $this->assertSame($expectedUrl, $this->getGenerator()->getProjectUrl($package));
+    }
+
     abstract public function compareUrlProvider();
 
     abstract public function releaseUrlProvider();
+
+    abstract public function projectUrlProvider();
 
     /**
      * @return UrlGenerator
