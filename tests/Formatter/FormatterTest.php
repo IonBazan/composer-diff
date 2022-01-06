@@ -108,7 +108,7 @@ abstract class FormatterTest extends TestCase
     }
 
     /**
-     * @return MockObject&GeneratorContainer
+     * @return MockObject|GeneratorContainer
      */
     protected function getGenerators()
     {

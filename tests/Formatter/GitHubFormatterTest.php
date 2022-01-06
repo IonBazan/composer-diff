@@ -2,14 +2,9 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
-use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\StreamOutput;
 
 class GitHubFormatterTest extends FormatterTest
 {

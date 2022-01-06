@@ -54,6 +54,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
 
     /**
      * @param bool $withUrls
+     *
      * @return string[]
      */
     private function getTableRow(DiffEntry $entry, $withUrls)
@@ -62,6 +63,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof InstallOperation) {
             $packageName = $operation->getPackage()->getName();
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=green>New</>',
@@ -73,6 +75,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UpdateOperation) {
             $packageName = $operation->getInitialPackage()->getName();
             $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return array(
                 $projectUrl ?: $packageName,
                 $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
@@ -84,6 +87,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
         if ($operation instanceof UninstallOperation) {
             $packageName = $operation->getPackage()->getName();
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=red>Removed</>',

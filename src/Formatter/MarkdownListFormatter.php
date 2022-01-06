@@ -53,6 +53,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         if ($operation instanceof InstallOperation) {
             $packageName = $operation->getPackage()->getName();
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return sprintf(
                 ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s',
                 $packageUrl ?: $packageName,
@@ -64,6 +65,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         if ($operation instanceof UpdateOperation) {
             $packageName = $operation->getInitialPackage()->getName();
             $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return sprintf(
                 ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s',
                 ucfirst($entry->getType()),
@@ -77,6 +79,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         if ($operation instanceof UninstallOperation) {
             $packageName = $operation->getPackage()->getName();
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+
             return sprintf(
                 ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s',
                 $packageUrl ?: $packageName,

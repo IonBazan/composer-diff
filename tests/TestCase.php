@@ -31,7 +31,7 @@ abstract class TestCase extends BaseTestCase
      * @param string      $version
      * @param string|null $fullVersion
      *
-     * @return MockObject&PackageInterface
+     * @return MockObject|PackageInterface
      */
     protected function getPackage($name, $version, $fullVersion = null)
     {
