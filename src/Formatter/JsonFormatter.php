@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
@@ -53,6 +54,7 @@ class JsonFormatter extends AbstractFormatter
 
             if ($withUrls) {
                 $row['compare'] = $this->getUrl($entry);
+                $row['link'] = $this->getProjectUrl($entry->getOperation());
             }
 
             $rows[$row['name']] = $row;

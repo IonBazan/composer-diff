@@ -111,6 +111,9 @@ abstract class FormatterTest extends TestCase
         $generator->method('getReleaseUrl')->willReturnCallback(function (PackageInterface $package) {
             return sprintf('https://example.com/r/%s', $package->getVersion());
         });
+        $generator->method('getProjectUrl')->willReturnCallback(function (PackageInterface $package) {
+            return sprintf('https://example.com/r/%s', $package->getName());
+        });
 
         $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')
             ->disableOriginalConstructor()

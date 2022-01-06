@@ -35,6 +35,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => null,
                     'version_target' => '1.0.0',
                     'compare' => 'https://example.com/r/1.0.0',
+                    'link' => 'https://example.com/r/a/package-1',
                 ),
             'a/no-link-1' => array(
                     'name' => 'a/no-link-1',
@@ -42,6 +43,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => null,
                     'version_target' => '1.0.0',
                     'compare' => null,
+                    'link' => null,
                 ),
             'a/package-2' => array(
                     'name' => 'a/package-2',
@@ -49,6 +51,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
                     'compare' => 'https://example.com/c/1.0.0..1.2.0',
+                    'link' => 'https://example.com/r/a/package-2',
                 ),
             'a/package-3' => array(
                     'name' => 'a/package-3',
@@ -56,6 +59,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
                     'compare' => 'https://example.com/c/2.0.0..1.1.1',
+                    'link' => 'https://example.com/r/a/package-3',
                 ),
             'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
@@ -63,6 +67,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => '0.1.1',
                     'version_target' => null,
                     'compare' => null,
+                    'link' => null,
                 ),
             'a/package-5' => array(
                     'name' => 'a/package-5',
@@ -70,6 +75,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
                     'compare' => 'https://example.com/c/dev-master..1.1.1',
+                    'link' => 'https://example.com/r/a/package-5',
                 ),
             'a/package-4' => array(
                     'name' => 'a/package-4',
@@ -77,6 +83,7 @@ class JsonFormatterTest extends FormatterTest
                     'version_base' => '0.1.1',
                     'version_target' => null,
                     'compare' => 'https://example.com/r/0.1.1',
+                    'link' => 'https://example.com/r/a/package-4',
                 ),
         )), $this->getDisplay($output));
     }
@@ -92,6 +99,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => null,
                                 'version_target' => '1.0.0',
                                 'compare' => 'https://example.com/r/1.0.0',
+                                'link' => 'https://example.com/r/a/package-1',
                             ),
                         'a/no-link-1' => array(
                                 'name' => 'a/no-link-1',
@@ -99,6 +107,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => null,
                                 'version_target' => '1.0.0',
                                 'compare' => null,
+                                'link' => null,
                             ),
                         'a/package-2' => array(
                                 'name' => 'a/package-2',
@@ -106,6 +115,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => '1.0.0',
                                 'version_target' => '1.2.0',
                                 'compare' => 'https://example.com/c/1.0.0..1.2.0',
+                                'link' => 'https://example.com/r/a/package-2',
                             ),
                         'a/package-3' => array(
                                 'name' => 'a/package-3',
@@ -113,6 +123,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => '2.0.0',
                                 'version_target' => '1.1.1',
                                 'compare' => 'https://example.com/c/2.0.0..1.1.1',
+                                'link' => 'https://example.com/r/a/package-3',
                             ),
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
@@ -120,6 +131,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => '2.0.0',
                                 'version_target' => '1.1.1',
                                 'compare' => null,
+                                'link' => null,
                             ),
                         'php' => array(
                             'name' => 'php',
@@ -127,6 +139,7 @@ class JsonFormatterTest extends FormatterTest
                             'version_base' => '>=7.4.6',
                             'version_target' => '^8.0',
                             'compare' => null,
+                            'link' => null,
                         ),
                     ),
                 'packages-dev' => array(
@@ -136,6 +149,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => 'dev-master 1234567',
                                 'version_target' => '1.1.1',
                                 'compare' => 'https://example.com/c/dev-master..1.1.1',
+                                'link' => 'https://example.com/r/a/package-5',
                             ),
                         'a/package-4' => array(
                                 'name' => 'a/package-4',
@@ -143,6 +157,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => '0.1.1',
                                 'version_target' => null,
                                 'compare' => 'https://example.com/r/0.1.1',
+                                'link' => 'https://example.com/r/a/package-4',
                             ),
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
@@ -150,6 +165,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_base' => '0.1.1',
                                 'version_target' => null,
                                 'compare' => null,
+                                'link' => null,
                             ),
                     ),
             ));

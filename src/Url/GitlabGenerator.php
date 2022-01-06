@@ -58,4 +58,12 @@ class GitlabGenerator extends GitGenerator
 
         return sprintf('%s/tags/%s', $this->getRepositoryUrl($package), $package->getPrettyVersion());
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProjectUrl(PackageInterface $package)
+    {
+        return $this->getRepositoryUrl($package);
+    }
 }

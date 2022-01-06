@@ -38,6 +38,14 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
+    public function getProjectUrl(PackageInterface $package)
+    {
+        return $this->getRepositoryUrl($package);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDomain()
     {
         return 'github.com';

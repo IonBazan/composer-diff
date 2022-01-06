@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
@@ -44,6 +45,32 @@ abstract class AbstractFormatter implements Formatter
         }
 
         return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProjectUrl(OperationInterface $operation)
+    {
+        if ($operation instanceof UpdateOperation) {
+            $package = $operation->getInitialPackage();
+        }
+
+        if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
+            $package = $operation->getPackage();
+        }
+
+        if (!isset($package)) {
+            return null;
+        }
+
+        $generator = $this->generators->get($package);
+
+        if (!$generator) {
+            return null;
+        }
+
+        return $generator->getProjectUrl($package);
     }
 
     /**
