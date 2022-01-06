@@ -32,6 +32,32 @@ class BitBucketGeneratorTest extends GeneratorTest
         );
     }
 
+    public function projectUrlProvider()
+    {
+        return array(
+            'with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git'),
+                'https://bitbucket.org/acme/package',
+            ),
+            'without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package'),
+                'https://bitbucket.org/acme/package',
+            ),
+            'ssh with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@bitbucket.org:acme/package.git'),
+                'https://bitbucket.org/acme/package',
+            ),
+            'ssh without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@bitbucket.org:acme/package'),
+                'https://bitbucket.org/acme/package',
+            ),
+            'dev version' => array(
+                $this->getPackageWithSource('acme/package', 'dev-master', 'git@bitbucket.org:acme/package', 'd46283075d76ed244f7825b378eeb1cee246af73'),
+                'https://bitbucket.org/acme/package',
+            ),
+        );
+    }
+
     public function compareUrlProvider()
     {
         return array(

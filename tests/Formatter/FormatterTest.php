@@ -33,6 +33,14 @@ abstract class FormatterTest extends TestCase
         $this->assertNull($formatter->getUrl(new DiffEntry($operation)));
     }
 
+    public function testGetProjectUrlReturnsNullForInvalidOperation()
+    {
+        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
+        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $formatter = $this->getFormatter($output, $this->getGenerators());
+        $this->assertNull($formatter->getProjectUrl($operation));
+    }
+
     /**
      * @param bool $withUrls
      *

@@ -38,6 +38,32 @@ class GithubGeneratorTest extends GeneratorTest
         );
     }
 
+    public function projectUrlProvider()
+    {
+        return array(
+            'with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git'),
+                'https://github.com/acme/package',
+            ),
+            'without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package'),
+                'https://github.com/acme/package',
+            ),
+            'ssh with .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@github.com:acme/package.git'),
+                'https://github.com/acme/package',
+            ),
+            'ssh without .git' => array(
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@github.com:acme/package'),
+                'https://github.com/acme/package',
+            ),
+            'dev version' => array(
+                $this->getPackageWithSource('acme/package', 'dev-master', 'git@github.com:acme/package'),
+                'https://github.com/acme/package',
+            ),
+        );
+    }
+
     public function compareUrlProvider()
     {
         return array(
