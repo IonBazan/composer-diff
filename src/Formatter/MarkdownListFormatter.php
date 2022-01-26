@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -10,19 +10,13 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class MarkdownListFormatter extends MarkdownFormatter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls): void
     {
         $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
         $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls): void
     {
         if (!\count($entries)) {
             return;
@@ -39,12 +33,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         $this->output->writeln('');
     }
 
-    /**
-     * @param bool $withUrls
-     *
-     * @return string
-     */
-    private function getRow(DiffEntry $entry, $withUrls)
+    private function getRow(DiffEntry $entry, bool $withUrls): string
     {
         $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
         $url = (null !== $url) ? ' '.$url : '';

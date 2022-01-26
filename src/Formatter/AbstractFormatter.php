@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -29,10 +29,7 @@ abstract class AbstractFormatter implements Formatter
         $this->generators = $generators;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getUrl(DiffEntry $entry)
+    public function getUrl(DiffEntry $entry): ?string
     {
         $operation = $entry->getOperation();
 
@@ -47,10 +44,7 @@ abstract class AbstractFormatter implements Formatter
         return null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getProjectUrl(OperationInterface $operation)
+    public function getProjectUrl(OperationInterface $operation): ?string
     {
         if ($operation instanceof UpdateOperation) {
             $package = $operation->getInitialPackage();
@@ -73,10 +67,7 @@ abstract class AbstractFormatter implements Formatter
         return $generator->getProjectUrl($package);
     }
 
-    /**
-     * @return string|null
-     */
-    private function getCompareUrl(PackageInterface $basePackage, PackageInterface $targetPackage)
+    private function getCompareUrl(PackageInterface $basePackage, PackageInterface $targetPackage): ?string
     {
         $generator = $this->generators->get($targetPackage);
 
@@ -87,10 +78,7 @@ abstract class AbstractFormatter implements Formatter
         return $generator->getCompareUrl($basePackage, $targetPackage);
     }
 
-    /**
-     * @return string|null
-     */
-    private function getReleaseUrl(PackageInterface $package)
+    private function getReleaseUrl(PackageInterface $package): ?string
     {
         $generator = $this->generators->get($package);
 

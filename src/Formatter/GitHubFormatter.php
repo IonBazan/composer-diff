@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -10,19 +10,13 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class GitHubFormatter extends AbstractFormatter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls): void
     {
         $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
         $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls): void
     {
         if (!\count($entries)) {
             return;
@@ -33,13 +27,11 @@ class GitHubFormatter extends AbstractFormatter
     }
 
     /**
-     * @param bool $withUrls
-     *
      * @return string[]
      */
-    private function transformEntries(DiffEntries $entries, $withUrls)
+    private function transformEntries(DiffEntries $entries, bool $withUrls): array
     {
-        $rows = array();
+        $rows = [];
 
         foreach ($entries as $entry) {
             $rows[] = $this->transformEntry($entry, $withUrls);
@@ -48,12 +40,7 @@ class GitHubFormatter extends AbstractFormatter
         return $rows;
     }
 
-    /**
-     * @param bool $withUrls
-     *
-     * @return string
-     */
-    private function transformEntry(DiffEntry $entry, $withUrls)
+    private function transformEntry(DiffEntry $entry, bool $withUrls): string
     {
         $operation = $entry->getOperation();
         $url = $withUrls ? $this->getUrl($entry) : null;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -7,23 +7,9 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 interface Formatter
 {
-    /**
-     * @param bool $withUrls
-     *
-     * @return void
-     */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls);
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls): void;
 
-    /**
-     * @param string $title
-     * @param bool   $withUrls
-     *
-     * @return void
-     */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls);
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls): void;
 
-    /**
-     * @return string|null
-     */
-    public function getUrl(DiffEntry $entry);
+    public function getUrl(DiffEntry $entry): ?string;
 }

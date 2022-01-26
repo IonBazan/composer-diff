@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Command;
 
@@ -21,11 +21,8 @@ class CommandProvider implements BaseCommandProvider
         $this->composer = $args['composer'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCommands()
+    public function getCommands(): array
     {
-        return array(new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains')));
+        return [new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains'))];
     }
 }

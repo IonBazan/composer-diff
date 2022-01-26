@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
@@ -7,9 +7,9 @@ use IonBazan\ComposerDiff\Url\GeneratorContainer;
 
 class GeneratorContainerTest extends TestCase
 {
-    public function testGetsProperGenerator()
+    public function testGetsProperGenerator(): void
     {
-        $container = new GeneratorContainer(array('gitlab2.org'));
+        $container = new GeneratorContainer(['gitlab2.org']);
         $githubGenerator = $container->get($this->getPackageWithSource('', '', 'https://github.com'));
         $this->assertInstanceOf('IonBazan\ComposerDiff\Url\GithubGenerator', $githubGenerator);
         $gitlabGenerator = $container->get($this->getPackageWithSource('', '', 'https://gitlab.org'));

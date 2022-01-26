@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Url;
 
@@ -11,26 +11,17 @@ class GitlabGenerator extends GitGenerator
      */
     private $domain;
 
-    /**
-     * @param string $domain
-     */
-    public function __construct($domain = 'gitlab.org')
+    public function __construct(string $domain = 'gitlab.org')
     {
         $this->domain = $domain;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDomain()
+    protected function getDomain(): string
     {
         return $this->domain;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
         if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
             return null;
@@ -47,10 +38,7 @@ class GitlabGenerator extends GitGenerator
         return sprintf('%s/compare/%s...%s', $baseUrl, $this->getCompareRef($initialPackage), $this->getCompareRef($targetPackage));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
             return null;
@@ -59,10 +47,7 @@ class GitlabGenerator extends GitGenerator
         return sprintf('%s/tags/%s', $this->getRepositoryUrl($package), $package->getPrettyVersion());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): string
     {
         return $this->getRepositoryUrl($package);
     }

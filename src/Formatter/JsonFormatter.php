@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -10,43 +10,33 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class JsonFormatter extends AbstractFormatter
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls): void
     {
-        $this->format(array(
+        $this->format([
             'packages' => $this->transformEntries($prodEntries, $withUrls),
             'packages-dev' => $this->transformEntries($devEntries, $withUrls),
-        ));
+        ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls): void
     {
         $this->format($this->transformEntries($entries, $withUrls));
     }
 
     /**
      * @param array<string, array<string, string|null>>|array<string, array<array<string, string|null>>> $data
-     *
-     * @return void
      */
-    private function format(array $data)
+    private function format(array $data): void
     {
-        $this->output->writeln(json_encode($data, 128)); // JSON_PRETTY_PRINT
+        $this->output->writeln(json_encode($data, JSON_PRETTY_PRINT));
     }
 
     /**
-     * @param bool $withUrls
-     *
      * @return array<array<string, string|null>>
      */
-    private function transformEntries(DiffEntries $entries, $withUrls)
+    private function transformEntries(DiffEntries $entries, bool $withUrls): array
     {
-        $rows = array();
+        $rows = [];
 
         foreach ($entries as $entry) {
             $row = $this->transformEntry($entry);
@@ -65,35 +55,35 @@ class JsonFormatter extends AbstractFormatter
     /**
      * @return array<string, string|null>
      */
-    private function transformEntry(DiffEntry $entry)
+    private function transformEntry(DiffEntry $entry): array
     {
         $operation = $entry->getOperation();
 
         if ($operation instanceof InstallOperation) {
-            return array(
+            return [
                 'name' => $operation->getPackage()->getName(),
                 'operation' => $entry->getType(),
                 'version_base' => null,
                 'version_target' => $operation->getPackage()->getFullPrettyVersion(),
-            );
+            ];
         }
 
         if ($operation instanceof UpdateOperation) {
-            return array(
+            return [
                 'name' => $operation->getInitialPackage()->getName(),
                 'operation' => $entry->getType(),
                 'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
                 'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
-            );
+            ];
         }
 
         if ($operation instanceof UninstallOperation) {
-            return array(
+            return [
                 'name' => $operation->getPackage()->getName(),
                 'operation' => $entry->getType(),
                 'version_base' => $operation->getPackage()->getFullPrettyVersion(),
                 'version_target' => null,
-            );
+            ];
         }
 
         throw new \InvalidArgumentException('Invalid operation');

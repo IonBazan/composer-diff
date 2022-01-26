@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Diff;
 
@@ -9,11 +9,11 @@ use Composer\DependencyResolver\Operation\UpdateOperation;
 
 class DiffEntry
 {
-    const TYPE_INSTALL = 'install';
-    const TYPE_UPGRADE = 'upgrade';
-    const TYPE_DOWNGRADE = 'downgrade';
-    const TYPE_REMOVE = 'remove';
-    const TYPE_CHANGE = 'change';
+    public const TYPE_INSTALL = 'install';
+    public const TYPE_UPGRADE = 'upgrade';
+    public const TYPE_DOWNGRADE = 'downgrade';
+    public const TYPE_REMOVE = 'remove';
+    public const TYPE_CHANGE = 'change';
 
     /** @var OperationInterface */
     private $operation;
@@ -27,66 +27,42 @@ class DiffEntry
         $this->type = $this->determineType();
     }
 
-    /**
-     * @return OperationInterface
-     */
-    public function getOperation()
+    public function getOperation(): OperationInterface
     {
         return $this->operation;
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isInstall()
+    public function isInstall(): bool
     {
         return self::TYPE_INSTALL === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUpgrade()
+    public function isUpgrade(): bool
     {
         return self::TYPE_UPGRADE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDowngrade()
+    public function isDowngrade(): bool
     {
         return self::TYPE_DOWNGRADE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isRemove()
+    public function isRemove(): bool
     {
         return self::TYPE_REMOVE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isChange()
+    public function isChange(): bool
     {
         return self::TYPE_CHANGE === $this->type;
     }
 
-    /**
-     * @return string
-     */
-    private function determineType()
+    private function determineType(): string
     {
         if ($this->operation instanceof InstallOperation) {
             return self::TYPE_INSTALL;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff;
 
@@ -16,14 +16,11 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class PackageDiff
 {
-    const LOCKFILE = 'composer.lock';
+    public const LOCKFILE = 'composer.lock';
 
-    /**
-     * @return DiffEntries
-     */
-    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages)
+    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages): DiffEntries
     {
-        $operations = array();
+        $operations = [];
 
         foreach ($targetPackages->getPackages() as $newPackage) {
             $matchingPackages = $oldPackages->findPackages($newPackage->getName());
@@ -64,15 +61,7 @@ class PackageDiff
         }, $operations));
     }
 
-    /**
-     * @param string $from
-     * @param string $to
-     * @param bool   $dev
-     * @param bool   $withPlatform
-     *
-     * @return DiffEntries
-     */
-    public function getPackageDiff($from, $to, $dev, $withPlatform)
+    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform): DiffEntries
     {
         return $this->getDiff(
             $this->loadPackages($from, $dev, $withPlatform),
@@ -80,19 +69,12 @@ class PackageDiff
         );
     }
 
-    /**
-     * @param string $path
-     * @param bool   $dev
-     * @param bool   $withPlatform
-     *
-     * @return ArrayRepository
-     */
-    private function loadPackages($path, $dev, $withPlatform)
+    private function loadPackages(string $path, bool $dev, bool $withPlatform): ArrayRepository
     {
         $data = \json_decode($this->getFileContents($path), true);
         $loader = new ArrayLoader();
 
-        $packages = array();
+        $packages = [];
 
         foreach ($data['packages'.($dev ? '-dev' : '')] as $packageInfo) {
             $packages[] = $loader->load($packageInfo);
@@ -107,12 +89,7 @@ class PackageDiff
         return new ArrayRepository($packages);
     }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
-    private function getFileContents($path)
+    private function getFileContents(string $path): string
     {
         $originalPath = $path;
 
@@ -128,7 +105,7 @@ class PackageDiff
             $path .= ':'.self::LOCKFILE;
         }
 
-        $output = array();
+        $output = [];
         @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
 
         if (0 !== $exit) {

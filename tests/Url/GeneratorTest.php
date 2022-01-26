@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
@@ -9,31 +9,25 @@ use IonBazan\ComposerDiff\Url\UrlGenerator;
 abstract class GeneratorTest extends TestCase
 {
     /**
-     * @param string $expectedUrl
-     *
      * @dataProvider compareUrlProvider
      */
-    public function testCompareUrl(PackageInterface $initial, PackageInterface $target, $expectedUrl)
+    public function testCompareUrl(PackageInterface $initial, PackageInterface $target, ?string $expectedUrl): void
     {
         $this->assertSame($expectedUrl, $this->getGenerator()->getCompareUrl($initial, $target));
     }
 
     /**
-     * @param string|null $expectedUrl
-     *
      * @dataProvider releaseUrlProvider
      */
-    public function testReleaseUrl(PackageInterface $package, $expectedUrl)
+    public function testReleaseUrl(PackageInterface $package, ?string $expectedUrl): void
     {
         $this->assertSame($expectedUrl, $this->getGenerator()->getReleaseUrl($package));
     }
 
     /**
-     * @param string|null $expectedUrl
-     *
      * @dataProvider projectUrlProvider
      */
-    public function testProjectUrl(PackageInterface $package, $expectedUrl)
+    public function testProjectUrl(PackageInterface $package, ?string $expectedUrl): void
     {
         $this->assertSame($expectedUrl, $this->getGenerator()->getProjectUrl($package));
     }
@@ -44,8 +38,5 @@ abstract class GeneratorTest extends TestCase
 
     abstract public function projectUrlProvider();
 
-    /**
-     * @return UrlGenerator
-     */
-    abstract protected function getGenerator();
+    abstract protected function getGenerator(): UrlGenerator;
 }

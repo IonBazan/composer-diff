@@ -1,16 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
 abstract class MarkdownFormatter extends AbstractFormatter
 {
-    /**
-     * @param string|null $url
-     * @param string      $title
-     *
-     * @return string
-     */
-    protected function formatUrl($url, $title)
+    protected function formatUrl(?string $url, string $title): string
     {
         return null !== $url ? sprintf('[%s](%s)', $title, $url) : '';
     }

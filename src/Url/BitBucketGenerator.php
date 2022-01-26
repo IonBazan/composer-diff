@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Url;
 
@@ -6,18 +6,12 @@ use Composer\Package\PackageInterface;
 
 class BitBucketGenerator extends GitGenerator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDomain()
+    protected function getDomain(): string
     {
         return 'bitbucket.org';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
         if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
             return null;
@@ -48,18 +42,12 @@ class BitBucketGenerator extends GitGenerator
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): string
     {
         return sprintf('%s/src/%s', $this->getRepositoryUrl($package), $package->isDev() ? $package->getSourceReference() : $package->getPrettyVersion());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): string
     {
         return $this->getRepositoryUrl($package);
     }

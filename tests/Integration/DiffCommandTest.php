@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Integration;
 
@@ -18,11 +18,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 class DiffCommandTest extends TestCase
 {
     /**
-     * @param string $expectedOutput
-     *
      * @dataProvider commandArgumentsDataProvider
      */
-    public function testCommand($expectedOutput, array $input)
+    public function testCommand(string $expectedOutput, array $input): void
     {
         $tester = new CommandTester(new DiffCommand(new PackageDiff()));
         $result = $tester->execute($input);
@@ -31,15 +29,13 @@ class DiffCommandTest extends TestCase
     }
 
     /**
-     * @param string $expectedOutput
-     *
      * @dataProvider commandArgumentsDataProvider
      *
      * @runInSeparateProcess To handle autoloader stuff
      */
-    public function testComposerApplication($expectedOutput, array $input)
+    public function testComposerApplication(string $expectedOutput, array $input): void
     {
-        $input = array_merge(array('command' => 'diff'), $input);
+        $input = array_merge(['command' => 'diff'], $input);
         $app = new ComposerApplication();
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
@@ -49,15 +45,15 @@ class DiffCommandTest extends TestCase
         $composer->setPluginManager($pm);
         $pm->registerPackage($composer->getPackage(), true);
         $tester = new ApplicationTester($app);
-        $result = $tester->run($input, array('verbosity' => Output::VERBOSITY_VERY_VERBOSE));
+        $result = $tester->run($input, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
         $this->assertSame($expectedOutput, $tester->getDisplay());
         $this->assertSame(0, $result);
     }
 
-    public function commandArgumentsDataProvider()
+    public function commandArgumentsDataProvider(): array
     {
-        return array(
-            'with platform' => array(
+        return [
+            'with platform' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -95,13 +91,13 @@ class DiffCommandTest extends TestCase
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '-p' => null,
-                ),
-            ),
-            'no-dev' => array(
+                ],
+            ],
+            'no-dev' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -115,13 +111,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-dev' => null,
-                ),
-            ),
-            'no-dev with arguments' => array(
+                ],
+            ],
+            'no-dev with arguments' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -135,13 +131,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     'base' => __DIR__.'/../fixtures/base/composer.lock',
                     'target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-dev' => null,
-                ),
-            ),
-            'no-prod' => array(
+                ],
+            ],
+            'no-prod' => [
                 <<<OUTPUT
 | Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
@@ -169,13 +165,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-prod' => null,
-                ),
-            ),
-            'reversed, with platform' => array(
+                ],
+            ],
+            'reversed, with platform' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation  | Base               | Target             |
 |------------------------------------|------------|--------------------|--------------------|
@@ -213,32 +209,32 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/target/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                ),
-            ),
-            'no changes' => array(
+                ],
+            ],
+            'no changes' => [
                 '',
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 }
 
 class ComposerApplication extends Application
 {
-    public function setIO(IOInterface $io)
+    public function setIO(IOInterface $io): void
     {
         $this->io = $io;
     }
 
-    public function setComposer(Composer $composer)
+    public function setComposer(Composer $composer): void
     {
         $this->composer = $composer;
     }

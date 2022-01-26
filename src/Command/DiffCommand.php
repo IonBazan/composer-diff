@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Command;
 
@@ -19,10 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DiffCommand extends BaseCommand
 {
-    const CHANGES_PROD = 2;
-    const CHANGES_DEV = 4;
-    const DOWNGRADES_PROD = 8;
-    const DOWNGRADES_DEV = 16;
+    public const CHANGES_PROD = 2;
+    public const CHANGES_DEV = 4;
+    public const DOWNGRADES_PROD = 8;
+    public const DOWNGRADES_DEV = 16;
     /**
      * @var PackageDiff
      */
@@ -36,7 +36,7 @@ class DiffCommand extends BaseCommand
     /**
      * @param string[] $gitlabDomains
      */
-    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = array())
+    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = [])
     {
         $this->packageDiff = $packageDiff;
         $this->gitlabDomains = $gitlabDomains;
@@ -44,10 +44,7 @@ class DiffCommand extends BaseCommand
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('diff')
             ->setDescription('Compares composer.lock files and shows package changes')
@@ -60,9 +57,10 @@ class DiffCommand extends BaseCommand
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
-            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
+            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
-            ->setHelp(<<<'EOF'
+            ->setHelp(
+                <<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
 
 By default, it will compare current filesystem changes with git <comment>HEAD</comment>:
@@ -121,21 +119,18 @@ EOF
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $base = null !== $input->getArgument('base') ? $input->getArgument('base') : $input->getOption('base');
-        $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
+        $base = $input->getArgument('base') ?? $input->getOption('base');
+        $target = $input->getArgument('target') ?? $input->getOption('target');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
 
         $formatter = $this->getFormatter($input, $output);
 
-        $prodOperations = new DiffEntries(array());
-        $devOperations = new DiffEntries(array());
+        $prodOperations = new DiffEntries([]);
+        $devOperations = new DiffEntries([]);
 
         if (!$input->getOption('no-prod')) {
             $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
@@ -150,10 +145,7 @@ EOF
         return $input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0;
     }
 
-    /**
-     * @return int Exit code
-     */
-    private function getExitCode(DiffEntries $prodEntries, DiffEntries $devEntries)
+    private function getExitCode(DiffEntries $prodEntries, DiffEntries $devEntries): int
     {
         $exitCode = 0;
 
@@ -176,10 +168,7 @@ EOF
         return $exitCode;
     }
 
-    /**
-     * @return bool
-     */
-    private function hasDowngrades(DiffEntries $entries)
+    private function hasDowngrades(DiffEntries $entries): bool
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
@@ -191,10 +180,7 @@ EOF
         return false;
     }
 
-    /**
-     * @return Formatter
-     */
-    private function getFormatter(InputInterface $input, OutputInterface $output)
+    private function getFormatter(InputInterface $input, OutputInterface $output): Formatter
     {
         $urlGenerators = new GeneratorContainer($this->gitlabDomains);
 

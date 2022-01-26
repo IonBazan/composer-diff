@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Url;
 
@@ -9,18 +9,18 @@ class GeneratorContainer
     /**
      * @var UrlGenerator[]
      */
-    protected $generators = array();
+    protected $generators = [];
 
     /**
      * @param string[] $gitlabDomains
      */
     public function __construct(array $gitlabDomains)
     {
-        $generators = array(
+        $generators = [
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
-        );
+        ];
 
         foreach ($gitlabDomains as $domain) {
             $generators[] = new GitlabGenerator($domain);
@@ -29,10 +29,7 @@ class GeneratorContainer
         $this->generators = $generators;
     }
 
-    /**
-     * @return UrlGenerator|null
-     */
-    public function get(PackageInterface $package)
+    public function get(PackageInterface $package): ?UrlGenerator
     {
         foreach ($this->generators as $generator) {
             if ($generator->supportsPackage($package)) {

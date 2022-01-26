@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
@@ -14,29 +14,31 @@ use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
+use Composer\DependencyResolver\Operation\OperationInterface;
 
 abstract class FormatterTest extends TestCase
 {
-    public function testItNoopsWhenListIsEmpty()
+    public function testItNoopsWhenListIsEmpty(): void
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->render(new DiffEntries(array()), new DiffEntries(array()), true);
+        $formatter->render(new DiffEntries([]), new DiffEntries([]), true);
         $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
-    public function testGetUrlReturnsNullForInvalidOperation()
+    public function testGetUrlReturnsNullForInvalidOperation(): void
     {
-        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
-        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $output = $this->createMock(OutputInterface::class);
+        $operation = $this->createMock(OperationInterface::class);
         $formatter = $this->getFormatter($output, $this->getGenerators());
         $this->assertNull($formatter->getUrl(new DiffEntry($operation)));
     }
 
-    public function testGetProjectUrlReturnsNullForInvalidOperation()
+    public function testGetProjectUrlReturnsNullForInvalidOperation(): void
     {
-        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
-        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $output = $this->createMock(OutputInterface::class);
+        $operation = $this->createMock(OperationInterface::class);
         $formatter = $this->getFormatter($output, $this->getGenerators());
         $this->assertNull($formatter->getProjectUrl($operation));
     }
@@ -47,52 +49,41 @@ abstract class FormatterTest extends TestCase
      * @testWith   [false]
      *             [true]
      */
-    public function testItRendersTheListOfOperations($withUrls)
+    public function testItRendersTheListOfOperations($withUrls): void
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $prodPackages = array(
+        $prodPackages = [
             new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
             new InstallOperation($this->getPackage('a/no-link-1', '1.0.0')),
             new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
             new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
             new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
             new UpdateOperation($this->getPackage('php', '>=7.4.6'), $this->getPackage('php', '^8.0')),
-        );
-        $devPackages = array(
+        ];
+        $devPackages = [
             new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
             new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
             new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
-        );
+        ];
         $formatter->render($this->getEntries($prodPackages), $this->getEntries($devPackages), $withUrls);
         $this->assertSame($this->getSampleOutput($withUrls), $this->getDisplay($output));
     }
 
-    public function testItFailsWithInvalidOperation()
+    public function testItFailsWithInvalidOperation(): void
     {
-        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
-        $this->setExpectedException('InvalidArgumentException', 'Invalid operation');
-        $this->getFormatter($output, $this->getGenerators())->render($this->getEntries(array(
-            $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock(),
-        )), $this->getEntries(array()), false);
+        $output = $this->createMock(OutputInterface::class);
+        $this->expectExceptionObject(new \InvalidArgumentException('Invalid operation'));
+        $this->getFormatter($output, $this->getGenerators())->render($this->getEntries([
+            $this->createMock(OperationInterface::class),
+        ]), $this->getEntries([]), false);
     }
 
-    /**
-     * @return Formatter
-     */
-    abstract protected function getFormatter(OutputInterface $output, GeneratorContainer $generators);
+    abstract protected function getFormatter(OutputInterface $output, GeneratorContainer $generators): Formatter;
 
-    /**
-     * @param bool $withUrls
-     *
-     * @return string
-     */
-    abstract protected function getSampleOutput($withUrls);
+    abstract protected function getSampleOutput(bool $withUrls): string;
 
-    /**
-     * @return string
-     */
-    protected static function getEmptyOutput()
+    protected static function getEmptyOutput(): string
     {
         return '';
     }
@@ -108,11 +99,11 @@ abstract class FormatterTest extends TestCase
     }
 
     /**
-     * @return MockObject|GeneratorContainer
+     * @return MockObject&GeneratorContainer
      */
-    protected function getGenerators()
+    protected function getGenerators(): GeneratorContainer
     {
-        $generator = $this->getMockBuilder('IonBazan\ComposerDiff\Url\UrlGenerator')->getMock();
+        $generator = $this->createMock(UrlGenerator::class);
         $generator->method('getCompareUrl')->willReturnCallback(function (PackageInterface $base, PackageInterface $target) {
             return sprintf('https://example.com/c/%s..%s', $base->getVersion(), $target->getVersion());
         });
@@ -123,9 +114,7 @@ abstract class FormatterTest extends TestCase
             return sprintf('https://example.com/r/%s', $package->getName());
         });
 
-        $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $generators = $this->createMock(GeneratorContainer::class);
         $generators->method('get')
             ->willReturnCallback(function (PackageInterface $package) use ($generator) {
                 if ('php' === $package->getName() || false !== strpos($package->getName(), 'a/no-link')) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Url;
 
@@ -6,23 +6,11 @@ use Composer\Package\PackageInterface;
 
 interface UrlGenerator
 {
-    /**
-     * @return bool
-     */
-    public function supportsPackage(PackageInterface $package);
+    public function supportsPackage(PackageInterface $package): bool;
 
-    /**
-     * @return string|null
-     */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage);
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string;
 
-    /**
-     * @return string|null
-     */
-    public function getReleaseUrl(PackageInterface $package);
+    public function getReleaseUrl(PackageInterface $package): ?string;
 
-    /**
-     * @return string|null
-     */
-    public function getProjectUrl(PackageInterface $package);
+    public function getProjectUrl(PackageInterface $package): ?string;
 }

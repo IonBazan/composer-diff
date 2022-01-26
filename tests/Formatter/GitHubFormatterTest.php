@@ -1,14 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GitHubFormatterTest extends FormatterTest
 {
-    protected function getSampleOutput($withUrls)
+    protected function getSampleOutput(bool $withUrls): string
     {
         if ($withUrls) {
             return <<<OUTPUT
@@ -25,10 +26,7 @@ OUTPUT;
 OUTPUT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getFormatter(OutputInterface $output, GeneratorContainer $generators)
+    protected function getFormatter(OutputInterface $output, GeneratorContainer $generators): Formatter
     {
         return new GitHubFormatter($output, $generators);
     }

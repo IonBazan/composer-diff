@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter\Helper;
 
@@ -14,19 +14,19 @@ class Table
     /**
      * @var string[]
      */
-    protected $headers = array();
+    protected $headers = [];
 
     /**
      * @var string[][]
      */
-    protected $rows = array();
+    protected $rows = [];
 
     /**
      * Column widths cache.
      *
      * @var int[]
      */
-    private $columnWidths = array();
+    private $columnWidths = [];
 
     public function __construct(OutputInterface $output)
     {
@@ -35,10 +35,8 @@ class Table
 
     /**
      * @param string[] $headers
-     *
-     * @return $this
      */
-    public function setHeaders(array $headers)
+    public function setHeaders(array $headers): self
     {
         $this->headers = $headers;
 
@@ -47,12 +45,10 @@ class Table
 
     /**
      * @param string[][] $rows
-     *
-     * @return $this
      */
-    public function setRows(array $rows)
+    public function setRows(array $rows): self
     {
-        $this->rows = array();
+        $this->rows = [];
 
         foreach ($rows as $row) {
             $this->rows[] = $row;
@@ -61,10 +57,7 @@ class Table
         return $this;
     }
 
-    /**
-     * @return void
-     */
-    public function render()
+    public function render(): void
     {
         $this->renderRow($this->headers);
         $this->renderHorizontalLine();
@@ -76,10 +69,8 @@ class Table
 
     /**
      * @param string[] $row
-     *
-     * @return void
      */
-    private function renderRow(array $row)
+    private function renderRow(array $row): void
     {
         $this->output->writeln(sprintf('| %s |', implode(' | ', $this->prepareRow($row))));
     }
@@ -89,9 +80,9 @@ class Table
      *
      * @return string[]
      */
-    private function prepareRow(array $row)
+    private function prepareRow(array $row): array
     {
-        $line = array();
+        $line = [];
 
         foreach ($row as $column => $cell) {
             $line[] = $this->prepareCell($row, $column);
@@ -100,12 +91,9 @@ class Table
         return $line;
     }
 
-    /**
-     * @return void
-     */
-    private function renderHorizontalLine()
+    private function renderHorizontalLine(): void
     {
-        $line = array();
+        $line = [];
 
         foreach ($this->headers as $column => $cell) {
             $line[] = str_repeat('-', $this->getColumnWidth($column) + 2);
@@ -116,31 +104,23 @@ class Table
 
     /**
      * @param string[] $row
-     * @param int      $column
-     *
-     * @return string
      */
-    private function prepareCell(array $row, $column)
+    private function prepareCell(array $row, int $column): string
     {
         $cleanLength = OutputHelper::strlenWithoutDecoration($this->output->getFormatter(), $row[$column]);
 
         return sprintf('%s%s', $row[$column], str_repeat(' ', $this->getColumnWidth($column) - $cleanLength));
     }
 
-    /**
-     * @param int $column
-     *
-     * @return int
-     */
-    private function getColumnWidth($column)
+    private function getColumnWidth(int $column): int
     {
         if (isset($this->columnWidths[$column])) {
             return $this->columnWidths[$column];
         }
 
-        $lengths = array();
+        $lengths = [];
 
-        foreach (array_merge(array($this->headers), $this->rows) as $row) {
+        foreach (array_merge([$this->headers], $this->rows) as $row) {
             $lengths[] = OutputHelper::strlenWithoutDecoration($this->output->getFormatter(), $row[$column]);
         }
 
