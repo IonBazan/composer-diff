@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
@@ -32,11 +34,20 @@ abstract class GeneratorTest extends TestCase
         $this->assertSame($expectedUrl, $this->getGenerator()->getProjectUrl($package));
     }
 
-    abstract public function compareUrlProvider();
+    /**
+     * @return iterable<string, array{PackageInterface, PackageInterface, string|null}>
+     */
+    abstract public function compareUrlProvider(): iterable;
 
-    abstract public function releaseUrlProvider();
+    /**
+     * @return iterable<string, array{PackageInterface, string|null}>
+     */
+    abstract public function releaseUrlProvider(): iterable;
 
-    abstract public function projectUrlProvider();
+    /**
+     * @return iterable<string, array{PackageInterface, string|null}>
+     */
+    abstract public function projectUrlProvider(): iterable;
 
     abstract protected function getGenerator(): UrlGenerator;
 }

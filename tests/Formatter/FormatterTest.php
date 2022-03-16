@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
@@ -44,12 +46,10 @@ abstract class FormatterTest extends TestCase
     }
 
     /**
-     * @param bool $withUrls
-     *
      * @testWith   [false]
      *             [true]
      */
-    public function testItRendersTheListOfOperations($withUrls): void
+    public function testItRendersTheListOfOperations(bool $withUrls): void
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
@@ -88,14 +88,11 @@ abstract class FormatterTest extends TestCase
         return '';
     }
 
-    /**
-     * @return false|string
-     */
-    protected function getDisplay(OutputInterface $output)
+    protected function getDisplay(OutputInterface $output): string
     {
         rewind($output->getStream());
 
-        return stream_get_contents($output->getStream());
+        return (string) stream_get_contents($output->getStream());
     }
 
     /**

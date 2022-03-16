@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Command;
 
@@ -23,6 +25,7 @@ class DiffCommand extends BaseCommand
     public const CHANGES_DEV = 4;
     public const DOWNGRADES_PROD = 8;
     public const DOWNGRADES_DEV = 16;
+
     /**
      * @var PackageDiff
      */

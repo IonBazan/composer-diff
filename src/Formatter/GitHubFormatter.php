@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Formatter;
 
@@ -7,6 +9,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use Iterator;
 
 class GitHubFormatter extends AbstractFormatter
 {
@@ -22,22 +25,18 @@ class GitHubFormatter extends AbstractFormatter
             return;
         }
 
-        $message = str_replace("\n", '%0A', implode("\n", $this->transformEntries($entries, $withUrls)));
+        $message = str_replace("\n", '%0A', implode("\n", iterator_to_array($this->transformEntries($entries, $withUrls))));
         $this->output->writeln(sprintf('::notice title=%s::%s', $title, $message));
     }
 
     /**
-     * @return string[]
+     * @return Iterator<int, string>
      */
-    private function transformEntries(DiffEntries $entries, bool $withUrls): array
+    private function transformEntries(DiffEntries $entries, bool $withUrls): Iterator
     {
-        $rows = [];
-
         foreach ($entries as $entry) {
-            $rows[] = $this->transformEntry($entry, $withUrls);
+            yield $this->transformEntry($entry, $withUrls);
         }
-
-        return $rows;
     }
 
     private function transformEntry(DiffEntry $entry, bool $withUrls): string

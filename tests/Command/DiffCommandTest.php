@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Command;
 
@@ -56,61 +58,58 @@ class DiffCommandTest extends TestCase
         $this->assertSame($exitCode, $tester->execute(['--strict' => null]));
     }
 
-    public function strictDataProvider(): array
+    public function strictDataProvider(): iterable
     {
-        return [
-            'No changes' => [0, [], []],
-            'Changes in prod and dev' => [
-                6,
-                [
-                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
-                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
-                ],
-                [
-                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
-                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
-                ],
+        yield 'No changes' => [0, [], []];
+        yield 'Changes in prod and dev' => [
+            6,
+            [
+                new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
             ],
-            'Downgrades in prod and changes in dev' => [
-                14,
-                [
-                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
-                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
-                ],
-                [
-                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
-                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
-                ],
+            [
+                new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
             ],
-            'Changes in prod and downgrades in dev' => [
-                22,
-                [
-                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
-                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
-                ],
-                [
-                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
-                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
-                ],
+        ];
+        yield 'Downgrades in prod and changes in dev' => [
+            14,
+            [
+                new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
             ],
-            'Downgrades in both' => [
-                30,
-                [
-                    new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
-                    new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
-                ],
-                [
-                    new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
-                    new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
-                ],
+            [
+                new UpdateOperation($this->getPackageWithSource('a/package-3', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.2.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+            ],
+        ];
+        yield 'Changes in prod and downgrades in dev' => [
+            22,
+            [
+                new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
+            ],
+            [
+                new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
+            ],
+        ];
+        yield 'Downgrades in both' => [
+            30,
+            [
+                new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
+                new UpdateOperation($this->getPackageWithSource('a/package-2', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.0.0', 'github.com')),
+            ],
+            [
+                new UpdateOperation($this->getPackageWithSource('a/package-3', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-3', '1.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
             ],
         ];
     }
 
     public function outputDataProvider()
     {
-        return [
-            'Markdown table' => [
+        yield 'Markdown table' => [
                 <<<OUTPUT
 | Prod Packages | Operation  | Base  | Target |
 |---------------|------------|-------|--------|
@@ -124,13 +123,13 @@ class DiffCommandTest extends TestCase
 
 
 OUTPUT
-                ,
-                [
-                    '--no-dev' => null,
-                    '-f' => 'mdtable',
-                ],
+            ,
+            [
+                '--no-dev' => null,
+                '-f' => 'mdtable',
             ],
-            'Markdown with URLs' => [
+        ];
+        yield 'Markdown with URLs' => [
                 <<<OUTPUT
 | Prod Packages              | Operation  | Base  | Target | Link                                       |
 |----------------------------|------------|-------|--------|--------------------------------------------|
@@ -144,14 +143,14 @@ OUTPUT
 
 
 OUTPUT
-            ,
-                [
-                    '--no-dev' => null,
-                    '-l' => null,
-                    '-f' => 'anything',
-                ],
+        ,
+            [
+                '--no-dev' => null,
+                '-l' => null,
+                '-f' => 'anything',
             ],
-            'Markdown with URLs and custom gitlab domains' => [
+        ];
+        yield 'Markdown with URLs and custom gitlab domains' => [
                 <<<OUTPUT
 | Prod Packages              | Operation  | Base  | Target | Link                                       |
 |----------------------------|------------|-------|--------|--------------------------------------------|
@@ -165,14 +164,14 @@ OUTPUT
 
 
 OUTPUT
-            ,
-                [
-                    '--no-dev' => null,
-                    '-l' => null,
-                    '--gitlab-domains' => ['gitlab3.org'],
-                ],
+        ,
+            [
+                '--no-dev' => null,
+                '-l' => null,
+                '--gitlab-domains' => ['gitlab3.org'],
             ],
-            'Markdown list' => [
+        ];
+        yield 'Markdown list' => [
                 <<<OUTPUT
 Prod Packages
 =============
@@ -187,79 +186,78 @@ Prod Packages
 
 
 OUTPUT
-            ,
-                [
-                    '--no-dev' => null,
-                    '-f' => 'mdlist',
-                ],
+        ,
+            [
+                '--no-dev' => null,
+                '-f' => 'mdlist',
             ],
-            'JSON' => [
-                json_encode(
-                    [
-                    'packages' => [
-                            'a/package-1' => [
-                                    'name' => 'a/package-1',
-                                    'operation' => 'install',
-                                    'version_base' => null,
-                                    'version_target' => '1.0.0',
-                                ],
-                            'a/package-2' => [
-                                    'name' => 'a/package-2',
-                                    'operation' => 'upgrade',
-                                    'version_base' => '1.0.0',
-                                    'version_target' => '1.2.0',
-                                ],
-                            'a/package-3' => [
-                                    'name' => 'a/package-3',
-                                    'operation' => 'remove',
-                                    'version_base' => '0.1.1',
-                                    'version_target' => null,
-                                ],
-                            'a/package-4' => [
-                                    'name' => 'a/package-4',
-                                    'operation' => 'remove',
-                                    'version_base' => '0.1.1',
-                                    'version_target' => null,
-                                ],
-                            'a/package-5' => [
-                                    'name' => 'a/package-5',
-                                    'operation' => 'remove',
-                                    'version_base' => '0.1.1',
-                                    'version_target' => null,
-                                ],
-                            'a/package-6' => [
-                                    'name' => 'a/package-6',
-                                    'operation' => 'remove',
-                                    'version_base' => '0.1.1',
-                                    'version_target' => null,
-                                ],
-                            'a/package-7' => [
-                                'name' => 'a/package-7',
-                                'operation' => 'downgrade',
-                                'version_base' => '1.2.0',
+        ];
+        yield 'JSON' => [
+            json_encode(
+                [
+                'packages' => [
+                        'a/package-1' => [
+                                'name' => 'a/package-1',
+                                'operation' => 'install',
+                                'version_base' => null,
                                 'version_target' => '1.0.0',
-                                ],
-                        ],
-                    'packages-dev' => [
-                        ],
-                ],
-                JSON_PRETTY_PRINT
-                ).PHP_EOL,
-                [
-                    '--no-dev' => null,
-                    '-f' => 'json',
-                ],
+                            ],
+                        'a/package-2' => [
+                                'name' => 'a/package-2',
+                                'operation' => 'upgrade',
+                                'version_base' => '1.0.0',
+                                'version_target' => '1.2.0',
+                            ],
+                        'a/package-3' => [
+                                'name' => 'a/package-3',
+                                'operation' => 'remove',
+                                'version_base' => '0.1.1',
+                                'version_target' => null,
+                            ],
+                        'a/package-4' => [
+                                'name' => 'a/package-4',
+                                'operation' => 'remove',
+                                'version_base' => '0.1.1',
+                                'version_target' => null,
+                            ],
+                        'a/package-5' => [
+                                'name' => 'a/package-5',
+                                'operation' => 'remove',
+                                'version_base' => '0.1.1',
+                                'version_target' => null,
+                            ],
+                        'a/package-6' => [
+                                'name' => 'a/package-6',
+                                'operation' => 'remove',
+                                'version_base' => '0.1.1',
+                                'version_target' => null,
+                            ],
+                        'a/package-7' => [
+                            'name' => 'a/package-7',
+                            'operation' => 'downgrade',
+                            'version_base' => '1.2.0',
+                            'version_target' => '1.0.0',
+                            ],
+                    ],
+                'packages-dev' => [
+                    ],
             ],
-            'GitHub' => [
-                <<<OUTPUT
+            JSON_PRETTY_PRINT
+            ).PHP_EOL,
+            [
+                '--no-dev' => null,
+                '-f' => 'json',
+            ],
+        ];
+        yield 'GitHub' => [
+            <<<OUTPUT
 ::notice title=Prod Packages:: - Install a/package-1 (1.0.0)%0A - Upgrade a/package-2 (1.0.0 => 1.2.0)%0A - Uninstall a/package-3 (0.1.1)%0A - Uninstall a/package-4 (0.1.1)%0A - Uninstall a/package-5 (0.1.1)%0A - Uninstall a/package-6 (0.1.1)%0A - Downgrade a/package-7 (1.2.0 => 1.0.0)
 
 OUTPUT
-                ,
-                [
-                    '--no-dev' => null,
-                    '-f' => 'github',
-                ],
+            ,
+            [
+                '--no-dev' => null,
+                '-f' => 'github',
             ],
         ];
     }

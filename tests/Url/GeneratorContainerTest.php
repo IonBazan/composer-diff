@@ -1,9 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
 use IonBazan\ComposerDiff\Tests\TestCase;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\GithubGenerator;
+use IonBazan\ComposerDiff\Url\GitlabGenerator;
 
 class GeneratorContainerTest extends TestCase
 {
@@ -11,11 +15,11 @@ class GeneratorContainerTest extends TestCase
     {
         $container = new GeneratorContainer(['gitlab2.org']);
         $githubGenerator = $container->get($this->getPackageWithSource('', '', 'https://github.com'));
-        $this->assertInstanceOf('IonBazan\ComposerDiff\Url\GithubGenerator', $githubGenerator);
+        $this->assertInstanceOf(GithubGenerator::class, $githubGenerator);
         $gitlabGenerator = $container->get($this->getPackageWithSource('', '', 'https://gitlab.org'));
-        $this->assertInstanceOf('IonBazan\ComposerDiff\Url\GitlabGenerator', $gitlabGenerator);
+        $this->assertInstanceOf(GitlabGenerator::class, $gitlabGenerator);
         $gitlab2Generator = $container->get($this->getPackageWithSource('', '', 'https://gitlab2.org'));
-        $this->assertInstanceOf('IonBazan\ComposerDiff\Url\GitlabGenerator', $gitlab2Generator);
+        $this->assertInstanceOf(GitlabGenerator::class, $gitlab2Generator);
         $this->assertNotSame($gitlabGenerator, $gitlab2Generator);
         $this->assertNull($container->get($this->getPackageWithSource('', '', 'https://gitlab3.org')));
     }

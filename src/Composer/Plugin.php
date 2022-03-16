@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Composer;
 
@@ -16,8 +18,6 @@ class Plugin implements PluginInterface, Capable
      */
     protected $composer;
 
-    /**
-     */
     public function activate(Composer $composer, IOInterface $io): void
     {
         $this->composer = $composer;

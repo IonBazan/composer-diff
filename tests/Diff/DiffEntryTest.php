@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Diff;
 
@@ -21,65 +23,63 @@ class DiffEntryTest extends TestCase
         $this->assertTrue($entry->{'is'.ucfirst($expectedType)}());
     }
 
-    public function operationTypeProvider(): array
+    public function operationTypeProvider(): iterable
     {
-        return [
-            'Install operation' => [
-                'install',
-                new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Remove operation' => [
-                'remove',
-                new UninstallOperation($this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Upgrade operation' => [
-                'upgrade',
-                new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', '2.0.0')),
-            ],
-            'Downgrade operation' => [
-                'downgrade',
-                new UpdateOperation($this->getPackage('a/package-1', '2.0.0'), $this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Change operation (base branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Change operation (target branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
-            ],
-            'Change operation (both branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 7654321'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
-            ],
-            'Change operation (both custom branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
-            ],
-            'Change operation (target branch and base custom branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
-            ],
-            'Change operation (base branch and target custom branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 7654321'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
-            ],
-            'Change operation (target custom branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
-            ],
-            'Change operation (base custom branch)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Change operation (BC with Composer 1 master as base)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', 'master', 'master 7654321'), $this->getPackage('a/package-1', '1.0.0')),
-            ],
-            'Change operation (BC with Composer 1 master as target)' => [
-                'change',
-                new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'master', 'master 1234567')),
-            ],
+        yield 'Install operation' => [
+            'install',
+            new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Remove operation' => [
+            'remove',
+            new UninstallOperation($this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Upgrade operation' => [
+            'upgrade',
+            new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', '2.0.0')),
+        ];
+        yield 'Downgrade operation' => [
+            'downgrade',
+            new UpdateOperation($this->getPackage('a/package-1', '2.0.0'), $this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Change operation (base branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Change operation (target branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
+        ];
+        yield 'Change operation (both branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 7654321'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
+        ];
+        yield 'Change operation (both custom branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
+        ];
+        yield 'Change operation (target branch and base custom branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567')),
+        ];
+        yield 'Change operation (base branch and target custom branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 7654321'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
+        ];
+        yield 'Change operation (target custom branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'dev-develop', 'dev-develop 1234567')),
+        ];
+        yield 'Change operation (base custom branch)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'dev-develop', 'dev-develop 7654321'), $this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Change operation (BC with Composer 1 master as base)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', 'master', 'master 7654321'), $this->getPackage('a/package-1', '1.0.0')),
+        ];
+        yield 'Change operation (BC with Composer 1 master as target)' => [
+            'change',
+            new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'master', 'master 1234567')),
         ];
     }
 }

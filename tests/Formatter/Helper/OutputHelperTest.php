@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Tests\Formatter\Helper;
 
@@ -33,10 +35,8 @@ class OutputHelperTest extends TestCase
 
     public function decoratedTextProvider()
     {
-        return [
-            'no formatting' => ['test1', 'test1', 'test1'],
-            'simple formatting' => ['test1', 'test1', '<fg=green>test1</>'],
-            'some formatted characters' => ['test1', "\033[30mtest1", '<fg=green>test1</>'],
-        ];
+        yield 'no formatting' => ['test1', 'test1', 'test1'];
+        yield 'simple formatting' => ['test1', 'test1', '<fg=green>test1</>'];
+        yield 'some formatted characters' => ['test1', "\033[30mtest1", '<fg=green>test1</>'];
     }
 }

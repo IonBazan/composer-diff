@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace IonBazan\ComposerDiff\Diff;
 
@@ -10,7 +12,7 @@ use UnexpectedValueException;
 class VersionComparator
 {
     /**
-     * @return bool|null true if it's upgrade, false if it's downgrade, null if it is a change.
+     * @return bool|null true if it's upgrade, false if it's downgrade, null if it is a change
      */
     public static function isUpgrade(UpdateOperation $operation): ?bool
     {
