@@ -24,7 +24,10 @@ class DiffCommandTest extends TestCase
      */
     public function testCommand($expectedOutput, array $input)
     {
-        $tester = new CommandTester(new DiffCommand(new PackageDiff()));
+        $application = new ComposerApplication();
+        $command = new DiffCommand(new PackageDiff());
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
         $result = $tester->execute($input);
         $this->assertSame(0, $result);
         $this->assertSame($expectedOutput, $tester->getDisplay());

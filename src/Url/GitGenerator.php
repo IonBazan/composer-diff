@@ -11,7 +11,7 @@ abstract class GitGenerator implements UrlGenerator
      */
     public function supportsPackage(PackageInterface $package)
     {
-        return false !== strpos($package->getSourceUrl(), $this->getDomain());
+        return false !== strpos((string) $package->getSourceUrl(), $this->getDomain());
     }
 
     /**
