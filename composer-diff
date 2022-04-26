@@ -10,17 +10,19 @@ foreach ([__DIR__.'/../../autoload.php', __DIR__.'/../autoload.php', __DIR__.'/v
 
 unset($file);
 
+use Composer\Composer;
+use Composer\Package\CompletePackage;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
 use Symfony\Component\Console\Application;
 
-if (!class_exists('Symfony\Component\Console\Application')) {
-    echo 'Please install symfony/console >= 2.3 to use this binary or use composer diff instead.'.PHP_EOL;
+if (!class_exists(Application::class)) {
+    echo 'Please install symfony/console >= 5.4.1 to use this binary or use composer diff instead.'.PHP_EOL;
     exit(1);
 }
 
-if (!class_exists('Composer\Package\CompletePackage')) {
-    echo 'Please install composer/composer >= 1.1 to use this binary or use composer diff instead.'.PHP_EOL;
+if (!class_exists(CompletePackage::class) || !version_compare(Composer::VERSION, '2.2.0', '>=')) {
+    echo 'Please install composer/composer >= 2.2 to use this binary or use composer diff instead.'.PHP_EOL;
     exit(1);
 }
 
