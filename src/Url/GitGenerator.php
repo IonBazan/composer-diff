@@ -10,7 +10,7 @@ abstract class GitGenerator implements UrlGenerator
 {
     public function supportsPackage(PackageInterface $package): bool
     {
-        return false !== strpos($package->getSourceUrl(), $this->getDomain());
+        return false !== strpos((string) $package->getSourceUrl(), $this->getDomain());
     }
 
     protected function getCompareRef(PackageInterface $package): string

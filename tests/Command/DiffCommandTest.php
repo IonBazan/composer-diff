@@ -9,6 +9,7 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Command\DiffCommand;
+use IonBazan\ComposerDiff\Tests\Integration\ComposerApplication;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use IonBazan\ComposerDiff\PackageDiff;
@@ -21,7 +22,10 @@ class DiffCommandTest extends TestCase
     public function testItGeneratesReportInGivenFormat(string $expectedOutput, array $options): void
     {
         $diff = $this->createMock(PackageDiff::class);
-        $tester = new CommandTester(new DiffCommand($diff, ['gitlab2.org']));
+        $application = new ComposerApplication();
+        $command = new DiffCommand($diff, ['gitlab2.org']);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
         $diff->expects($this->once())
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), false, false)
@@ -49,7 +53,10 @@ class DiffCommandTest extends TestCase
     public function testStrictMode(int $exitCode, array $prodOperations, array $devOperations): void
     {
         $diff = $this->createMock(PackageDiff::class);
-        $tester = new CommandTester(new DiffCommand($diff, ['gitlab2.org']));
+        $application = new ComposerApplication();
+        $command = new DiffCommand($diff, ['gitlab2.org']);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
         $diff->expects($this->exactly(2))
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false)

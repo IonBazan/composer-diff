@@ -109,11 +109,12 @@ class PackageDiff
 
         $output = [];
         @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
+        $outputString = implode("\n", $output);
 
         if (0 !== $exit) {
-            throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s', $originalPath, $path));
+            throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
         }
 
-        return implode("\n", $output);
+        return $outputString;
     }
 }
