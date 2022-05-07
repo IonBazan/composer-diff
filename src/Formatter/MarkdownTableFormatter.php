@@ -51,7 +51,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
     /**
      * @return string[]
      */
-    private function getTableRow(DiffEntry $entry, bool $withUrls): array
+    protected function getTableRow(DiffEntry $entry, bool $withUrls): array
     {
         $operation = $entry->getOperation();
         if ($operation instanceof InstallOperation) {

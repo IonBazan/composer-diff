@@ -7,6 +7,7 @@ namespace IonBazan\ComposerDiff\Command;
 use Composer\Command\BaseCommand;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Formatter\CliFormatter;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use IonBazan\ComposerDiff\Formatter\JsonFormatter;
@@ -194,6 +195,8 @@ EOF
                 return new MarkdownListFormatter($output, $urlGenerators);
             case 'github':
                 return new GitHubFormatter($output, $urlGenerators);
+            case 'cli':
+                return new CliFormatter($output, $urlGenerators);
             // case 'mdtable':
             default:
                 return new MarkdownTableFormatter($output, $urlGenerators);
