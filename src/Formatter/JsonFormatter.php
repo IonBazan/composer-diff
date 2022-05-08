@@ -45,7 +45,7 @@ class JsonFormatter extends AbstractFormatter
 
             if ($withUrls) {
                 $row['compare'] = $this->getUrl($entry);
-                $row['link'] = $this->getProjectUrl($entry->getOperation());
+                $row['link'] = $this->getProjectUrl($entry);
             }
 
             $rows[$row['name']] = $row;

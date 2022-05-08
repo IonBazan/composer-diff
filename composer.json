@@ -22,10 +22,10 @@
     "require": {
         "php": ">=7.2.5",
         "ext-json": "*",
-        "composer-plugin-api": "^2.2"
+        "composer-plugin-api": "^2.3"
     },
     "require-dev": {
-        "composer/composer": "^2.2",
+        "composer/composer": "^2.3",
         "symfony/console": "^5.4.1 || ^6.0",
         "symfony/phpunit-bridge": "^6.0"
     },

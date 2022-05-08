@@ -42,7 +42,7 @@ abstract class FormatterTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $operation = $this->createMock(OperationInterface::class);
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $this->assertNull($formatter->getProjectUrl($operation));
+        $this->assertNull($formatter->getProjectUrl(new DiffEntry($operation)));
     }
 
     /**
@@ -111,7 +111,7 @@ abstract class FormatterTest extends TestCase
             return sprintf('https://example.com/r/%s', $package->getName());
         });
 
-        $generators = $this->createMock(GeneratorContainer::class);
+        $generators = $this->createPartialMock(GeneratorContainer::class, ['get']);
         $generators->method('get')
             ->willReturnCallback(function (PackageInterface $package) use ($generator) {
                 if ('php' === $package->getName() || false !== strpos($package->getName(), 'a/no-link')) {

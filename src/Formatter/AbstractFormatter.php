@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace IonBazan\ComposerDiff\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,63 +29,45 @@ abstract class AbstractFormatter implements Formatter
         $this->generators = $generators;
     }
 
+    private function terminalLink(?string $url, string $title): string
+    {
+        return null !== $url ? sprintf('<href=%s>%s</>', $url, $title) : $title;
+    }
+
     public function getUrl(DiffEntry $entry): ?string
     {
         $operation = $entry->getOperation();
 
         if ($operation instanceof UpdateOperation) {
-            return $this->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
+            return $this->generators->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
         }
 
         if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
-            return $this->getReleaseUrl($operation->getPackage());
+            return $this->generators->getReleaseUrl($operation->getPackage());
         }
 
         return null;
     }
 
-    public function getProjectUrl(OperationInterface $operation): ?string
+    public function getProjectUrl(DiffEntry $entry): ?string
     {
-        if ($operation instanceof UpdateOperation) {
-            $package = $operation->getInitialPackage();
-        }
+        $package = $entry->getPackage();
 
-        if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
-            $package = $operation->getPackage();
-        }
-
-        if (!isset($package)) {
+        if (null === $package) {
             return null;
         }
 
-        $generator = $this->generators->get($package);
-
-        if (!$generator) {
-            return null;
-        }
-
-        return $generator->getProjectUrl($package);
+        return $this->generators->getProjectUrl($package);
     }
 
-    private function getCompareUrl(PackageInterface $basePackage, PackageInterface $targetPackage): ?string
+    protected function getDecoratedPackageName(DiffEntry $entry): string
     {
-        $generator = $this->generators->get($targetPackage);
+        $package = $entry->getPackage();
 
-        if (!$generator) {
-            return null;
+        if (null === $package) {
+            return '';
         }
 
-        return $generator->getCompareUrl($basePackage, $targetPackage);
-    }
-
-    private function getReleaseUrl(PackageInterface $package): ?string
-    {
-        $generator = $this->generators->get($package);
-
-        if (!$generator) {
-            return null;
-        }
-
-        return $generator->getReleaseUrl($package);
+        return $this->terminalLink($this->getProjectUrl($entry), $package->getName());
     }
 }
