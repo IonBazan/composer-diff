@@ -6,6 +6,7 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\PackageInterface;
 
 class DiffEntry
 {
@@ -81,6 +82,24 @@ class DiffEntry
     public function isChange()
     {
         return self::TYPE_CHANGE === $this->type;
+    }
+
+    /**
+     * @return PackageInterface|null
+     */
+    public function getPackage()
+    {
+        $operation = $this->getOperation();
+
+        if ($operation instanceof UpdateOperation) {
+            return $operation->getInitialPackage();
+        }
+
+        if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
+            return $operation->getPackage();
+        }
+
+        return null;
     }
 
     /**

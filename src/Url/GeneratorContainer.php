@@ -4,7 +4,7 @@ namespace IonBazan\ComposerDiff\Url;
 
 use Composer\Package\PackageInterface;
 
-class GeneratorContainer
+class GeneratorContainer implements UrlGenerator
 {
     /**
      * @var UrlGenerator[]
@@ -41,5 +41,37 @@ class GeneratorContainer
         }
 
         return null;
+    }
+
+    public function supportsPackage(PackageInterface $package)
+    {
+        return null !== $this->get($package);
+    }
+
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    {
+        if (!$generator = $this->get($targetPackage)) {
+            return null;
+        }
+
+        return $generator->getCompareUrl($initialPackage, $targetPackage);
+    }
+
+    public function getReleaseUrl(PackageInterface $package)
+    {
+        if (!$generator = $this->get($package)) {
+            return null;
+        }
+
+        return $generator->getReleaseUrl($package);
+    }
+
+    public function getProjectUrl(PackageInterface $package)
+    {
+        if (!$generator = $this->get($package)) {
+            return null;
+        }
+
+        return $generator->getProjectUrl($package);
     }
 }

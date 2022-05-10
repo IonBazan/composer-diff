@@ -16,6 +16,11 @@
             "ignore": [
                 "IonBazan\\ComposerDiff\\Formatter\\JsonFormatter::format"
             ]
+        },
+        "Ternary": {
+            "ignore": [
+                "IonBazan\\ComposerDiff\\Formatter\\AbstractFormatter::terminalLink"
+            ]
         }
     }
 }

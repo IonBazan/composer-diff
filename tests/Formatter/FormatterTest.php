@@ -125,6 +125,7 @@ abstract class FormatterTest extends TestCase
 
         $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')
             ->disableOriginalConstructor()
+            ->setMethods(array('get'))
             ->getMock();
         $generators->method('get')
             ->willReturnCallback(function (PackageInterface $package) use ($generator) {
