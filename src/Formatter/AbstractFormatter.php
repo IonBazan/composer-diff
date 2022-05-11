@@ -6,7 +6,6 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
-use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,11 +36,11 @@ abstract class AbstractFormatter implements Formatter
         $operation = $entry->getOperation();
 
         if ($operation instanceof UpdateOperation) {
-            return $this->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
+            return $this->generators->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
         }
 
         if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
-            return $this->getReleaseUrl($operation->getPackage());
+            return $this->generators->getReleaseUrl($operation->getPackage());
         }
 
         return null;
@@ -64,40 +63,35 @@ abstract class AbstractFormatter implements Formatter
             return null;
         }
 
-        $generator = $this->generators->get($package);
-
-        if (!$generator) {
-            return null;
-        }
-
-        return $generator->getProjectUrl($package);
+        return $this->generators->getProjectUrl($package);
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    private function getCompareUrl(PackageInterface $basePackage, PackageInterface $targetPackage)
+    protected function getDecoratedPackageName(DiffEntry $entry)
     {
-        $generator = $this->generators->get($targetPackage);
+        $package = $entry->getPackage();
 
-        if (!$generator) {
-            return null;
+        if (null === $package) {
+            return '';
         }
 
-        return $generator->getCompareUrl($basePackage, $targetPackage);
+        return $this->terminalLink($this->getProjectUrl($entry->getOperation()), $package->getName());
     }
 
     /**
-     * @return string|null
+     * @param string|null $url
+     * @param string      $title
+     *
+     * @return string
      */
-    private function getReleaseUrl(PackageInterface $package)
+    private function terminalLink($url, $title)
     {
-        $generator = $this->generators->get($package);
-
-        if (!$generator) {
-            return null;
+        if (null === $url) {
+            return $title;
         }
 
-        return $generator->getReleaseUrl($package);
+        return method_exists('Symfony\Component\Console\Formatter\OutputFormatterStyle', 'setHref') ? sprintf('<href=%s>%s</>', $url, $title) : $title;
     }
 }

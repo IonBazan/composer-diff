@@ -60,10 +60,10 @@ class MarkdownTableFormatter extends MarkdownFormatter
     private function getTableRow(DiffEntry $entry, $withUrls)
     {
         $operation = $entry->getOperation();
-        if ($operation instanceof InstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+        $packageName = $this->getDecoratedPackageName($entry);
+        $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
 
+        if ($operation instanceof InstallOperation) {
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=green>New</>',
@@ -73,11 +73,8 @@ class MarkdownTableFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UpdateOperation) {
-            $packageName = $operation->getInitialPackage()->getName();
-            $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
             return array(
-                $projectUrl ?: $packageName,
+                $packageUrl ?: $packageName,
                 $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
@@ -85,9 +82,6 @@ class MarkdownTableFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UninstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=red>Removed</>',

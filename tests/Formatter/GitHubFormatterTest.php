@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GitHubFormatterTest extends FormatterTest
 {
-    protected function getSampleOutput($withUrls)
+    protected function getSampleOutput($withUrls, $decorated)
     {
         if ($withUrls) {
             return <<<OUTPUT

@@ -47,7 +47,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * @param string      $name
      * @param string      $version
-     * @param string      $sourceUrl
+     * @param string|null $sourceUrl
      * @param string|null $sourceReference
      *
      * @return mixed

@@ -88,7 +88,7 @@ class JsonFormatterTest extends FormatterTest
         )), $this->getDisplay($output));
     }
 
-    protected function getSampleOutput($withUrls)
+    protected function getSampleOutput($withUrls, $decorated)
     {
         if ($withUrls) {
             return self::formatOutput(array(

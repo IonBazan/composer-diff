@@ -18,5 +18,13 @@ class GeneratorContainerTest extends TestCase
         $this->assertInstanceOf('IonBazan\ComposerDiff\Url\GitlabGenerator', $gitlab2Generator);
         $this->assertNotSame($gitlabGenerator, $gitlab2Generator);
         $this->assertNull($container->get($this->getPackageWithSource('', '', 'https://gitlab3.org')));
+        $this->assertNull($container->get($this->getPackageWithSource('', '', null)));
+    }
+
+    public function testItSupportsPackageSupportedByOneOfTheGenerators()
+    {
+        $generator = new GeneratorContainer(array());
+        self::assertTrue($generator->supportsPackage($this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git')));
+        self::assertFalse($generator->supportsPackage($this->getPackageWithSource('acme/package', '3.12.0', 'https://non-existent.org/acme/package.git')));
     }
 }

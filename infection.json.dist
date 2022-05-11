@@ -7,7 +7,7 @@
     "logs": {
         "text": "infection.log",
         "stryker": {
-            "badge": "master"
+            "badge": "main"
         }
     },
     "mutators": {
@@ -15,6 +15,11 @@
         "IncrementInteger": {
             "ignore": [
                 "IonBazan\\ComposerDiff\\Formatter\\JsonFormatter::format"
+            ]
+        },
+        "Ternary": {
+            "ignore": [
+                "IonBazan\\ComposerDiff\\Formatter\\AbstractFormatter::terminalLink"
             ]
         }
     }
