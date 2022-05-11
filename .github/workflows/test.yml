@@ -54,6 +54,8 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: composer update -n --prefer-dist ${{ matrix.composer-flags }}
+      - name: Set default branch for tests
+        run: git config --global init.defaultBranch main
       - name: Run Tests
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov

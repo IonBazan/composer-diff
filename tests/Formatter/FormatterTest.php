@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
@@ -43,29 +44,22 @@ abstract class FormatterTest extends TestCase
 
     /**
      * @param bool $withUrls
+     * @param bool $decorated
      *
      * @testWith   [false]
      *             [true]
+     *             [false, true]
+     *             [true, true]
      */
-    public function testItRendersTheListOfOperations($withUrls)
+    public function testItRendersTheListOfOperations($withUrls, $decorated = false)
     {
-        $output = new StreamOutput(fopen('php://memory', 'wb', false));
-        $formatter = $this->getFormatter($output, $this->getGenerators());
-        $prodPackages = array(
-            new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
-            new InstallOperation($this->getPackage('a/no-link-1', '1.0.0')),
-            new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
-            new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
-            new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
-            new UpdateOperation($this->getPackage('php', '>=7.4.6'), $this->getPackage('php', '^8.0')),
+        $output = new StreamOutput(fopen('php://memory', 'wb', false), OutputInterface::VERBOSITY_NORMAL, $decorated);
+        $this->getFormatter($output, $this->getGenerators())->render(
+            $this->getEntries($this->getSampleProdOperations()),
+            $this->getEntries($this->getSampleDevOperations()),
+            $withUrls
         );
-        $devPackages = array(
-            new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
-            new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
-            new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
-        );
-        $formatter->render($this->getEntries($prodPackages), $this->getEntries($devPackages), $withUrls);
-        $this->assertSame($this->getSampleOutput($withUrls), $this->getDisplay($output));
+        $this->assertSame($this->getSampleOutput($withUrls, $decorated), $this->getDisplay($output));
     }
 
     public function testItFailsWithInvalidOperation()
@@ -84,10 +78,11 @@ abstract class FormatterTest extends TestCase
 
     /**
      * @param bool $withUrls
+     * @param bool $decorated
      *
      * @return string
      */
-    abstract protected function getSampleOutput($withUrls);
+    abstract protected function getSampleOutput($withUrls, $decorated);
 
     /**
      * @return string
@@ -105,6 +100,14 @@ abstract class FormatterTest extends TestCase
         rewind($output->getStream());
 
         return stream_get_contents($output->getStream());
+    }
+
+    /**
+     * @return bool
+     */
+    protected function supportsLinks()
+    {
+        return method_exists('Symfony\Component\Console\Formatter\OutputFormatterStyle', 'setHref');
     }
 
     /**
@@ -137,5 +140,32 @@ abstract class FormatterTest extends TestCase
             });
 
         return $generators;
+    }
+
+    /**
+     * @return OperationInterface[]
+     */
+    private function getSampleProdOperations()
+    {
+        return array(
+            new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
+            new InstallOperation($this->getPackage('a/no-link-1', '1.0.0')),
+            new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
+            new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
+            new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
+            new UpdateOperation($this->getPackage('php', '>=7.4.6'), $this->getPackage('php', '^8.0')),
+        );
+    }
+
+    /**
+     * @return OperationInterface[]
+     */
+    private function getSampleDevOperations()
+    {
+        return array(
+            new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
+            new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
+            new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
+        );
     }
 }
