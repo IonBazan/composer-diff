@@ -191,6 +191,7 @@ class PackageDiffTest extends TestCase
         $gitDir = __DIR__.'/test-git';
         @mkdir($gitDir);
         chdir($gitDir);
+        exec('git config init.defaultBranch main');
         exec('git init');
         exec('git config user.name test');
         exec('git config user.email test@example.com');

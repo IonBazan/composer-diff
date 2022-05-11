@@ -7,7 +7,7 @@
     "logs": {
         "text": "infection.log",
         "stryker": {
-            "badge": "master"
+            "badge": "main"
         }
     },
     "mutators": {
