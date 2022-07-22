@@ -6,6 +6,9 @@ use Composer\Package\PackageInterface;
 
 abstract class GitGenerator implements UrlGenerator
 {
+    const REFERENCE_LENGTH = 40;
+    const SHORT_REFERENCE_LENGTH = 7;
+
     /**
      * {@inheritdoc}
      */
@@ -25,8 +28,8 @@ abstract class GitGenerator implements UrlGenerator
 
         $reference = $package->getSourceReference();
 
-        if (40 === \strlen($reference)) {
-            return \substr($reference, 0, 7);
+        if (self::REFERENCE_LENGTH === \strlen($reference)) {
+            return \substr($reference, 0, self::SHORT_REFERENCE_LENGTH);
         }
 
         return $reference;
@@ -62,7 +65,7 @@ abstract class GitGenerator implements UrlGenerator
     protected function getRepositoryUrl(PackageInterface $package)
     {
         $httpsUrl = preg_replace(
-            "/^git@({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
+            "/^git@(?:git\.)?({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
             'https://$1/$2/$3',
             $package->getSourceUrl()
         );
