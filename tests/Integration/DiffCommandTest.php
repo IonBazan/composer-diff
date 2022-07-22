@@ -7,6 +7,7 @@ use Composer\Console\Application;
 use Composer\Factory;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
+use Composer\Package\Package;
 use Composer\Plugin\PluginManager;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
@@ -46,11 +47,13 @@ class DiffCommandTest extends TestCase
         $app = new ComposerApplication();
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
-        $composer = Factory::create($app->getIO(), null, true);
+        $plugin = $this->getPluginPackage();
+        $config = array('allow-plugins' => array($plugin->getName() => true));
+        $composer = Factory::create($app->getIO(), array('config' => $config), true);
         $app->setComposer($composer);
         $pm = new PluginManager($app->getIO(), $composer);
         $composer->setPluginManager($pm);
-        $pm->registerPackage($composer->getPackage(), true);
+        $pm->registerPackage($plugin, true);
         $tester = new ApplicationTester($app);
         $result = $tester->run($input, array('verbosity' => Output::VERBOSITY_VERY_VERBOSE));
         $this->assertSame($expectedOutput, $tester->getDisplay());
@@ -231,6 +234,17 @@ OUTPUT
                 ),
             ),
         );
+    }
+
+    /**
+     * @return Package
+     */
+    private function getPluginPackage()
+    {
+        $plugin = new Package('test-plugin-package', '1.0', '1.0');
+        $plugin->setExtra(array('class' => 'IonBazan\ComposerDiff\Composer\Plugin'));
+
+        return $plugin;
     }
 }
 

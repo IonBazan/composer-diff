@@ -65,6 +65,7 @@ jobs:
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
+          composer config --no-plugins allow-plugins.infection/extension-installer true
           composer req infection/infection -W
           vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4
       - name: Run phpstan
