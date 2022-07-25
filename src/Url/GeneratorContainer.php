@@ -16,17 +16,16 @@ class GeneratorContainer implements UrlGenerator
      */
     public function __construct(array $gitlabDomains)
     {
-        $generators = array(
+        $this->generators = array(
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
+            new GitlabGenerator('git.drupalcode.org'),
         );
 
         foreach ($gitlabDomains as $domain) {
-            $generators[] = new GitlabGenerator($domain);
+            $this->generators[] = new GitlabGenerator($domain);
         }
-
-        $this->generators = $generators;
     }
 
     /**
