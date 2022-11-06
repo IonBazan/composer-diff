@@ -2,13 +2,14 @@ name: Tests
 on: [push, pull_request]
 jobs:
   php:
-    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} Composer ${{ matrix.composer }}
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }} Composer ${{ matrix.composer }} (${{ matrix.dependencies }})
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
         composer: [v2]
+        dependencies: [highest]
         php-versions:
           - '5.3'
           - '5.4'
@@ -24,20 +25,20 @@ jobs:
           - '8.2'
           - '8.3'
         include:
-          - php-versions: '7.0'
-            composer-flags: '--prefer-lowest'
-            composer: v1
-            operating-system: ubuntu-latest
           - php-versions: '5.3'
-            composer-flags: '--prefer-lowest'
+            dependencies: 'lowest'
             composer: v1 # Global composer should be in same version as locally installed one
+            operating-system: ubuntu-latest
+          - php-versions: '7.0'
+            dependencies: 'lowest'
+            composer: v1
             operating-system: ubuntu-latest
           - php-versions: '8.2'
             composer: v2
             operating-system: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
@@ -45,23 +46,16 @@ jobs:
           extensions: json
           coverage: xdebug
           tools: composer:${{ matrix.composer }}
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Cache composer dependencies
-        uses: actions/cache@v1
+      - name: Install Composer dependencies (${{ matrix.dependencies }})
+        uses: ramsey/composer-install@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
-      - name: Install Composer dependencies
-        run: composer update -n --prefer-dist ${{ matrix.composer-flags }}
+          dependency-versions: ${{ matrix.dependencies }}
       - name: Set default branch for tests
         run: git config --global init.defaultBranch main
       - name: Run Tests
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
       - name: Run mutation tests
         if: ${{ matrix.php-versions == 8.2 && matrix.operating-system == 'ubuntu-latest' }}
         env:
