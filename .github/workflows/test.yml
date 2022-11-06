@@ -22,6 +22,7 @@ jobs:
           - '8.0'
           - '8.1'
           - '8.2'
+          - '8.3'
         include:
           - php-versions: '7.0'
             composer-flags: '--prefer-lowest'
@@ -31,7 +32,7 @@ jobs:
             composer-flags: '--prefer-lowest'
             composer: v1 # Global composer should be in same version as locally installed one
             operating-system: ubuntu-latest
-          - php-versions: '8.0'
+          - php-versions: '8.2'
             composer: v2
             operating-system: windows-latest
     steps:
