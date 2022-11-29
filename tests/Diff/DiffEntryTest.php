@@ -23,7 +23,7 @@ class DiffEntryTest extends TestCase
         $this->assertTrue($entry->{'is'.ucfirst($expectedType)}());
     }
 
-    public function operationTypeProvider()
+    public static function operationTypeProvider()
     {
         return array(
             'Install operation' => array(

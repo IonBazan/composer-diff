@@ -60,7 +60,7 @@ class DiffCommandTest extends TestCase
         $this->assertSame(0, $result);
     }
 
-    public function commandArgumentsDataProvider()
+    public static function commandArgumentsDataProvider()
     {
         return array(
             'with platform' => array(

@@ -33,7 +33,7 @@ class OutputHelperTest extends TestCase
         $this->assertSame('test', OutputHelper::removeDecoration($formatter, '<green>test</green>'));
     }
 
-    public function decoratedTextProvider()
+    public static function decoratedTextProvider()
     {
         return array(
             'no formatting' => array('test1', 'test1', 'test1'),

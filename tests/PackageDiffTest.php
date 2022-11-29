@@ -84,7 +84,7 @@ class PackageDiffTest extends TestCase
         $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
-    public function diffOperationsProvider()
+    public static function diffOperationsProvider()
     {
         return array(
             'update alias version' => array(
@@ -129,7 +129,7 @@ class PackageDiffTest extends TestCase
         );
     }
 
-    public function operationsProvider()
+    public static function operationsProvider()
     {
         return array(
             'prod, with platform' => array(

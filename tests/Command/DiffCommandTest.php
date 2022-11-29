@@ -65,7 +65,7 @@ class DiffCommandTest extends TestCase
         $this->assertSame($exitCode, $tester->execute(array('--strict' => null)));
     }
 
-    public function strictDataProvider()
+    public static function strictDataProvider()
     {
         return array(
             'No changes' => array(0, array(), array()),
@@ -116,7 +116,7 @@ class DiffCommandTest extends TestCase
         );
     }
 
-    public function outputDataProvider()
+    public static function outputDataProvider()
     {
         return array(
             'Markdown table' => array(
