@@ -6,7 +6,6 @@ use Composer\Package\PackageInterface;
 
 class DrupalGenerator extends GitlabGenerator
 {
-
     /**
      * {@inheritdoc}
      */
