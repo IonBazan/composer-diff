@@ -66,5 +66,3 @@ class DrupalGenerator extends GitlabGenerator
         return $name;
     }
 }
-
-
