@@ -29,9 +29,9 @@ class DrupalGenerator extends GitlabGenerator
         }
 
         // Always move dev-branchname to branchname-dev
-        //if ($package->isDev() && substr($version, 0, 4) === 'dev-' && substr($version, -4) !== '-dev') {
+        // if ($package->isDev() && substr($version, 0, 4) === 'dev-' && substr($version, -4) !== '-dev') {
         //    $version = substr($version, 4) . '-dev';
-        //}
+        // }
 
         return sprintf('https://www.drupal.org/project/%s/releases/%s', $name, $version);
     }
