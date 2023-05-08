@@ -12,7 +12,7 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function supportsPackage(PackageInterface $package)
     {
-        return $package->getName() === 'drupal/core' || parent::supportsPackage($package);
+        return 'drupal/core' === $package->getName() || parent::supportsPackage($package);
     }
 
     /**
@@ -23,13 +23,15 @@ class DrupalGenerator extends GitlabGenerator
         $name = $this->getDrupalProjectName($package);
         $version = $package->getPrettyVersion();
 
+        // Not sure we can support dev releases right now. Can we distinguish major version dev releases from regular branches?
         if ($package->isDev()) {
             return null;
         }
-//// Always move dev-branchname to branchname-dev
-//if ($package->isDev() && substr($version, 0, 4) === 'dev-' && substr($version, -4) !== '-dev') {
-//    $version = substr($version, 4) . '-dev';
-//}
+
+        // Always move dev-branchname to branchname-dev
+        //if ($package->isDev() && substr($version, 0, 4) === 'dev-' && substr($version, -4) !== '-dev') {
+        //    $version = substr($version, 4) . '-dev';
+        //}
 
         return sprintf('https://www.drupal.org/project/%s/releases/%s', $name, $version);
     }
