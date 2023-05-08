@@ -43,6 +43,7 @@ class DrupalGeneratorTest extends GeneratorTest
     public function projectUrlProvider()
     {
         return array();
+
         return array(
             'contrib-legacy-version' => array(
                 $this->getPackageWithSource('drupal/token', '8.x-1.0', 'https://git.drupalcode.org/project/token.git'),
@@ -90,6 +91,7 @@ class DrupalGeneratorTest extends GeneratorTest
     public function compareUrlProvider()
     {
         return array();
+
         return array(
             'same maintainer' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
