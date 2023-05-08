@@ -1,8 +1,15 @@
 {
     "name": "test/test",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
     "require": {
         "symfony/event-dispatcher": "^5.1",
         "doctrine/dbal": "^2.10",
+        "drupal/metatag": "^1.0",
         "php": ">=5.3",
         "roave/security-advisories": "dev-master#ac36586"
     },
