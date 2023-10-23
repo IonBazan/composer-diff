@@ -4,3 +4,5 @@ parameters:
         - src
     checkGenericClassInNonGenericObjectType: true
     checkMissingIterableValueType: true
+    bootstrapFiles:
+        - src/Command/DiffCommand.php # contains class alias

@@ -24,6 +24,7 @@ jobs:
           - '8.1'
           - '8.2'
           - '8.3'
+          - '8.4'
         include:
           - php-versions: '5.3'
             dependencies: 'lowest'
@@ -38,7 +39,7 @@ jobs:
             operating-system: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
@@ -57,7 +58,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
       - name: Run mutation tests
-        if: ${{ matrix.php-versions == 8.2 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
@@ -65,7 +66,7 @@ jobs:
           composer req infection/infection -W
           vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4
       - name: Run phpstan
-        if: ${{ matrix.php-versions == 8.2 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
         run: |
           composer req phpstan/phpstan
           vendor/bin/phpstan
