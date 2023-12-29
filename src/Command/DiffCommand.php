@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Command;
 
-use Composer\Command\BaseCommand;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
@@ -16,6 +15,17 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
+/*
+ * This is a trick to maintain compatibility with both PHP 5 and 7 with Symfony 2.3 all the way to 7 with typed returns.
+ * This is only needed when using this package as a dependency with Symfony 7+, not when using as Composer plugin.
+ */
+class_alias(
+    PHP_VERSION_ID >= 70000
+        ? 'IonBazan\ComposerDiff\Command\BaseTypedCommand'
+        : 'IonBazan\ComposerDiff\Command\BaseNotTypedCommand',
+    'IonBazan\ComposerDiff\Command\BaseCommand'
+);
 
 class DiffCommand extends BaseCommand
 {
@@ -122,9 +132,9 @@ EOF
     }
 
     /**
-     * {@inheritdoc}
+     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function handle(InputInterface $input, OutputInterface $output)
     {
         $base = null !== $input->getArgument('base') ? $input->getArgument('base') : $input->getOption('base');
         $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
@@ -205,7 +215,7 @@ EOF
                 return new MarkdownListFormatter($output, $urlGenerators);
             case 'github':
                 return new GitHubFormatter($output, $urlGenerators);
-            // case 'mdtable':
+                // case 'mdtable':
             default:
                 return new MarkdownTableFormatter($output, $urlGenerators);
         }

@@ -2,10 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Tests\Integration;
 
-use Composer\Composer;
-use Composer\Console\Application;
 use Composer\Factory;
-use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 use Composer\Package\Package;
 use Composer\Plugin\PluginManager;
@@ -25,9 +22,8 @@ class DiffCommandTest extends TestCase
      */
     public function testCommand($expectedOutput, array $input)
     {
-        $application = new ComposerApplication();
         $command = new DiffCommand(new PackageDiff());
-        $command->setApplication($application);
+        $command->setApplication($this->getComposerApplication());
         $tester = new CommandTester($command);
         $result = $tester->execute($input);
         $this->assertSame(0, $result);
@@ -44,7 +40,7 @@ class DiffCommandTest extends TestCase
     public function testComposerApplication($expectedOutput, array $input)
     {
         $input = array_merge(array('command' => 'diff'), $input);
-        $app = new ComposerApplication();
+        $app = $this->getComposerApplication();
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
         $plugin = $this->getPluginPackage();
@@ -245,18 +241,5 @@ OUTPUT
         $plugin->setExtra(array('class' => 'IonBazan\ComposerDiff\Composer\Plugin'));
 
         return $plugin;
-    }
-}
-
-class ComposerApplication extends Application
-{
-    public function setIO(IOInterface $io)
-    {
-        $this->io = $io;
-    }
-
-    public function setComposer(Composer $composer)
-    {
-        $this->composer = $composer;
     }
 }

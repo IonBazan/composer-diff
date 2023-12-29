@@ -6,6 +6,8 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Tests\Util\ComposerApplication;
+use IonBazan\ComposerDiff\Tests\Util\TypedComposerApplication;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -72,5 +74,13 @@ abstract class TestCase extends BaseTestCase
         return new DiffEntries(array_map(function (OperationInterface $operation) {
             return new DiffEntry($operation);
         }, $operations));
+    }
+
+    /**
+     * @return ComposerApplication|TypedComposerApplication
+     */
+    protected function getComposerApplication()
+    {
+        return PHP_VERSION_ID >= 70000 ? new TypedComposerApplication() : new ComposerApplication();
     }
 }
