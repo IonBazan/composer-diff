@@ -57,12 +57,7 @@ class DrupalGenerator extends GitlabGenerator
             return $package->getHomepage();
         }
 
-        list(, $name) = explode('/', $package->getName(), 2);
-
-        // Special handling for drupal/core only.
-        if ('core' === $name) {
-            $name = 'drupal';
-        }
+        $name = $this->getDrupalProjectName($package);
 
         return sprintf('https://www.drupal.org/project/%s', $name);
     }
@@ -75,4 +70,15 @@ class DrupalGenerator extends GitlabGenerator
         return 'git.drupalcode.org';
     }
 
+    protected function getDrupalProjectName(PackageInterface $package)
+    {
+        list(, $name) = explode('/', $package->getName(), 2);
+
+        // Special handling for drupal/core only.
+        if ('core' === $name) {
+            $name = 'drupal';
+        }
+
+        return $name;
+    }
 }
