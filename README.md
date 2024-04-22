@@ -4,7 +4,7 @@
 [![Composer v1 | v2](https://img.shields.io/badge/Composer-^1.1_|_^2-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![Dependencies: 0](https://img.shields.io/badge/dependencies-0-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![Latest version](https://img.shields.io/packagist/v/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/IonBazan/composer-diff/Tests)](https://github.com/IonBazan/composer-diff/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IonBazan/composer-diff/test.yml)](https://github.com/IonBazan/composer-diff/actions)
 [![Codecov](https://img.shields.io/codecov/c/gh/IonBazan/composer-diff)](https://codecov.io/gh/IonBazan/composer-diff)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FIonBazan%2Fcomposer-diff%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/IonBazan/composer-diff/master)
 [![Downloads](https://img.shields.io/packagist/dt/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)

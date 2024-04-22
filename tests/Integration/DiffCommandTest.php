@@ -2,11 +2,9 @@
 
 namespace IonBazan\ComposerDiff\Tests\Integration;
 
-use Composer\Composer;
-use Composer\Console\Application;
 use Composer\Factory;
-use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
+use Composer\Package\Package;
 use Composer\Plugin\PluginManager;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
@@ -24,9 +22,8 @@ class DiffCommandTest extends TestCase
      */
     public function testCommand($expectedOutput, array $input)
     {
-        $application = new ComposerApplication();
         $command = new DiffCommand(new PackageDiff());
-        $command->setApplication($application);
+        $command->setApplication($this->getComposerApplication());
         $tester = new CommandTester($command);
         $result = $tester->execute($input);
         $this->assertSame(0, $result);
@@ -43,14 +40,16 @@ class DiffCommandTest extends TestCase
     public function testComposerApplication($expectedOutput, array $input)
     {
         $input = array_merge(array('command' => 'diff'), $input);
-        $app = new ComposerApplication();
+        $app = $this->getComposerApplication();
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
-        $composer = Factory::create($app->getIO(), null, true);
+        $plugin = $this->getPluginPackage();
+        $config = array('allow-plugins' => array($plugin->getName() => true));
+        $composer = Factory::create($app->getIO(), array('config' => $config), true);
         $app->setComposer($composer);
         $pm = new PluginManager($app->getIO(), $composer);
         $composer->setPluginManager($pm);
-        $pm->registerPackage($composer->getPackage(), true);
+        $pm->registerPackage($plugin, true);
         $tester = new ApplicationTester($app);
         $result = $tester->run($input, array('verbosity' => Output::VERBOSITY_VERY_VERBOSE));
         $this->assertSame($expectedOutput, $tester->getDisplay());
@@ -232,17 +231,15 @@ OUTPUT
             ),
         );
     }
-}
 
-class ComposerApplication extends Application
-{
-    public function setIO(IOInterface $io)
+    /**
+     * @return Package
+     */
+    private function getPluginPackage()
     {
-        $this->io = $io;
-    }
+        $plugin = new Package('test-plugin-package', '1.0', '1.0');
+        $plugin->setExtra(array('class' => 'IonBazan\ComposerDiff\Composer\Plugin'));
 
-    public function setComposer(Composer $composer)
-    {
-        $this->composer = $composer;
+        return $plugin;
     }
 }
