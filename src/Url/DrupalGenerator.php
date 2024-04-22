@@ -33,7 +33,6 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function getReleaseUrl(PackageInterface $package)
     {
-      print_r($package->getName() );
         $name = $this->getDrupalProjectName($package);
         $version = $package->getPrettyVersion();
 
