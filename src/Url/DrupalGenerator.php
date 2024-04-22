@@ -11,7 +11,21 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function supportsPackage(PackageInterface $package)
     {
-        return 'drupal/core' === $package->getName() || parent::supportsPackage($package);
+        return 'drupal/core' === $package->getName() || in_array($package->getType(), array('drupal-module', 'drupal-theme')) || parent::supportsPackage($package);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCompareRef(PackageInterface $package)
+    {
+      $reference = $package->getSourceReference();
+
+      if (40 === \strlen($reference)) {
+        return \substr($reference, 0, 7);
+      }
+
+      return $reference;
     }
 
     /**
@@ -19,6 +33,7 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function getReleaseUrl(PackageInterface $package)
     {
+      print_r($package->getName() );
         $name = $this->getDrupalProjectName($package);
         $version = $package->getPrettyVersion();
 
