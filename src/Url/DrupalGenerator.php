@@ -2,6 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Url;
 
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 
 class DrupalGenerator extends GitlabGenerator
@@ -19,13 +20,17 @@ class DrupalGenerator extends GitlabGenerator
      */
     protected function getCompareRef(PackageInterface $package)
     {
-      $reference = $package->getSourceReference();
+        if (!$package->isDev()) {
+          return $package->getDistReference();
+        }
 
-      if (40 === \strlen($reference)) {
-        return \substr($reference, 0, 7);
-      }
+        $reference = $package->getSourceReference();
 
-      return $reference;
+        if (40 === \strlen($reference)) {
+          return \substr($reference, 0, 7);
+        }
+
+        return $reference;
     }
 
     /**
@@ -33,20 +38,14 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function getReleaseUrl(PackageInterface $package)
     {
-        $name = $this->getDrupalProjectName($package);
-        $version = $package->getPrettyVersion();
-
         // Not sure we can support dev releases right now. Can we distinguish major version dev releases from regular branches?
         if ($package->isDev()) {
             return null;
         }
 
-        // Always move dev-branchname to branchname-dev
-        // if ($package->isDev() && substr($version, 0, 4) === 'dev-' && substr($version, -4) !== '-dev') {
-        //    $version = substr($version, 4) . '-dev';
-        // }
+        $version = $package->getDistReference();
 
-        return sprintf('https://www.drupal.org/project/%s/releases/%s', $name, $version);
+        return sprintf('%s/releases/%s', $this->getProjectUrl($package), $version);
     }
 
     /**
@@ -54,6 +53,10 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function getProjectUrl(PackageInterface $package)
     {
+        if ($package instanceof CompletePackageInterface) {
+            return $package->getHomepage();
+        }
+
         $name = $this->getDrupalProjectName($package);
 
         return sprintf('https://www.drupal.org/project/%s', $name);
