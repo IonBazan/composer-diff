@@ -42,7 +42,6 @@ class DrupalGeneratorTest extends GeneratorTest
 
     public function projectUrlProvider()
     {
-        return array();
 
         return array(
             'contrib-legacy-version' => array(
@@ -90,7 +89,6 @@ class DrupalGeneratorTest extends GeneratorTest
 
     public function compareUrlProvider()
     {
-        return array();
 
         return array(
             'same maintainer' => array(
