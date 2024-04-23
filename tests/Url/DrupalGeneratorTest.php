@@ -63,9 +63,7 @@ class DrupalGeneratorTest extends GeneratorTest
         return array(
             'semver' => array(
               $this->getPackageWithSource('drupal/webform', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
-              'https://www.drupal.org/project/webform',
               $this->getPackageWithSource('drupal/webform', '6.0.1', 'https://git.drupalcode.org/project/webform.git'),
-              'https://www.drupal.org/project/webform',
                 'https://gitlab.acme.org/acme/package/compare/6.0.0...6.0.1',
             ),
         );
