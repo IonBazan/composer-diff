@@ -21,13 +21,13 @@ class DrupalGenerator extends GitlabGenerator
     protected function getCompareRef(PackageInterface $package)
     {
         if (!$package->isDev()) {
-          return $package->getDistReference();
+            return $package->getDistReference();
         }
 
         $reference = $package->getSourceReference();
 
         if (40 === \strlen($reference)) {
-          return \substr($reference, 0, 7);
+            return \substr($reference, 0, 7);
         }
 
         return $reference;
