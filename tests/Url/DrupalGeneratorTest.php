@@ -62,11 +62,30 @@ class DrupalGeneratorTest extends GeneratorTest
     {
         return array(
             'semver' => array(
-              $this->getPackageWithSource('drupal/webform', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
-              $this->getPackageWithSource('drupal/webform', '6.0.1', 'https://git.drupalcode.org/project/webform.git'),
-                'https://gitlab.acme.org/acme/package/compare/6.0.0...6.0.1',
+              $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
+              $this->getPackageWithSourceAndDist('drupal/webform', '6.0.1', '6.0.1', 'https://git.drupalcode.org/project/webform.git'),
+                'https://git.drupalcode.org/project/webform/compare/6.0.0...6.0.1',
             ),
         );
+    }
+
+    /**
+     * @param string      $name
+     * @param string      $version
+     * @param string|null $sourceUrl
+     * @param string|null $sourceReference
+     *
+     * @return mixed
+     */
+    protected function getPackageWithSourceAndDist($name, $version, $dist_version, $sourceUrl, $sourceReference = null)
+    {
+        $package = $this->getPackage($name, $version, $sourceReference);
+        $package->method('getSourceUrl')->willReturn($sourceUrl);
+        $package->method('getDistReference')->willReturn($dist_version);
+        $package->method('getSourceReference')->willReturn($sourceReference);
+        $package->method('isDev')->willReturn(0 === strpos($version, 'dev-') || '-dev' === substr($version, -4));
+
+        return $package;
     }
 
     /**
