@@ -10,7 +10,7 @@ class DrupalGeneratorTest extends GeneratorTest
     {
         return array(
             'contrib-legacy-version' => array(
-                $this->getPackageWithSource('drupal/token', '8.x-1.0', 'https://git.drupalcode.org/project/token.git', '8.x-1.0'),
+                $this->getPackageWithSource('drupal/token', '1.0.0', 'https://git.drupalcode.org/project/token.git', '8.x-1.0'),
                 'https://www.drupal.org/project/token/releases/8.x-1.0',
             ),
             'contrib-semver-version' => array(
@@ -62,10 +62,15 @@ class DrupalGeneratorTest extends GeneratorTest
     {
         return array(
             'semver' => array(
-              $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
-              $this->getPackageWithSourceAndDist('drupal/webform', '6.0.1', '6.0.1', 'https://git.drupalcode.org/project/webform.git'),
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.1', '6.0.1', 'https://git.drupalcode.org/project/webform.git'),
                 'https://git.drupalcode.org/project/webform/compare/6.0.0...6.0.1',
             ),
+            'legacy-version' => array(
+                $this->getPackageWithSourceAndDist('drupal/color_field', '2.4.0', '8.x-2.4', 'https://git.drupalcode.org/project/color_field.git'),
+                $this->getPackageWithSourceAndDist('drupal/color_field', '2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git'),
+                'https://git.drupalcode.org/project/color_field/compare/8.x-2.4...8.x-2.5',
+          ),
         );
     }
 
