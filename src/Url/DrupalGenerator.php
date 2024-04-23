@@ -43,7 +43,15 @@ class DrupalGenerator extends GitlabGenerator
             return null;
         }
 
-        $version = $package->getDistReference();
+        if ($package->getDistReference()) {
+            $version = $package->getDistReference();
+        }
+        elseif ($package->getSourceReference()) {
+            $version = $package->getSourceReference();
+        }
+        else {
+            return null;
+        }
 
         return sprintf('%s/releases/%s', $this->getProjectUrl($package), $version);
     }
