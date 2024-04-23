@@ -10,15 +10,15 @@ class DrupalGeneratorTest extends GeneratorTest
     {
         return array(
             'contrib-legacy-version' => array(
-                $this->getPackageWithSource('drupal/token', '8.x-1.0', 'https://git.drupalcode.org/project/token.git'),
+                $this->getPackageWithSource('drupal/token', '8.x-1.0', 'https://git.drupalcode.org/project/token.git', '8.x-1.0'),
                 'https://www.drupal.org/project/token/releases/8.x-1.0',
             ),
             'contrib-semver-version' => array(
-                $this->getPackageWithSource('drupal/webform', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
+                $this->getPackageWithSource('drupal/webform', '6.0.0', 'https://git.drupalcode.org/project/webform.git', '6.0.0'),
                 'https://www.drupal.org/project/webform/releases/6.0.0',
             ),
             'core' => array(
-                $this->getPackageWithSource('drupal/core', '9.0.0', 'https://github.com/drupal/core.git'),
+                $this->getPackageWithSource('drupal/core', '9.0.0', 'https://github.com/drupal/core.git', '9.0.0'),
                 'https://www.drupal.org/project/drupal/releases/9.0.0',
             ),
             'core-dev' => array(
