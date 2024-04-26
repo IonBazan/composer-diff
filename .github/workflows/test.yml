@@ -57,6 +57,8 @@ jobs:
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run mutation tests
         if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
         env:
