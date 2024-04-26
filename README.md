@@ -84,6 +84,8 @@ composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table
 ```
 
+You can find more documentation in the [docs](docs) directory.
+
 ### Strict mode
 
 To help you control your dependencies, you may pass `--strict` option when running in CI. If there are any changes detected, a non-zero exit code will be returned.
@@ -98,6 +100,11 @@ Exit code of the command is built using following bit flags:
 * `16` - There were downgrades in dev packages.
 
 You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
+
+# Contributing
+
+Composer Diff is an open source project that welcomes pull requests and issues from anyone. 
+Before opening pull requests, please consider reading our short [Contribution Guidelines](docs/CONTRIBUTING.md).
 
 # Similar packages
 

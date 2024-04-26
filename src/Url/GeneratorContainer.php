@@ -14,7 +14,7 @@ class GeneratorContainer implements UrlGenerator
     /**
      * @param string[] $gitlabDomains
      */
-    public function __construct(array $gitlabDomains)
+    public function __construct(array $gitlabDomains = array())
     {
         $generators = array(
             new DrupalGenerator(),

@@ -5,10 +5,7 @@ namespace IonBazan\ComposerDiff\Command;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
-use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
-use IonBazan\ComposerDiff\Formatter\JsonFormatter;
-use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
-use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
+use IonBazan\ComposerDiff\Formatter\FormatterContainer;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Input\InputArgument;
@@ -142,7 +139,9 @@ EOF
         $withUrls = $input->getOption('with-links');
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
 
-        $formatter = $this->getFormatter($input, $output);
+        $urlGenerators = new GeneratorContainer($this->gitlabDomains);
+        $formatters = new FormatterContainer($output, $urlGenerators);
+        $formatter = $formatters->getFormatter($input->getOption('format'));
 
         $prodOperations = new DiffEntries(array());
         $devOperations = new DiffEntries(array());
@@ -207,17 +206,8 @@ EOF
     private function getFormatter(InputInterface $input, OutputInterface $output)
     {
         $urlGenerators = new GeneratorContainer($this->gitlabDomains);
+        $formatters = new FormatterContainer($output, $urlGenerators);
 
-        switch ($input->getOption('format')) {
-            case 'json':
-                return new JsonFormatter($output, $urlGenerators);
-            case 'mdlist':
-                return new MarkdownListFormatter($output, $urlGenerators);
-            case 'github':
-                return new GitHubFormatter($output, $urlGenerators);
-                // case 'mdtable':
-            default:
-                return new MarkdownTableFormatter($output, $urlGenerators);
-        }
+        return $formatters->getFormatter($input->getOption('format'));
     }
 }
