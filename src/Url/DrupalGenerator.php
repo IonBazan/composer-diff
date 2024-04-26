@@ -7,12 +7,14 @@ use Composer\Package\PackageInterface;
 
 class DrupalGenerator extends GitlabGenerator
 {
+    const DRUPAL_CORE = 'drupal/core';
+
     /**
      * {@inheritdoc}
      */
     public function supportsPackage(PackageInterface $package)
     {
-        return 'drupal/core' === $package->getName() || in_array($package->getType(), array('drupal-module', 'drupal-theme')) || parent::supportsPackage($package);
+        return self::DRUPAL_CORE === $package->getName() || parent::supportsPackage($package);
     }
 
     /**
@@ -24,13 +26,7 @@ class DrupalGenerator extends GitlabGenerator
             return $package->getDistReference();
         }
 
-        $reference = $package->getSourceReference();
-
-        if (40 === \strlen($reference)) {
-            return \substr($reference, 0, 7);
-        }
-
-        return $reference;
+        return parent::getCompareRef($package);
     }
 
     /**
@@ -43,17 +39,7 @@ class DrupalGenerator extends GitlabGenerator
             return null;
         }
 
-        if ($package->getDistReference()) {
-            $version = $package->getDistReference();
-        }
-        elseif ($package->getSourceReference()) {
-            $version = $package->getSourceReference();
-        }
-        else {
-            return null;
-        }
-
-        return sprintf('%s/releases/%s', $this->getProjectUrl($package), $version);
+        return sprintf('%s/releases/%s', $this->getProjectUrl($package), $this->getVersionReference($package));
     }
 
     /**
@@ -61,13 +47,7 @@ class DrupalGenerator extends GitlabGenerator
      */
     public function getProjectUrl(PackageInterface $package)
     {
-        if ($package instanceof CompletePackageInterface) {
-            return $package->getHomepage();
-        }
-
-        $name = $this->getDrupalProjectName($package);
-
-        return sprintf('https://www.drupal.org/project/%s', $name);
+        return sprintf('https://www.drupal.org/project/%s', $this->getDrupalProjectName($package));
     }
 
     /**
@@ -78,15 +58,27 @@ class DrupalGenerator extends GitlabGenerator
         return 'git.drupalcode.org';
     }
 
-    protected function getDrupalProjectName(PackageInterface $package)
+    /**
+     * @return string|null
+     */
+    private function getVersionReference(PackageInterface $package)
     {
-        list(, $name) = explode('/', $package->getName(), 2);
-
-        // Special handling for drupal/core only.
-        if ('core' === $name) {
-            $name = 'drupal';
+        if ($package->getDistReference()) {
+            return $package->getDistReference();
         }
 
-        return $name;
+        return $package->getSourceReference();
+    }
+
+    /**
+     * @return string
+     */
+    private function getDrupalProjectName(PackageInterface $package)
+    {
+        if ($package->getName() === self::DRUPAL_CORE) {
+            return 'drupal';
+        }
+
+        return preg_replace('/^drupal\//', '', $package->getName());
     }
 }

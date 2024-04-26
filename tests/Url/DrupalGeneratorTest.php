@@ -2,6 +2,8 @@
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
+use Composer\Package\CompletePackageInterface;
+use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Url\DrupalGenerator;
 
 class DrupalGeneratorTest extends GeneratorTest
@@ -15,6 +17,10 @@ class DrupalGeneratorTest extends GeneratorTest
             ),
             'contrib-semver-version' => array(
                 $this->getPackageWithSource('drupal/webform', '6.0.0', 'https://git.drupalcode.org/project/webform.git', '6.0.0'),
+                'https://www.drupal.org/project/webform/releases/6.0.0',
+            ),
+            'semver-semver-dist' => array(
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git'),
                 'https://www.drupal.org/project/webform/releases/6.0.0',
             ),
             'core' => array(
@@ -70,7 +76,12 @@ class DrupalGeneratorTest extends GeneratorTest
                 $this->getPackageWithSourceAndDist('drupal/color_field', '2.4.0', '8.x-2.4', 'https://git.drupalcode.org/project/color_field.git'),
                 $this->getPackageWithSourceAndDist('drupal/color_field', '2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git'),
                 'https://git.drupalcode.org/project/color_field/compare/8.x-2.4...8.x-2.5',
-          ),
+           ),
+            'dev-version' => array(
+                $this->getPackageWithSourceAndDist('drupal/color_field', '2.4.0', '8.x-2.4', 'https://git.drupalcode.org/project/color_field.git'),
+                $this->getPackageWithSourceAndDist('drupal/color_field', 'dev-2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
+                'https://git.drupalcode.org/project/color_field/compare/8.x-2.4...d462830',
+            ),
         );
     }
 
@@ -80,13 +91,13 @@ class DrupalGeneratorTest extends GeneratorTest
      * @param string|null $sourceUrl
      * @param string|null $sourceReference
      *
-     * @return mixed
+     * @return PackageInterface
      */
-    protected function getPackageWithSourceAndDist($name, $version, $dist_version, $sourceUrl, $sourceReference = null)
+    protected function getPackageWithSourceAndDist($name, $version, $distVersion, $sourceUrl, $sourceReference = null)
     {
         $package = $this->getPackage($name, $version, $sourceReference);
         $package->method('getSourceUrl')->willReturn($sourceUrl);
-        $package->method('getDistReference')->willReturn($dist_version);
+        $package->method('getDistReference')->willReturn($distVersion);
         $package->method('getSourceReference')->willReturn($sourceReference);
         $package->method('isDev')->willReturn(0 === strpos($version, 'dev-') || '-dev' === substr($version, -4));
 

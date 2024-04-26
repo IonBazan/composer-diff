@@ -19,6 +19,9 @@ class GeneratorContainerTest extends TestCase
         $this->assertNotSame($gitlabGenerator, $gitlab2Generator);
         $this->assertNull($container->get($this->getPackageWithSource('', '', 'https://gitlab3.org')));
         $this->assertNull($container->get($this->getPackageWithSource('', '', null)));
+        $drupalGenerator = $container->get($this->getPackageWithSource('', '', 'https://git.drupalcode.org'));
+        $this->assertInstanceOf('IonBazan\ComposerDiff\Url\DrupalGenerator', $drupalGenerator);
+        $this->assertNotSame($gitlabGenerator, $drupalGenerator);
     }
 
     public function testItSupportsPackageSupportedByOneOfTheGenerators()
