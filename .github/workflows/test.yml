@@ -48,7 +48,7 @@ jobs:
           coverage: xdebug
           tools: composer:${{ matrix.composer }}
       - name: Install Composer dependencies (${{ matrix.dependencies }})
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - name: Set default branch for tests
@@ -56,7 +56,7 @@ jobs:
       - name: Run Tests
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
       - name: Run mutation tests
         if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
         env:
