@@ -17,6 +17,7 @@ class GeneratorContainer implements UrlGenerator
     public function __construct(array $gitlabDomains)
     {
         $generators = array(
+            new DrupalGenerator(),
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
