@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Url;
 
-use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 
 class DrupalGenerator extends GitlabGenerator
@@ -75,7 +74,7 @@ class DrupalGenerator extends GitlabGenerator
      */
     private function getDrupalProjectName(PackageInterface $package)
     {
-        if ($package->getName() === self::DRUPAL_CORE) {
+        if (self::DRUPAL_CORE === $package->getName()) {
             return 'drupal';
         }
 

@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
-use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Url\DrupalGenerator;
 
