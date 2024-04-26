@@ -4,7 +4,6 @@ namespace IonBazan\ComposerDiff\Command;
 
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
-use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\FormatterContainer;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
@@ -198,16 +197,5 @@ EOF
         }
 
         return false;
-    }
-
-    /**
-     * @return Formatter
-     */
-    private function getFormatter(InputInterface $input, OutputInterface $output)
-    {
-        $urlGenerators = new GeneratorContainer($this->gitlabDomains);
-        $formatters = new FormatterContainer($output, $urlGenerators);
-
-        return $formatters->getFormatter($input->getOption('format'));
     }
 }
