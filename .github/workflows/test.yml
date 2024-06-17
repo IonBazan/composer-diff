@@ -52,6 +52,7 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - name: Check PSR-4 mapping
+        if: ${{ matrix.php-versions == 8.3 && matrix.composer == 'v2' }}
         run: composer dump-autoload --dev --optimize --strict-psr
       - name: Set default branch for tests
         run: git config --global init.defaultBranch main
