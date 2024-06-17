@@ -10,7 +10,7 @@
 [![Downloads](https://img.shields.io/packagist/dt/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![License](https://img.shields.io/packagist/l/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 
-Generates packages changes report in Markdown format by comparing `composer.lock` files. Compares with last-commited changes by default.
+Generates packages changes report in Markdown format by comparing `composer.lock` files. Compares with last-committed changes by default.
 
 ## Now available as [GitHub Action](https://github.com/marketplace/actions/composer-diff)!
 
@@ -124,4 +124,3 @@ This package offers:
  - [GitHub Action](https://github.com/marketplace/actions/composer-diff) with example workflow
  - 100% test coverage.
  - MIT license.
-
