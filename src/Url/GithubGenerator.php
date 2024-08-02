@@ -20,7 +20,7 @@ class GithubGenerator extends GitGenerator
         $targetMaintainer = $this->getUser($targetPackage);
         $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$this->getCompareRef($targetPackage);
 
-        return sprintf('%s/compare/%s..%s', $baseUrl, $this->getCompareRef($initialPackage), $targetVersion);
+        return sprintf('%s/compare/%s...%s', $baseUrl, $this->getCompareRef($initialPackage), $targetVersion);
     }
 
     /**
