@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
-use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Url\WordPressGenerator;
 
 class WordPressGeneratorTest extends GeneratorTest
