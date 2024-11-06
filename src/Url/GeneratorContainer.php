@@ -21,6 +21,7 @@ class GeneratorContainer implements UrlGenerator
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
+            new WordPressGenerator(),
         );
 
         foreach ($gitlabDomains as $domain) {
