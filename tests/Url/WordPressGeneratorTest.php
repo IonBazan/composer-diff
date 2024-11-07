@@ -6,6 +6,16 @@ use IonBazan\ComposerDiff\Url\WordPressGenerator;
 
 class WordPressGeneratorTest extends GeneratorTest
 {
+    public function testItSupportsOnlyWpackagistPackages()
+    {
+        $generator = $this->getGenerator();
+
+        $this->assertFalse($generator->supportsPackage($this->getPackage('acme/package', '3.12.1')));
+        $this->assertTrue($generator->supportsPackage($this->getPackage('wpackagist-plugin/my-plugin', '3.12.1')));
+        $this->assertTrue($generator->supportsPackage($this->getPackage('wpackagist-theme/my-theme', '3.12.1')));
+        $this->assertFalse($generator->supportsPackage($this->getPackage('acme-wpackagist-theme/my-theme', '3.12.1')));
+    }
+
     public function releaseUrlProvider()
     {
         return array(

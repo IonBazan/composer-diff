@@ -7,19 +7,15 @@ use Composer\Package\PackageInterface;
 class WordPressGenerator implements UrlGenerator
 {
     /**
-     * Determines if the generator supports the given package.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function supportsPackage(PackageInterface $package)
     {
-        return 0 === strpos($package->getName(), 'wpackagist-plugin/') || 0 === strpos($package->getName(), 'wpackagist-theme/');
+        return (bool) preg_match('#^wpackagist-(plugin|theme)/#', $package->getName());
     }
 
     /**
-     * Generates a compare URL for two versions of the same package.
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
     {
@@ -27,9 +23,7 @@ class WordPressGenerator implements UrlGenerator
     }
 
     /**
-     * Generates URL for viewing a release or commit of a package.
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getReleaseUrl(PackageInterface $package)
     {
@@ -37,38 +31,18 @@ class WordPressGenerator implements UrlGenerator
     }
 
     /**
-     * Generates URL for viewing the project page of a package (usually repository root).
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getProjectUrl(PackageInterface $package)
     {
-        $type = $this->getPackageType($package);
+        preg_match('#wpackagist-(plugin|theme)/(.+)#', $package->getName(), $matches);
 
-        if (null === $type) {
+        if (empty($matches)) {
             return null;
         }
 
-        return sprintf('https://wordpress.org/%ss/%s', $type, $this->getPackageSlug($package));
-    }
+        list (, $type, $slug) = $matches;
 
-    /**
-     * @return string|null
-     */
-    protected function getPackageType(PackageInterface $package)
-    {
-        [$type] = explode('/', $package->getName(), 2);
-
-        return 0 === strpos($type, 'wpackagist-') ? substr($type, 11) : null;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPackageSlug(PackageInterface $package)
-    {
-        [, $slug] = explode('/', $package->getName(), 2);
-
-        return $slug;
+        return sprintf('https://wordpress.org/%ss/%s', $type, $slug);
     }
 }
