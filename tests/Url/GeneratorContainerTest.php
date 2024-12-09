@@ -2,6 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Tests\Url;
 
+use Composer\Package\CompletePackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 
@@ -29,5 +30,17 @@ class GeneratorContainerTest extends TestCase
         $generator = new GeneratorContainer(array());
         self::assertTrue($generator->supportsPackage($this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git')));
         self::assertFalse($generator->supportsPackage($this->getPackageWithSource('acme/package', '3.12.0', 'https://non-existent.org/acme/package.git')));
+    }
+
+    public function testItReturnsHomepageForProjectUrlWhenNoGeneratorSupportsPackage()
+    {
+        $generator = new GeneratorContainer();
+        $package = new CompletePackage('acme/package', '3.12.0', '3.12.0');
+        $package->setHomepage('https://acme.com');
+
+        self::assertSame('https://acme.com', $generator->getProjectUrl($package));
+
+        $package->setHomepage(null);
+        self::assertNull($generator->getProjectUrl($package));
     }
 }

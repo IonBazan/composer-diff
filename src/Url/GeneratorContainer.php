@@ -2,6 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Url;
 
+use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
 
 class GeneratorContainer implements UrlGenerator
@@ -69,10 +70,14 @@ class GeneratorContainer implements UrlGenerator
 
     public function getProjectUrl(PackageInterface $package)
     {
-        if (!$generator = $this->get($package)) {
-            return null;
+        if ($generator = $this->get($package)) {
+            return $generator->getProjectUrl($package);
         }
 
-        return $generator->getProjectUrl($package);
+        if ($package instanceof CompletePackage) {
+            return $package->getHomepage();
+        }
+
+        return null;
     }
 }
