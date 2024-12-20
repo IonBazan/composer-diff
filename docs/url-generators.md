@@ -6,6 +6,7 @@ URL generators are used to generate URLs for the packages listed in a diff:
 - `GitLabGenerator`: Generates URLs for GitLab repositories. Supports custom domains.
 - `BitbucketGenerator`: Generates URLs for Bitbucket repositories.
 - `DrupalGenerator`: Generates URLs for Drupal packages.
+- `WordPress`: Generates URLs for WordPress plugins and themes (via [WordPress Packagist](https://wpackagist.org/)).
 
 They are chosen automatically based on the package URL or other conditions specified in `supportsPackage()` method.
 
