@@ -92,6 +92,7 @@ abstract class AbstractFormatter implements Formatter
             return $title;
         }
 
+        // @phpstan-ignore function.alreadyNarrowedType
         return method_exists('Symfony\Component\Console\Formatter\OutputFormatterStyle', 'setHref') ? sprintf('<href=%s>%s</>', $url, $title) : $title;
     }
 }

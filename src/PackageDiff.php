@@ -121,6 +121,7 @@ class PackageDiff
         }
 
         if (filter_var($path, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) || file_exists($path)) {
+            // @phpstan-ignore return.type
             return file_get_contents($path);
         }
 

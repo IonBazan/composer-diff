@@ -36,6 +36,7 @@ class JsonFormatter extends AbstractFormatter
      */
     private function format(array $data)
     {
+        // @phpstan-ignore argument.type
         $this->output->writeln(json_encode($data, 128)); // JSON_PRETTY_PRINT
     }
 
