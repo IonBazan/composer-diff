@@ -6,6 +6,7 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\CompletePackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -44,6 +45,24 @@ abstract class AbstractFormatter implements Formatter
         }
 
         return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLicenses(DiffEntry $entry)
+    {
+        if (!$entry->getPackage() instanceof CompletePackageInterface) {
+            return null;
+        }
+
+        $licenses = $entry->getPackage()->getLicense();
+
+        if (empty($licenses)) {
+            return null;
+        }
+
+        return implode(', ', $licenses);
     }
 
     /**

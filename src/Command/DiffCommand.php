@@ -65,6 +65,7 @@ class DiffCommand extends BaseCommand
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
+            ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
@@ -136,6 +137,7 @@ EOF
         $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
+        $withLicenses = $input->getOption('with-licenses');
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
 
         $urlGenerators = new GeneratorContainer($this->gitlabDomains);
@@ -153,7 +155,7 @@ EOF
             $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform);
         }
 
-        $formatter->render($prodOperations, $devOperations, $withUrls);
+        $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);
 
         return $input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0;
     }

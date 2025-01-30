@@ -14,16 +14,16 @@ class MarkdownTableFormatter extends MarkdownFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
     {
-        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
-        $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
+        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses);
+        $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
     {
         if (!\count($entries)) {
             return;
@@ -38,6 +38,10 @@ class MarkdownTableFormatter extends MarkdownFormatter
                 $row[] = $this->formatUrl($this->getUrl($entry), 'Compare');
             }
 
+            if ($withLicenses) {
+                $row[] = $this->getLicenses($entry);
+            }
+
             $rows[] = $row;
         }
 
@@ -46,6 +50,10 @@ class MarkdownTableFormatter extends MarkdownFormatter
 
         if ($withUrls) {
             $headers[] = 'Link';
+        }
+
+        if ($withLicenses) {
+            $headers[] = 'License';
         }
 
         $table->setHeaders($headers)->setRows($rows)->render();

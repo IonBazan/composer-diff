@@ -22,7 +22,7 @@ abstract class FormatterTest extends TestCase
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->render(new DiffEntries(array()), new DiffEntries(array()), true);
+        $formatter->render(new DiffEntries(array()), new DiffEntries(array()), true, false);
         $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
@@ -46,20 +46,25 @@ abstract class FormatterTest extends TestCase
      * @param bool $withUrls
      * @param bool $decorated
      *
-     * @testWith   [false]
-     *             [true]
+     * @testWith   [false, false]
      *             [false, true]
+     *             [true, false]
      *             [true, true]
+     *             [false, false, true]
+     *             [false, true, true]
+     *             [true, false, true]
+     *             [true, true, true]
      */
-    public function testItRendersTheListOfOperations($withUrls, $decorated = false)
+    public function testItRendersTheListOfOperations($withUrls, $withLicenses, $decorated = false)
     {
         $output = new StreamOutput(fopen('php://memory', 'wb', false), OutputInterface::VERBOSITY_NORMAL, $decorated);
         $this->getFormatter($output, $this->getGenerators())->render(
             $this->getEntries($this->getSampleProdOperations()),
             $this->getEntries($this->getSampleDevOperations()),
-            $withUrls
+            $withUrls,
+            $withLicenses
         );
-        $this->assertSame($this->getSampleOutput($withUrls, $decorated), $this->getDisplay($output));
+        $this->assertSame($this->getSampleOutput($withUrls, $withLicenses, $decorated), $this->getDisplay($output));
     }
 
     public function testItFailsWithInvalidOperation()
@@ -68,7 +73,7 @@ abstract class FormatterTest extends TestCase
         $this->setExpectedException('InvalidArgumentException', 'Invalid operation');
         $this->getFormatter($output, $this->getGenerators())->render($this->getEntries(array(
             $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock(),
-        )), $this->getEntries(array()), false);
+        )), $this->getEntries(array()), false, false);
     }
 
     /**
@@ -78,11 +83,12 @@ abstract class FormatterTest extends TestCase
 
     /**
      * @param bool $withUrls
+     * @param bool $withLicenses
      * @param bool $decorated
      *
      * @return string
      */
-    abstract protected function getSampleOutput($withUrls, $decorated);
+    abstract protected function getSampleOutput($withUrls, $withLicenses, $decorated);
 
     /**
      * @return string
@@ -163,9 +169,9 @@ abstract class FormatterTest extends TestCase
     private function getSampleDevOperations()
     {
         return array(
-            new UpdateOperation($this->getPackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
-            new UninstallOperation($this->getPackage('a/package-4', '0.1.1')),
-            new UninstallOperation($this->getPackage('a/no-link-2', '0.1.1')),
+            new UpdateOperation($this->getCompletePackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
+            new UninstallOperation($this->getCompletePackage('a/package-4', '0.1.1', null, array('MIT', 'BSD-3-Clause'))),
+            new UninstallOperation($this->getCompletePackage('a/no-link-2', '0.1.1', null, array('MIT'))),
         );
     }
 }

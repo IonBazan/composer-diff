@@ -13,20 +13,20 @@ class JsonFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
     {
         $this->format(array(
-            'packages' => $this->transformEntries($prodEntries, $withUrls),
-            'packages-dev' => $this->transformEntries($devEntries, $withUrls),
+            'packages' => $this->transformEntries($prodEntries, $withUrls, $withLicenses),
+            'packages-dev' => $this->transformEntries($devEntries, $withUrls, $withLicenses),
         ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
     {
-        $this->format($this->transformEntries($entries, $withUrls));
+        $this->format($this->transformEntries($entries, $withUrls, $withLicenses));
     }
 
     /**
@@ -42,10 +42,11 @@ class JsonFormatter extends AbstractFormatter
 
     /**
      * @param bool $withUrls
+     * @param bool $withLicenses
      *
      * @return array<array<string, string|null>>
      */
-    private function transformEntries(DiffEntries $entries, $withUrls)
+    private function transformEntries(DiffEntries $entries, $withUrls, $withLicenses)
     {
         $rows = array();
 
@@ -55,6 +56,10 @@ class JsonFormatter extends AbstractFormatter
             if ($withUrls) {
                 $row['compare'] = $this->getUrl($entry);
                 $row['link'] = $this->getProjectUrl($entry->getOperation());
+            }
+
+            if ($withLicenses) {
+                $row['license'] = $this->getLicenses($entry);
             }
 
             $rows[$row['name']] = $row;
