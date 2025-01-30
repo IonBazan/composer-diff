@@ -90,8 +90,7 @@ class JsonFormatterTest extends FormatterTest
 
     protected function getSampleOutput($withUrls, $withLicenses, $decorated)
     {
-        if ($withLicenses)
-        {
+        if ($withLicenses) {
             $package4License = array('license' => 'MIT, BSD-3-Clause');
             $noLink2License = array('license' => 'MIT');
             $nullLicense = array('license' => null);

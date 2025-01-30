@@ -50,7 +50,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
         $url = (null !== $url && '' !== $url) ? ' '.$url : '';
         $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses . ')' : '';
+        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
         $operation = $entry->getOperation();
 
         if ($operation instanceof InstallOperation) {

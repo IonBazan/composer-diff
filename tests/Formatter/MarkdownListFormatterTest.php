@@ -10,8 +10,7 @@ class MarkdownListFormatterTest extends FormatterTest
 {
     protected function getSampleOutput($withUrls, $withLicenses, $decorated)
     {
-        if ($withLicenses)
-        {
+        if ($withLicenses) {
             $package4License = ' (License: MIT, BSD-3-Clause)';
             $noLink2License = ' (License: MIT)';
         } else {

@@ -10,8 +10,7 @@ class MarkdownTableFormatterTest extends FormatterTest
 {
     protected function getSampleOutput($withUrls, $withLicenses, $decorated)
     {
-        if ($withLicenses)
-        {
+        if ($withLicenses) {
             $prodLicenseHeader = ' License |';
             $prodLicenseSeparator = '---------|';
             $prodNullLicense = '         |';

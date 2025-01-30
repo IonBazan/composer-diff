@@ -61,7 +61,7 @@ class GitHubFormatter extends AbstractFormatter
         $url = $withUrls ? $this->getUrl($entry) : null;
         $url = (null !== $url) ? ' '.$url : '';
         $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses . ')' : '';
+        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
 
         if ($operation instanceof InstallOperation) {
             return sprintf(
