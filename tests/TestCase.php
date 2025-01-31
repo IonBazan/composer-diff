@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Tests;
 
 use Composer\DependencyResolver\Operation\OperationInterface;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
@@ -60,6 +61,25 @@ abstract class TestCase extends BaseTestCase
         $package->method('getSourceUrl')->willReturn($sourceUrl);
         $package->method('getSourceReference')->willReturn($sourceReference);
         $package->method('isDev')->willReturn(0 === strpos($version, 'dev-') || '-dev' === substr($version, -4));
+
+        return $package;
+    }
+
+    /**
+     * @param string      $name
+     * @param string      $version
+     * @param string|null $fullVersion
+     *
+     * @return MockObject|CompletePackageInterface
+     */
+    protected function getCompletePackage($name, $version, $fullVersion = null, $license = array())
+    {
+        $package = $this->getMockBuilder('Composer\Package\CompletePackageInterface')->getMock();
+        $package->method('getName')->willReturn($name);
+        $package->method('getVersion')->willReturn($version);
+        $package->method('getPrettyVersion')->willReturn($version);
+        $package->method('getFullPrettyVersion')->willReturn(null !== $fullVersion ? $fullVersion : $version);
+        $package->method('getLicense')->willReturn($license);
 
         return $package;
     }

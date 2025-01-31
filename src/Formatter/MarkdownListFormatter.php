@@ -13,16 +13,16 @@ class MarkdownListFormatter extends MarkdownFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
     {
-        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls);
-        $this->renderSingle($devEntries, 'Dev Packages', $withUrls);
+        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses);
+        $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls)
+    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
     {
         if (!\count($entries)) {
             return;
@@ -33,7 +33,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         $this->output->writeln('');
 
         foreach ($entries as $entry) {
-            $this->output->writeln($this->getRow($entry, $withUrls));
+            $this->output->writeln($this->getRow($entry, $withUrls, $withLicenses));
         }
 
         $this->output->writeln('');
@@ -41,13 +41,16 @@ class MarkdownListFormatter extends MarkdownFormatter
 
     /**
      * @param bool $withUrls
+     * @param bool $withLicenses
      *
      * @return string
      */
-    private function getRow(DiffEntry $entry, $withUrls)
+    private function getRow(DiffEntry $entry, $withUrls, $withLicenses)
     {
         $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
-        $url = (null !== $url) ? ' '.$url : '';
+        $url = (null !== $url && '' !== $url) ? ' '.$url : '';
+        $licenses = $withLicenses ? $this->getLicenses($entry) : null;
+        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
         $operation = $entry->getOperation();
 
         if ($operation instanceof InstallOperation) {
@@ -55,10 +58,11 @@ class MarkdownListFormatter extends MarkdownFormatter
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
 
             return sprintf(
-                ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s',
+                ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,
                 $operation->getPackage()->getFullPrettyVersion(),
-                $url
+                $url,
+                $licenses
             );
         }
 
@@ -67,12 +71,13 @@ class MarkdownListFormatter extends MarkdownFormatter
             $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
 
             return sprintf(
-                ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s',
+                ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s%s',
                 ucfirst($entry->getType()),
                 $projectUrl ?: $packageName,
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
-                $url
+                $url,
+                $licenses
             );
         }
 
@@ -81,10 +86,11 @@ class MarkdownListFormatter extends MarkdownFormatter
             $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
 
             return sprintf(
-                ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s',
+                ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,
                 $operation->getPackage()->getFullPrettyVersion(),
-                $url
+                $url,
+                $licenses
             );
         }
 

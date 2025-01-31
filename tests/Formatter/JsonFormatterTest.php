@@ -26,7 +26,7 @@ class JsonFormatterTest extends FormatterTest
         );
         $output = new StreamOutput(fopen('php://memory', 'wb', false));
         $formatter = $this->getFormatter($output, $this->getGenerators());
-        $formatter->renderSingle($this->getEntries($sampleData), 'test', true);
+        $formatter->renderSingle($this->getEntries($sampleData), 'test', true, false);
 
         $this->assertSame(self::formatOutput(array(
             'a/package-1' => array(
@@ -88,8 +88,18 @@ class JsonFormatterTest extends FormatterTest
         )), $this->getDisplay($output));
     }
 
-    protected function getSampleOutput($withUrls, $decorated)
+    protected function getSampleOutput($withUrls, $withLicenses, $decorated)
     {
+        if ($withLicenses) {
+            $package4License = array('license' => 'MIT, BSD-3-Clause');
+            $noLink2License = array('license' => 'MIT');
+            $nullLicense = array('license' => null);
+        } else {
+            $package4License = array();
+            $noLink2License = array();
+            $nullLicense = array();
+        }
+
         if ($withUrls) {
             return self::formatOutput(array(
                 'packages' => array(
@@ -100,7 +110,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.0.0',
                                 'compare' => 'https://example.com/r/1.0.0',
                                 'link' => 'https://example.com/r/a/package-1',
-                            ),
+                            ) + $nullLicense,
                         'a/no-link-1' => array(
                                 'name' => 'a/no-link-1',
                                 'operation' => 'install',
@@ -108,7 +118,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.0.0',
                                 'compare' => null,
                                 'link' => null,
-                            ),
+                            ) + $nullLicense,
                         'a/package-2' => array(
                                 'name' => 'a/package-2',
                                 'operation' => 'upgrade',
@@ -116,7 +126,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.2.0',
                                 'compare' => 'https://example.com/c/1.0.0..1.2.0',
                                 'link' => 'https://example.com/r/a/package-2',
-                            ),
+                            ) + $nullLicense,
                         'a/package-3' => array(
                                 'name' => 'a/package-3',
                                 'operation' => 'downgrade',
@@ -124,7 +134,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.1.1',
                                 'compare' => 'https://example.com/c/2.0.0..1.1.1',
                                 'link' => 'https://example.com/r/a/package-3',
-                            ),
+                            ) + $nullLicense,
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
                                 'operation' => 'downgrade',
@@ -132,7 +142,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.1.1',
                                 'compare' => null,
                                 'link' => null,
-                            ),
+                            ) + $nullLicense,
                         'php' => array(
                             'name' => 'php',
                             'operation' => 'change',
@@ -140,7 +150,7 @@ class JsonFormatterTest extends FormatterTest
                             'version_target' => '^8.0',
                             'compare' => null,
                             'link' => null,
-                        ),
+                        ) + $nullLicense,
                     ),
                 'packages-dev' => array(
                         'a/package-5' => array(
@@ -150,7 +160,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => '1.1.1',
                                 'compare' => 'https://example.com/c/dev-master..1.1.1',
                                 'link' => 'https://example.com/r/a/package-5',
-                            ),
+                            ) + $nullLicense,
                         'a/package-4' => array(
                                 'name' => 'a/package-4',
                                 'operation' => 'remove',
@@ -158,7 +168,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => null,
                                 'compare' => 'https://example.com/r/0.1.1',
                                 'link' => 'https://example.com/r/a/package-4',
-                            ),
+                            ) + $package4License,
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
                                 'operation' => 'remove',
@@ -166,7 +176,7 @@ class JsonFormatterTest extends FormatterTest
                                 'version_target' => null,
                                 'compare' => null,
                                 'link' => null,
-                            ),
+                            ) + $noLink2License,
                     ),
             ));
         }
@@ -178,37 +188,37 @@ class JsonFormatterTest extends FormatterTest
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
-                ),
+                ) + $nullLicense,
                 'a/no-link-1' => array(
                     'name' => 'a/no-link-1',
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
-                ),
+                ) + $nullLicense,
                 'a/package-2' => array(
                     'name' => 'a/package-2',
                     'operation' => 'upgrade',
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
-                ),
+                ) + $nullLicense,
                 'a/package-3' => array(
                     'name' => 'a/package-3',
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
-                ),
+                ) + $nullLicense,
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
-                ),
+                ) + $nullLicense,
                 'php' => array(
                     'name' => 'php',
                     'operation' => 'change',
                     'version_base' => '>=7.4.6',
                     'version_target' => '^8.0',
-                ),
+                ) + $nullLicense,
             ),
             'packages-dev' => array(
                 'a/package-5' => array(
@@ -216,19 +226,19 @@ class JsonFormatterTest extends FormatterTest
                     'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
-                ),
+                ) + $nullLicense,
                 'a/package-4' => array(
                     'name' => 'a/package-4',
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
-                ),
+                ) + $package4License,
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
-                ),
+                ) + $noLink2License,
             ),
         ));
     }
