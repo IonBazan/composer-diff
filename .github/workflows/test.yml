@@ -25,6 +25,7 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
         include:
           - php-versions: '5.3'
             dependencies: 'lowest'
@@ -52,7 +53,7 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - name: Check PSR-4 mapping
-        if: ${{ matrix.php-versions == 8.3 && matrix.composer == 'v2' }}
+        if: ${{ matrix.php-versions == 8.4 && matrix.composer == 'v2' }}
         run: composer dump-autoload --dev --optimize --strict-psr
       - name: Set default branch for tests
         run: git config --global init.defaultBranch main
@@ -63,7 +64,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run mutation tests
-        if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.4 && matrix.operating-system == 'ubuntu-latest' }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
@@ -71,7 +72,7 @@ jobs:
           composer require infection/infection --update-with-all-dependencies
           vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4 --only-covered
       - name: Run phpstan
-        if: ${{ matrix.php-versions == 8.3 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.4 && matrix.operating-system == 'ubuntu-latest' }}
         run: |
           composer require phpstan/phpstan --dev
           vendor/bin/phpstan

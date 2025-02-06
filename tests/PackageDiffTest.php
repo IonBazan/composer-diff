@@ -18,17 +18,19 @@ class PackageDiffTest extends TestCase
      * @param string[] $expected
      * @param bool     $dev
      * @param bool     $withPlatform
+     * @param bool     $onlyDirect
      *
      * @dataProvider operationsProvider
      */
-    public function testBasicUsage(array $expected, $dev, $withPlatform)
+    public function testBasicUsage(array $expected, $dev, $withPlatform, $onlyDirect = false)
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
             __DIR__.'/fixtures/base/composer.lock',
             __DIR__.'/fixtures/target/composer.lock',
             $dev,
-            $withPlatform
+            $withPlatform,
+            $onlyDirect
         );
 
         $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
@@ -64,14 +66,36 @@ class PackageDiffTest extends TestCase
      * @param string[] $expected
      * @param bool     $dev
      * @param bool     $withPlatform
+     * @param bool     $onlyDirect
      *
      * @dataProvider operationsProvider
      */
-    public function testGitUsage(array $expected, $dev, $withPlatform)
+    public function testGitUsage(array $expected, $dev, $withPlatform, $onlyDirect = false)
     {
         $diff = new PackageDiff();
         $this->prepareGit();
-        $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform);
+        $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform, $onlyDirect);
+
+        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+    }
+
+    /**
+     * @param string[] $expected
+     * @param bool     $dev
+     * @param bool     $withPlatform
+     * @param bool     $onlyDirect
+     *
+     * @dataProvider operationsProvider
+     */
+    public function testGitUsageWithoutJson(array $expected, $dev, $withPlatform, $onlyDirect = false)
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit(true);
+        $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform, $onlyDirect);
+
+        if ($onlyDirect) {
+            $expected = array(); // if there is no json file, we can't determine direct dependencies
+        }
 
         $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
     }
@@ -133,7 +157,7 @@ class PackageDiffTest extends TestCase
     {
         return array(
             'prod, with platform' => array(
-                array(
+                'expected' => array(
                     'install psr/event-dispatcher 1.0.0',
                     'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
@@ -142,11 +166,11 @@ class PackageDiffTest extends TestCase
                     'install symfony/polyfill-php80 v1.17.1',
                     'install php >=5.3',
                 ),
-                false,
-                true,
+                'dev' => false,
+                'withPlatform' => true,
             ),
             'prod, no platform' => array(
-                array(
+                'expected' => array(
                     'install psr/event-dispatcher 1.0.0',
                     'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
@@ -154,11 +178,11 @@ class PackageDiffTest extends TestCase
                     'install symfony/event-dispatcher-contracts v2.1.2',
                     'install symfony/polyfill-php80 v1.17.1',
                 ),
-                false,
-                false,
+                'dev' => false,
+                'withPlatform' => false,
             ),
             'dev, no platform' => array(
-                array(
+                'expected' => array(
                     'update phpunit/php-code-coverage from 8.0.2 to 7.0.10',
                     'update phpunit/php-file-iterator from 3.0.2 to 2.0.2',
                     'update phpunit/php-text-template from 2.0.1 to 1.2.1',
@@ -180,24 +204,46 @@ class PackageDiffTest extends TestCase
                     'uninstall phpunit/php-invoker 3.0.1',
                     'uninstall sebastian/code-unit 1.0.3',
                 ),
-                true,
-                false,
+                'dev' => true,
+                'withPlatform' => false,
+            ),
+            'prod, only direct' => array(
+                'expected' => array(
+                    'update roave/security-advisories from dev-master to dev-master',
+                    'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
+                ),
+                'dev' => false,
+                'withPlatform' => false,
+                'onlyDirect' => true,
+            ),
+            'dev, only direct' => array(
+                'expected' => array(
+                    'update phpunit/phpunit from 9.2.5 to 8.5.8',
+                ),
+                'dev' => true,
+                'withPlatform' => false,
+                'onlyDirect' => true,
             ),
         );
     }
 
-    private function prepareGit()
+    private function prepareGit($onlyLock = false)
     {
         $gitDir = __DIR__.'/test-git';
         @mkdir($gitDir);
         chdir($gitDir);
+        @unlink($gitDir.'/composer.json');
+        @unlink($gitDir.'/composer.lock');
+        @unlink($gitDir.'/.git/index');
         exec('git config init.defaultBranch main');
         exec('git init');
         exec('git config user.name test');
         exec('git config user.email test@example.com');
         file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
-        exec('git add composer.lock && git commit -m "init"');
+        !$onlyLock && file_put_contents($gitDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/base/composer.json'));
+        exec('git add composer.* && git commit -m "init"');
         file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
+        !$onlyLock && file_put_contents($gitDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/target/composer.json'));
     }
 
     private function entryToString(DiffEntry $entry)

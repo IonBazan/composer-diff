@@ -31,6 +31,7 @@ class JsonFormatterTest extends FormatterTest
         $this->assertSame(self::formatOutput(array(
             'a/package-1' => array(
                     'name' => 'a/package-1',
+                    'direct' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
@@ -39,6 +40,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/no-link-1' => array(
                     'name' => 'a/no-link-1',
+                    'direct' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
@@ -47,6 +49,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/package-2' => array(
                     'name' => 'a/package-2',
+                    'direct' => false,
                     'operation' => 'upgrade',
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
@@ -55,6 +58,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/package-3' => array(
                     'name' => 'a/package-3',
+                    'direct' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
@@ -63,6 +67,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
+                    'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
@@ -71,6 +76,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/package-5' => array(
                     'name' => 'a/package-5',
+                    'direct' => false,
                     'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
@@ -79,6 +85,7 @@ class JsonFormatterTest extends FormatterTest
                 ),
             'a/package-4' => array(
                     'name' => 'a/package-4',
+                    'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
@@ -105,6 +112,7 @@ class JsonFormatterTest extends FormatterTest
                 'packages' => array(
                         'a/package-1' => array(
                                 'name' => 'a/package-1',
+                                'direct' => false,
                                 'operation' => 'install',
                                 'version_base' => null,
                                 'version_target' => '1.0.0',
@@ -113,6 +121,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'a/no-link-1' => array(
                                 'name' => 'a/no-link-1',
+                                'direct' => false,
                                 'operation' => 'install',
                                 'version_base' => null,
                                 'version_target' => '1.0.0',
@@ -121,6 +130,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'a/package-2' => array(
                                 'name' => 'a/package-2',
+                                'direct' => false,
                                 'operation' => 'upgrade',
                                 'version_base' => '1.0.0',
                                 'version_target' => '1.2.0',
@@ -129,6 +139,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'a/package-3' => array(
                                 'name' => 'a/package-3',
+                                'direct' => false,
                                 'operation' => 'downgrade',
                                 'version_base' => '2.0.0',
                                 'version_target' => '1.1.1',
@@ -137,6 +148,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
+                                'direct' => false,
                                 'operation' => 'downgrade',
                                 'version_base' => '2.0.0',
                                 'version_target' => '1.1.1',
@@ -145,6 +157,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'php' => array(
                             'name' => 'php',
+                            'direct' => false,
                             'operation' => 'change',
                             'version_base' => '>=7.4.6',
                             'version_target' => '^8.0',
@@ -155,6 +168,7 @@ class JsonFormatterTest extends FormatterTest
                 'packages-dev' => array(
                         'a/package-5' => array(
                                 'name' => 'a/package-5',
+                                'direct' => false,
                                 'operation' => 'change',
                                 'version_base' => 'dev-master 1234567',
                                 'version_target' => '1.1.1',
@@ -163,6 +177,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $nullLicense,
                         'a/package-4' => array(
                                 'name' => 'a/package-4',
+                                'direct' => false,
                                 'operation' => 'remove',
                                 'version_base' => '0.1.1',
                                 'version_target' => null,
@@ -171,6 +186,7 @@ class JsonFormatterTest extends FormatterTest
                             ) + $package4License,
                         'a/no-link-2' => array(
                                 'name' => 'a/no-link-2',
+                                'direct' => false,
                                 'operation' => 'remove',
                                 'version_base' => '0.1.1',
                                 'version_target' => null,
@@ -185,36 +201,42 @@ class JsonFormatterTest extends FormatterTest
             'packages' => array(
                 'a/package-1' => array(
                     'name' => 'a/package-1',
+                    'direct' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
                 ) + $nullLicense,
                 'a/no-link-1' => array(
                     'name' => 'a/no-link-1',
+                    'direct' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
                 ) + $nullLicense,
                 'a/package-2' => array(
                     'name' => 'a/package-2',
+                    'direct' => false,
                     'operation' => 'upgrade',
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
                 ) + $nullLicense,
                 'a/package-3' => array(
                     'name' => 'a/package-3',
+                    'direct' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
                 ) + $nullLicense,
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
+                    'direct' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
                 ) + $nullLicense,
                 'php' => array(
                     'name' => 'php',
+                    'direct' => false,
                     'operation' => 'change',
                     'version_base' => '>=7.4.6',
                     'version_target' => '^8.0',
@@ -223,18 +245,21 @@ class JsonFormatterTest extends FormatterTest
             'packages-dev' => array(
                 'a/package-5' => array(
                     'name' => 'a/package-5',
+                    'direct' => false,
                     'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
                 ) + $nullLicense,
                 'a/package-4' => array(
                     'name' => 'a/package-4',
+                    'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
                 ) + $package4License,
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
+                    'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
