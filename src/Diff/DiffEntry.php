@@ -19,12 +19,19 @@ class DiffEntry
     /** @var OperationInterface */
     private $operation;
 
+    /** @var bool */
+    private $direct;
+
     /** @var string */
     private $type;
 
-    public function __construct(OperationInterface $operation)
+    /**
+     * @param bool $direct
+     */
+    public function __construct(OperationInterface $operation, $direct = false)
     {
         $this->operation = $operation;
+        $this->direct = $direct;
         $this->type = $this->determineType();
     }
 
@@ -42,6 +49,14 @@ class DiffEntry
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDirect()
+    {
+        return $this->direct;
     }
 
     /**

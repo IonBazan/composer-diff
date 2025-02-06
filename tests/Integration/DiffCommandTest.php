@@ -103,6 +103,50 @@ OUTPUT
                     '-p' => null,
                 ),
             ),
+            'only direct, with platform' => array(
+                <<<OUTPUT
+| Prod Packages             | Operation | Base               | Target             |
+|---------------------------|-----------|--------------------|--------------------|
+| roave/security-advisories | Changed   | dev-master 3c97c13 | dev-master ac36586 |
+| symfony/event-dispatcher  | Upgraded  | v2.8.52            | v5.1.2             |
+| php                       | New       | -                  | >=5.3              |
+
+| Dev Packages    | Operation  | Base  | Target |
+|-----------------|------------|-------|--------|
+| phpunit/phpunit | Downgraded | 9.2.5 | 8.5.8  |
+
+
+OUTPUT
+            ,
+                array(
+                    '--base' => __DIR__.'/../fixtures/base/composer.lock',
+                    '--target' => __DIR__.'/../fixtures/target/composer.lock',
+                    '--direct' => null,
+                    '-p' => null,
+                ),
+            ),
+            'only direct, with platform reversed' => array(
+                <<<OUTPUT
+| Prod Packages             | Operation  | Base               | Target             |
+|---------------------------|------------|--------------------|--------------------|
+| roave/security-advisories | Changed    | dev-master ac36586 | dev-master 3c97c13 |
+| symfony/event-dispatcher  | Downgraded | v5.1.2             | v2.8.52            |
+| php                       | Removed    | >=5.3              | -                  |
+
+| Dev Packages    | Operation | Base  | Target |
+|-----------------|-----------|-------|--------|
+| phpunit/phpunit | Upgraded  | 8.5.8 | 9.2.5  |
+
+
+OUTPUT
+            ,
+                array(
+                    '--base' => __DIR__.'/../fixtures/target/composer.lock',
+                    '--target' => __DIR__.'/../fixtures/base/composer.lock',
+                    '--direct' => null,
+                    '-p' => null,
+                ),
+            ),
             'no-dev' => array(
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |

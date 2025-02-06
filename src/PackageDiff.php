@@ -16,12 +16,18 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 class PackageDiff
 {
-    const LOCKFILE = 'composer.lock';
+    const COMPOSER = 'composer';
+    const EXTENSION_LOCK = '.lock';
+    const EXTENSION_JSON = '.json';
+    const GIT_SEPARATOR = ':';
 
     /**
+     * @param string[] $directPackages
+     * @param bool     $onlyDirect
+     *
      * @return DiffEntries
      */
-    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages)
+    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = array(), $onlyDirect = false)
     {
         $operations = array();
 
@@ -59,9 +65,19 @@ class PackageDiff
             }
         }
 
-        return new DiffEntries(array_map(function (OperationInterface $operation) {
-            return new DiffEntry($operation);
-        }, $operations));
+        $entries = array_map(function (OperationInterface $operation) use ($directPackages) {
+            $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
+
+            return new DiffEntry($operation, in_array($package->getName(), $directPackages, true));
+        }, $operations);
+
+        if ($onlyDirect) {
+            $entries = array_values(array_filter($entries, function (DiffEntry $entry) {
+                return $entry->isDirect();
+            }));
+        }
+
+        return new DiffEntries($entries);
     }
 
     /**
@@ -69,14 +85,17 @@ class PackageDiff
      * @param string $to
      * @param bool   $dev
      * @param bool   $withPlatform
+     * @param bool   $onlyDirect
      *
      * @return DiffEntries
      */
-    public function getPackageDiff($from, $to, $dev, $withPlatform)
+    public function getPackageDiff($from, $to, $dev, $withPlatform, $onlyDirect = false)
     {
         return $this->getDiff(
             $this->loadPackages($from, $dev, $withPlatform),
-            $this->loadPackages($to, $dev, $withPlatform)
+            $this->loadPackages($to, $dev, $withPlatform),
+            array_merge($this->getDirectPackages($from), $this->getDirectPackages($to)),
+            $onlyDirect
         );
     }
 
@@ -110,23 +129,54 @@ class PackageDiff
     /**
      * @param string $path
      *
+     * @return string[]
+     */
+    private function getDirectPackages($path)
+    {
+        $data = \json_decode($this->getFileContents($path, false), true);
+
+        $packages = array();
+
+        foreach (array('require', 'require-dev') as $key) {
+            if (isset($data[$key])) {
+                $packages = array_merge($packages, array_keys($data[$key]));
+            }
+        }
+
+        return $packages; // @phpstan-ignore return.type
+    }
+
+    /**
+     * @param string $path
+     * @param bool   $lockFile
+     *
      * @return string
      */
-    private function getFileContents($path)
+    private function getFileContents($path, $lockFile = true)
     {
         $originalPath = $path;
 
         if (empty($path)) {
-            $path = self::LOCKFILE;
+            $path = self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
         }
 
-        if (filter_var($path, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) || file_exists($path)) {
+        $localPath = $path;
+
+        if (!$lockFile) {
+            $localPath = $this->getJsonPath($localPath);
+        }
+
+        if (filter_var($localPath, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) || file_exists($localPath)) {
             // @phpstan-ignore return.type
-            return file_get_contents($path);
+            return file_get_contents($localPath);
         }
 
-        if (false === strpos($originalPath, ':')) {
-            $path .= ':'.self::LOCKFILE;
+        if (false === strpos($originalPath, self::GIT_SEPARATOR)) {
+            $path .= self::GIT_SEPARATOR.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
+        }
+
+        if (!$lockFile) {
+            $path = $this->getJsonPath($path);
         }
 
         $output = array();
@@ -134,9 +184,27 @@ class PackageDiff
         $outputString = implode("\n", $output);
 
         if (0 !== $exit) {
-            throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
+            if ($lockFile) {
+                throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
+            }
+
+            return '{}'; // Do not throw exception for composer.json as it might not exist and that's fine
         }
 
         return $outputString;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    private function getJsonPath($path)
+    {
+        if (self::EXTENSION_LOCK === substr($path, -strlen(self::EXTENSION_LOCK))) {
+            return substr($path, 0, -strlen(self::EXTENSION_LOCK)).self::EXTENSION_JSON;
+        }
+
+        return $path;
     }
 }

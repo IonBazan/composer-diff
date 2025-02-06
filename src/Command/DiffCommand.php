@@ -63,6 +63,7 @@ class DiffCommand extends BaseCommand
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target (modified) composer.lock file path or git ref', 'composer.lock')
             ->addOption('no-dev', null, InputOption::VALUE_NONE, 'Ignore dev dependencies')
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
+            ->addOption('direct', 'D', InputOption::VALUE_NONE, 'Restricts the list of packages to your direct dependencies')
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
@@ -95,6 +96,10 @@ To compare files in specific path, use following syntax:
 By default, <info>platform</info> dependencies are hidden. Add <info>--with-platform</info> option to include them in the report:
  
     <info>%command.full_name% --with-platform</info>
+    
+By default, <info>transient</info> dependencies are displayed. Add <info>--direct</info> option to only show direct dependencies:
+
+<info>%command.full_name% --direct</info>
 
 Use <info>--with-links</info> to include release and compare URLs in the report:
 
@@ -135,6 +140,7 @@ EOF
     {
         $base = null !== $input->getArgument('base') ? $input->getArgument('base') : $input->getOption('base');
         $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
+        $onlyDirect = $input->getOption('direct');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $withLicenses = $input->getOption('with-licenses');
@@ -148,11 +154,11 @@ EOF
         $devOperations = new DiffEntries(array());
 
         if (!$input->getOption('no-prod')) {
-            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform);
+            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect);
         }
 
         if (!$input->getOption('no-dev')) {
-            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform);
+            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect);
         }
 
         $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);

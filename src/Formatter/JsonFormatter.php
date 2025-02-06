@@ -44,7 +44,7 @@ class JsonFormatter extends AbstractFormatter
      * @param bool $withUrls
      * @param bool $withLicenses
      *
-     * @return array<array<string, string|null>>
+     * @return array<array<string, mixed>>
      */
     private function transformEntries(DiffEntries $entries, $withUrls, $withLicenses)
     {
@@ -69,7 +69,7 @@ class JsonFormatter extends AbstractFormatter
     }
 
     /**
-     * @return array<string, string|null>
+     * @return array<string, string|bool|null>
      */
     private function transformEntry(DiffEntry $entry)
     {
@@ -78,6 +78,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof InstallOperation) {
             return array(
                 'name' => $operation->getPackage()->getName(),
+                'direct' => $entry->isDirect(),
                 'operation' => $entry->getType(),
                 'version_base' => null,
                 'version_target' => $operation->getPackage()->getFullPrettyVersion(),
@@ -87,6 +88,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof UpdateOperation) {
             return array(
                 'name' => $operation->getInitialPackage()->getName(),
+                'direct' => $entry->isDirect(),
                 'operation' => $entry->getType(),
                 'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
                 'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
@@ -96,6 +98,7 @@ class JsonFormatter extends AbstractFormatter
         if ($operation instanceof UninstallOperation) {
             return array(
                 'name' => $operation->getPackage()->getName(),
+                'direct' => $entry->isDirect(),
                 'operation' => $entry->getType(),
                 'version_base' => $operation->getPackage()->getFullPrettyVersion(),
                 'version_target' => null,

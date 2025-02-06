@@ -69,6 +69,7 @@ composer diff --help # Display detailed usage instructions
  - `--target` (`-t`) - path, URL or git ref to modified `composer.lock` file
  - `--no-dev` - ignore dev dependencies (`require-dev`)
  - `--no-prod` - ignore prod dependencies (`require`)
+ - `--direct` (`-D`) - only show direct dependencies
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
  - `--with-links` (`-l`) - include compare/release URLs
  - `--with-licenses` (`-c`) - include license information
