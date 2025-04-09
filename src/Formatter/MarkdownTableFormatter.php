@@ -2,9 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Helper\Table;
@@ -35,11 +32,11 @@ class MarkdownTableFormatter extends MarkdownFormatter
             $row = $this->getTableRow($entry, $withUrls);
 
             if ($withUrls) {
-                $row[] = $this->formatUrl($this->getUrl($entry), 'Compare');
+                $row[] = $this->formatUrl($entry->getUrl(), 'Compare');
             }
 
             if ($withLicenses) {
-                $row[] = $this->getLicenses($entry);
+                $row[] = implode(', ', $entry->getLicenses());
             }
 
             $rows[] = $row;
@@ -67,37 +64,32 @@ class MarkdownTableFormatter extends MarkdownFormatter
      */
     private function getTableRow(DiffEntry $entry, $withUrls)
     {
-        $operation = $entry->getOperation();
         $packageName = $this->getDecoratedPackageName($entry);
-        $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+        $packageUrl = $withUrls ? $this->formatUrl($entry->getProjectUrl(), $packageName) : $packageName;
 
-        if ($operation instanceof InstallOperation) {
+        if ($entry->isInstall()) {
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=green>New</>',
                 '-',
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getTargetVersion(),
             );
         }
 
-        if ($operation instanceof UpdateOperation) {
-            return array(
-                $packageUrl ?: $packageName,
-                $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
-                $operation->getInitialPackage()->getFullPrettyVersion(),
-                $operation->getTargetPackage()->getFullPrettyVersion(),
-            );
-        }
-
-        if ($operation instanceof UninstallOperation) {
+        if ($entry->isRemove()) {
             return array(
                 $packageUrl ?: $packageName,
                 '<fg=red>Removed</>',
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getBaseVersion(),
                 '-',
             );
         }
 
-        throw new \InvalidArgumentException('Invalid operation');
+        return array(
+            $packageUrl ?: $packageName,
+            $entry->isChange() ? '<fg=magenta>Changed</>' : ($entry->isUpgrade() ? '<fg=cyan>Upgraded</>' : '<fg=yellow>Downgraded</>'),
+            $entry->getBaseVersion(),
+            $entry->getTargetVersion(),
+        );
     }
 }

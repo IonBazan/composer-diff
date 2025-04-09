@@ -3,7 +3,6 @@
 namespace IonBazan\ComposerDiff;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\AliasPackage;
@@ -13,6 +12,8 @@ use Composer\Repository\ArrayRepository;
 use Composer\Repository\RepositoryInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class PackageDiff
 {
@@ -21,6 +22,22 @@ class PackageDiff
     const EXTENSION_JSON = '.json';
     const GIT_SEPARATOR = ':';
 
+    /** @var UrlGenerator */
+    protected $urlGenerator;
+
+    public function __construct()
+    {
+        $this->urlGenerator = new GeneratorContainer();
+    }
+
+    /**
+     * @return void
+     */
+    public function setUrlGenerator(UrlGenerator $urlGenerator)
+    {
+        $this->urlGenerator = $urlGenerator;
+    }
+
     /**
      * @param string[] $directPackages
      * @param bool     $onlyDirect
@@ -28,6 +45,27 @@ class PackageDiff
      * @return DiffEntries
      */
     public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = array(), $onlyDirect = false)
+    {
+        $entries = array();
+
+        foreach ($this->getOperations($oldPackages, $targetPackages) as $operation) {
+            $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
+            $direct = in_array($package->getName(), $directPackages, true);
+
+            if ($onlyDirect && !$direct) {
+                continue;
+            }
+
+            $entries[] = new DiffEntry($operation, $this->urlGenerator, $direct);
+        }
+
+        return new DiffEntries($entries);
+    }
+
+    /**
+     * @return array<InstallOperation|UpdateOperation|UninstallOperation>
+     */
+    public function getOperations(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages)
     {
         $operations = array();
 
@@ -65,19 +103,7 @@ class PackageDiff
             }
         }
 
-        $entries = array_map(function (OperationInterface $operation) use ($directPackages) {
-            $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
-
-            return new DiffEntry($operation, in_array($package->getName(), $directPackages, true));
-        }, $operations);
-
-        if ($onlyDirect) {
-            $entries = array_values(array_filter($entries, function (DiffEntry $entry) {
-                return $entry->isDirect();
-            }));
-        }
-
-        return new DiffEntries($entries);
+        return $operations;
     }
 
     /**
@@ -100,6 +126,35 @@ class PackageDiff
     }
 
     /**
+     * @param mixed[] $composerLock
+     * @param bool    $dev
+     * @param bool    $withPlatform
+     *
+     * @return ArrayRepository
+     */
+    public function loadPackagesFromArray(array $composerLock, $dev, $withPlatform)
+    {
+        $loader = new ArrayLoader();
+        $packages = array();
+        $packagesKey = 'packages'.($dev ? '-dev' : '');
+        $platformKey = 'platform'.($dev ? '-dev' : '');
+
+        if (isset($composerLock[$packagesKey])) {
+            foreach ($composerLock[$packagesKey] as $packageInfo) {
+                $packages[] = $loader->load($packageInfo);
+            }
+        }
+
+        if ($withPlatform && isset($composerLock[$platformKey])) {
+            foreach ($composerLock[$platformKey] as $name => $version) {
+                $packages[] = new CompletePackage($name, $version, $version);
+            }
+        }
+
+        return new ArrayRepository($packages);
+    }
+
+    /**
      * @param string $path
      * @param bool   $dev
      * @param bool   $withPlatform
@@ -109,21 +164,8 @@ class PackageDiff
     private function loadPackages($path, $dev, $withPlatform)
     {
         $data = \json_decode($this->getFileContents($path), true);
-        $loader = new ArrayLoader();
 
-        $packages = array();
-
-        foreach ($data['packages'.($dev ? '-dev' : '')] as $packageInfo) {
-            $packages[] = $loader->load($packageInfo);
-        }
-
-        if ($withPlatform) {
-            foreach ($data['platform'.($dev ? '-dev' : '')] as $name => $version) {
-                $packages[] = new CompletePackage($name, $version, $version);
-            }
-        }
-
-        return new ArrayRepository($packages);
+        return $this->loadPackagesFromArray($data, $dev, $withPlatform);
     }
 
     /**

@@ -8,6 +8,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\Tests\TestCase;
+use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class DiffCommandTest extends TestCase
@@ -35,11 +36,48 @@ class DiffCommandTest extends TestCase
                 new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
                 new UpdateOperation($this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-7', '1.0.0', 'github.com')),
-            )))
+            ),
+                new GeneratorContainer(array('gitlab2.org'))
+            ))
         ;
         $result = $tester->execute($options);
         $this->assertSame(0, $result);
         $this->assertSame($expectedOutput, $tester->getDisplay());
+    }
+
+    public function testExtraGitlabDomains()
+    {
+        $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff, array('gitlab2.org'));
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+
+        $packages = array(
+            $this->getPackageWithSource('a/package-1', '1.0.0', 'github.com'),
+            $this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org'),
+            $this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org'),
+            $this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org'),
+            $this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'),
+        );
+
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries(array(), $this->getGenerators()));
+
+        $diff->expects($this->once())
+            ->method('setUrlGenerator')
+            ->with($this->callback(function (GeneratorContainer $argument) use ($packages) {
+                foreach ($packages as $package) {
+                    if (!$argument->supportsPackage($package)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }));
+        $result = $tester->execute(array('--gitlab-domains' => array('gitlab3.org')));
+        $this->assertSame(0, $result);
     }
 
     /**
@@ -59,7 +97,10 @@ class DiffCommandTest extends TestCase
         $diff->expects($this->exactly(2))
             ->method('getPackageDiff')
             ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false)
-            ->willReturnOnConsecutiveCalls($this->getEntries($prodOperations), $this->getEntries($devOperations))
+            ->willReturnOnConsecutiveCalls(
+                $this->getEntries($prodOperations, $this->getGenerators()),
+                $this->getEntries($devOperations, $this->getGenerators())
+            )
         ;
         $this->assertSame($exitCode, $tester->execute(array('--strict' => null)));
     }
@@ -157,27 +198,6 @@ OUTPUT
                     '--no-dev' => null,
                     '-l' => null,
                     '-f' => 'anything',
-                ),
-            ),
-            'Markdown with URLs and custom gitlab domains' => array(
-                <<<OUTPUT
-| Prod Packages              | Operation  | Base  | Target | Link                                        |
-|----------------------------|------------|-------|--------|---------------------------------------------|
-| [a/package-1](github.com)  | New        | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)    |
-| [a/package-2](github.com)  | Upgraded   | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0...1.2.0) |
-| [a/package-3](github.com)  | Removed    | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)    |
-| [a/package-4](gitlab.org)  | Removed    | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)            |
-| [a/package-5](gitlab2.org) | Removed    | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)           |
-| [a/package-6](gitlab3.org) | Removed    | 0.1.1 | -      | [Compare](gitlab3.org/tags/0.1.1)           |
-| [a/package-7](github.com)  | Downgraded | 1.2.0 | 1.0.0  | [Compare](github.com/compare/1.2.0...1.0.0) |
-
-
-OUTPUT
-            ,
-                array(
-                    '--no-dev' => null,
-                    '-l' => null,
-                    '--gitlab-domains' => array('gitlab3.org'),
                 ),
             ),
             'Markdown list' => array(

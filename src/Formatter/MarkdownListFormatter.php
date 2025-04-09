@@ -2,9 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 
@@ -47,53 +44,42 @@ class MarkdownListFormatter extends MarkdownFormatter
      */
     private function getRow(DiffEntry $entry, $withUrls, $withLicenses)
     {
-        $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
+        $url = $withUrls ? $this->formatUrl($entry->getUrl(), 'Compare') : null;
         $url = (null !== $url && '' !== $url) ? ' '.$url : '';
-        $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
-        $operation = $entry->getOperation();
+        $licenses = $withLicenses ? implode(', ', $entry->getLicenses()) : '';
+        $licenses = ('' !== $licenses) ? ' (License: '.$licenses.')' : '';
 
-        if ($operation instanceof InstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+        $packageName = $entry->getPackageName();
+        $packageUrl = $withUrls ? $this->formatUrl($entry->getProjectUrl(), $packageName) : $packageName;
 
+        if ($entry->isInstall()) {
             return sprintf(
                 ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getTargetVersion(),
                 $url,
                 $licenses
             );
         }
 
-        if ($operation instanceof UpdateOperation) {
-            $packageName = $operation->getInitialPackage()->getName();
-            $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
-            return sprintf(
-                ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s%s',
-                ucfirst($entry->getType()),
-                $projectUrl ?: $packageName,
-                $operation->getInitialPackage()->getFullPrettyVersion(),
-                $operation->getTargetPackage()->getFullPrettyVersion(),
-                $url,
-                $licenses
-            );
-        }
-
-        if ($operation instanceof UninstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
+        if ($entry->isRemove()) {
             return sprintf(
                 ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getBaseVersion(),
                 $url,
                 $licenses
             );
         }
 
-        throw new \InvalidArgumentException('Invalid operation');
+        return sprintf(
+            ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s%s',
+            ucfirst($entry->getType()),
+            $packageUrl ?: $packageName,
+            $entry->getBaseVersion(),
+            $entry->getTargetVersion(),
+            $url,
+            $licenses
+        );
     }
 }

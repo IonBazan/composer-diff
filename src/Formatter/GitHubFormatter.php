@@ -2,9 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 
@@ -57,44 +54,39 @@ class GitHubFormatter extends AbstractFormatter
      */
     private function transformEntry(DiffEntry $entry, $withUrls, $withLicenses)
     {
-        $operation = $entry->getOperation();
-        $url = $withUrls ? $this->getUrl($entry) : null;
+        $url = $withUrls ? $entry->getUrl() : null;
         $url = (null !== $url) ? ' '.$url : '';
-        $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
+        $licenses = $withLicenses ? implode(', ', $entry->getLicenses()) : '';
+        $licenses = ('' !== $licenses) ? ' (License: '.$licenses.')' : '';
 
-        if ($operation instanceof InstallOperation) {
+        if ($entry->isInstall()) {
             return sprintf(
                 ' - Install %s (%s)%s%s',
-                $operation->getPackage()->getName(),
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getPackageName(),
+                $entry->getTargetVersion(),
                 $url,
                 $licenses
             );
         }
 
-        if ($operation instanceof UpdateOperation) {
-            return sprintf(
-                ' - %s %s (%s => %s)%s%s',
-                ucfirst($entry->getType()),
-                $operation->getInitialPackage()->getName(),
-                $operation->getInitialPackage()->getFullPrettyVersion(),
-                $operation->getTargetPackage()->getFullPrettyVersion(),
-                $url,
-                $licenses
-            );
-        }
-
-        if ($operation instanceof UninstallOperation) {
+        if ($entry->isRemove()) {
             return sprintf(
                 ' - Uninstall %s (%s)%s%s',
-                $operation->getPackage()->getName(),
-                $operation->getPackage()->getFullPrettyVersion(),
+                $entry->getPackageName(),
+                $entry->getBaseVersion(),
                 $url,
                 $licenses
             );
         }
 
-        throw new \InvalidArgumentException('Invalid operation');
+        return sprintf(
+            ' - %s %s (%s => %s)%s%s',
+            ucfirst($entry->getType()),
+            $entry->getPackageName(),
+            $entry->getBaseVersion(),
+            $entry->getTargetVersion(),
+            $url,
+            $licenses
+        );
     }
 }

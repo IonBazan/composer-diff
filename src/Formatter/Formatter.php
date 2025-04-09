@@ -3,7 +3,6 @@
 namespace IonBazan\ComposerDiff\Formatter;
 
 use IonBazan\ComposerDiff\Diff\DiffEntries;
-use IonBazan\ComposerDiff\Diff\DiffEntry;
 
 interface Formatter
 {
@@ -23,14 +22,4 @@ interface Formatter
      * @return void
      */
     public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses);
-
-    /**
-     * @return string|null
-     */
-    public function getUrl(DiffEntry $entry);
-
-    /**
-     * @return string|null
-     */
-    public function getLicenses(DiffEntry $entry);
 }

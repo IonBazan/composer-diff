@@ -3,7 +3,6 @@
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
-use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GitHubFormatterTest extends FormatterTest
@@ -36,8 +35,8 @@ OUTPUT;
     /**
      * {@inheritdoc}
      */
-    protected function getFormatter(OutputInterface $output, GeneratorContainer $generators)
+    protected function getFormatter(OutputInterface $output)
     {
-        return new GitHubFormatter($output, $generators);
+        return new GitHubFormatter($output);
     }
 }
