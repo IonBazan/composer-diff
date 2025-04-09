@@ -100,6 +100,31 @@ class PackageDiff
     }
 
     /**
+     * @param array $composerLock
+     * @param bool  $dev
+     * @param bool  $withPlatform
+     *
+     * @return ArrayRepository
+     */
+    public function loadPackagesFromArray(array $composerLock, $dev, $withPlatform)
+    {
+        $loader = new ArrayLoader();
+        $packages = array();
+
+        foreach ($composerLock['packages'.($dev ? '-dev' : '')] as $packageInfo) {
+            $packages[] = $loader->load($packageInfo);
+        }
+
+        if ($withPlatform) {
+            foreach ($composerLock['platform'.($dev ? '-dev' : '')] as $name => $version) {
+                $packages[] = new CompletePackage($name, $version, $version);
+            }
+        }
+
+        return new ArrayRepository($packages);
+    }
+
+    /**
      * @param string $path
      * @param bool   $dev
      * @param bool   $withPlatform
@@ -109,21 +134,8 @@ class PackageDiff
     private function loadPackages($path, $dev, $withPlatform)
     {
         $data = \json_decode($this->getFileContents($path), true);
-        $loader = new ArrayLoader();
 
-        $packages = array();
-
-        foreach ($data['packages'.($dev ? '-dev' : '')] as $packageInfo) {
-            $packages[] = $loader->load($packageInfo);
-        }
-
-        if ($withPlatform) {
-            foreach ($data['platform'.($dev ? '-dev' : '')] as $name => $version) {
-                $packages[] = new CompletePackage($name, $version, $version);
-            }
-        }
-
-        return new ArrayRepository($packages);
+        return $this->loadPackagesFromArray($data, $dev, $withPlatform);
     }
 
     /**
