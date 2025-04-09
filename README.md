@@ -12,7 +12,9 @@
 
 Generates packages changes report in Markdown format by comparing `composer.lock` files. Compares with last-committed changes by default.
 
-## Now available as [GitHub Action](https://github.com/marketplace/actions/composer-diff)!
+**Now available as [GitHub Action](https://github.com/marketplace/actions/composer-diff)!**
+
+**Web version available at https://lyrixx.github.io/composer-diff**
 
 ![preview](preview.png)
 
