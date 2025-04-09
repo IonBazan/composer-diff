@@ -108,6 +108,14 @@ class PackageDiffTest extends TestCase
         $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
+    public function testLoadFromEmptyArray()
+    {
+        $diff = new PackageDiff();
+
+        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), false, true));
+        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), true, true));
+    }
+
     public function diffOperationsProvider()
     {
         return array(

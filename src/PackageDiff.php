@@ -100,9 +100,9 @@ class PackageDiff
     }
 
     /**
-     * @param array $composerLock
-     * @param bool  $dev
-     * @param bool  $withPlatform
+     * @param mixed[] $composerLock
+     * @param bool    $dev
+     * @param bool    $withPlatform
      *
      * @return ArrayRepository
      */
@@ -110,13 +110,17 @@ class PackageDiff
     {
         $loader = new ArrayLoader();
         $packages = array();
+        $packagesKey = 'packages' . ($dev ? '-dev' : '');
+        $platformKey = 'platform' . ($dev ? '-dev' : '');
 
-        foreach ($composerLock['packages'.($dev ? '-dev' : '')] as $packageInfo) {
-            $packages[] = $loader->load($packageInfo);
+        if (isset($composerLock[$packagesKey])) {
+            foreach ($composerLock[$packagesKey] as $packageInfo) {
+                $packages[] = $loader->load($packageInfo);
+            }
         }
 
-        if ($withPlatform) {
-            foreach ($composerLock['platform'.($dev ? '-dev' : '')] as $name => $version) {
+        if ($withPlatform && isset($composerLock[$platformKey])) {
+            foreach ($composerLock[$platformKey] as $name => $version) {
                 $packages[] = new CompletePackage($name, $version, $version);
             }
         }
