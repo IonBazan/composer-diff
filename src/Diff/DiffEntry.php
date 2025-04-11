@@ -6,7 +6,9 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class DiffEntry
 {
@@ -115,6 +117,104 @@ class DiffEntry
         }
 
         return null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getLicenses()
+    {
+        $package = $this->getPackage();
+
+        if (!$package instanceof CompletePackageInterface) {
+            return array();
+        }
+
+        return $package->getLicense();
+    }
+
+    /**
+     * @return array<string, string|bool|null|string[]>
+     */
+    public function toArray(UrlGenerator $generator)
+    {
+        $array = $this->toBaseArray();
+        $array['compare'] = $this->getUrl($generator);
+        $array['link'] = $this->getProjectUrl($generator);
+
+        return $array;
+    }
+
+    /**
+     * @return array<string, string|bool|null|string[]>
+     */
+    public function toBaseArray()
+    {
+        $operation = $this->getOperation();
+
+        if ($operation instanceof InstallOperation) {
+            return array(
+                'name' => $operation->getPackage()->getName(),
+                'direct' => $this->isDirect(),
+                'operation' => $this->getType(),
+                'version_base' => null,
+                'version_target' => $operation->getPackage()->getFullPrettyVersion(),
+                'licenses' => $this->getLicenses(),
+            );
+        }
+
+        if ($operation instanceof UpdateOperation) {
+            return array(
+                'name' => $operation->getInitialPackage()->getName(),
+                'direct' => $this->isDirect(),
+                'operation' => $this->getType(),
+                'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
+                'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
+                'licenses' => $this->getLicenses(),
+            );
+        }
+
+        if ($operation instanceof UninstallOperation) {
+            return array(
+                'name' => $operation->getPackage()->getName(),
+                'direct' => $this->isDirect(),
+                'operation' => $this->getType(),
+                'version_base' => $operation->getPackage()->getFullPrettyVersion(),
+                'version_target' => null,
+                'licenses' => $this->getLicenses(),
+            );
+        }
+
+        throw new \InvalidArgumentException('Invalid operation');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUrl(UrlGenerator $generator)
+    {
+        $operation = $this->getOperation();
+
+        if ($operation instanceof UpdateOperation) {
+            return $generator->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
+        }
+
+        if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {
+            return $generator->getReleaseUrl($operation->getPackage());
+        }
+
+        return null;
+    }
+
+    public function getProjectUrl(UrlGenerator $generator)
+    {
+        $package = $this->getPackage();
+
+        if (!isset($package)) {
+            return null;
+        }
+
+        return $generator->getProjectUrl($package);
     }
 
     /**

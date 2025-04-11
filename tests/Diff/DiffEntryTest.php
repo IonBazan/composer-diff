@@ -23,6 +23,34 @@ class DiffEntryTest extends TestCase
         $this->assertTrue($entry->{'is'.ucfirst($expectedType)}());
     }
 
+    public function testToBaseArray()
+    {
+        $operation = new InstallOperation($this->getPackage('a/package-1', '1.0.0'));
+        $entry = new DiffEntry($operation);
+        $this->assertSame(array(
+            'name' => 'a/package-1',
+            'direct' => false,
+            'operation' => 'install',
+            'version_base' => null,
+            'version_target' => '1.0.0',
+            'licenses' => array(),
+        ), $entry->toBaseArray());
+    }
+
+    public function testGetUrlReturnsNullForInvalidOperation()
+    {
+        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $entry = new DiffEntry($operation);
+        $this->assertNull($entry->getUrl($this->getGenerators()));
+    }
+
+    public function testGetProjectUrlReturnsNullForInvalidOperation()
+    {
+        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $entry = new DiffEntry($operation);
+        $this->assertNull($entry->getProjectUrl($this->getGenerators()));
+    }
+
     public function operationTypeProvider()
     {
         return array(

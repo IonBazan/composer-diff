@@ -110,8 +110,8 @@ class PackageDiff
     {
         $loader = new ArrayLoader();
         $packages = array();
-        $packagesKey = 'packages' . ($dev ? '-dev' : '');
-        $platformKey = 'platform' . ($dev ? '-dev' : '');
+        $packagesKey = 'packages'.($dev ? '-dev' : '');
+        $platformKey = 'platform'.($dev ? '-dev' : '');
 
         if (isset($composerLock[$packagesKey])) {
             foreach ($composerLock[$packagesKey] as $packageInfo) {

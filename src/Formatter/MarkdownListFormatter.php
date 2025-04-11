@@ -47,16 +47,17 @@ class MarkdownListFormatter extends MarkdownFormatter
      */
     private function getRow(DiffEntry $entry, $withUrls, $withLicenses)
     {
-        $url = $withUrls ? $this->formatUrl($this->getUrl($entry), 'Compare') : null;
+        $url = $withUrls ? $this->formatUrl($entry->getUrl($this->generators), 'Compare') : null;
         $url = (null !== $url && '' !== $url) ? ' '.$url : '';
-        $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
+        $licenses = $withLicenses ? implode(', ', $entry->getLicenses()) : '';
+        $licenses = ('' !== $licenses) ? ' (License: '.$licenses.')' : '';
         $operation = $entry->getOperation();
+        $package = $entry->getPackage();
+
+        $packageName = $package ? $package->getName() : null;
+        $packageUrl = $withUrls ? $this->formatUrl($entry->getProjectUrl($this->generators), $packageName) : $packageName;
 
         if ($operation instanceof InstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
             return sprintf(
                 ' - Install <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,
@@ -67,13 +68,10 @@ class MarkdownListFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UpdateOperation) {
-            $packageName = $operation->getInitialPackage()->getName();
-            $projectUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
             return sprintf(
                 ' - %s <fg=green>%s</> (<fg=yellow>%s</> => <fg=yellow>%s</>)%s%s',
                 ucfirst($entry->getType()),
-                $projectUrl ?: $packageName,
+                $packageUrl ?: $packageName,
                 $operation->getInitialPackage()->getFullPrettyVersion(),
                 $operation->getTargetPackage()->getFullPrettyVersion(),
                 $url,
@@ -82,9 +80,6 @@ class MarkdownListFormatter extends MarkdownFormatter
         }
 
         if ($operation instanceof UninstallOperation) {
-            $packageName = $operation->getPackage()->getName();
-            $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
-
             return sprintf(
                 ' - Uninstall <fg=green>%s</> (<fg=yellow>%s</>)%s%s',
                 $packageUrl ?: $packageName,

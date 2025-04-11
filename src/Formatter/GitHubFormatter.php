@@ -58,10 +58,10 @@ class GitHubFormatter extends AbstractFormatter
     private function transformEntry(DiffEntry $entry, $withUrls, $withLicenses)
     {
         $operation = $entry->getOperation();
-        $url = $withUrls ? $this->getUrl($entry) : null;
+        $url = $withUrls ? $entry->getUrl($this->generators) : null;
         $url = (null !== $url) ? ' '.$url : '';
-        $licenses = $withLicenses ? $this->getLicenses($entry) : null;
-        $licenses = (null !== $licenses) ? ' (License: '.$licenses.')' : '';
+        $licenses = $withLicenses ? implode(', ', $entry->getLicenses()) : '';
+        $licenses = ('' !== $licenses) ? ' (License: '.$licenses.')' : '';
 
         if ($operation instanceof InstallOperation) {
             return sprintf(

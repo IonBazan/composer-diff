@@ -64,6 +64,21 @@ class PackageDiffTest extends TestCase
 
     /**
      * @param string[] $expected
+     *
+     * @dataProvider diffOperationsProvider
+     */
+    public function testLoadFromArray()
+    {
+        $diff = new PackageDiff();
+
+        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), true, true)->getPackages());
+        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), false, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), true, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), false, true)->getPackages());
+    }
+
+    /**
+     * @param string[] $expected
      * @param bool     $dev
      * @param bool     $withPlatform
      * @param bool     $onlyDirect

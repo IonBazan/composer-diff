@@ -35,11 +35,11 @@ class MarkdownTableFormatter extends MarkdownFormatter
             $row = $this->getTableRow($entry, $withUrls);
 
             if ($withUrls) {
-                $row[] = $this->formatUrl($this->getUrl($entry), 'Compare');
+                $row[] = $this->formatUrl($entry->getUrl($this->generators), 'Compare');
             }
 
             if ($withLicenses) {
-                $row[] = $this->getLicenses($entry);
+                $row[] = implode(', ', $entry->getLicenses());
             }
 
             $rows[] = $row;
@@ -69,7 +69,7 @@ class MarkdownTableFormatter extends MarkdownFormatter
     {
         $operation = $entry->getOperation();
         $packageName = $this->getDecoratedPackageName($entry);
-        $packageUrl = $withUrls ? $this->formatUrl($this->getProjectUrl($operation), $packageName) : $packageName;
+        $packageUrl = $withUrls ? $this->formatUrl($entry->getProjectUrl($this->generators), $packageName) : $packageName;
 
         if ($operation instanceof InstallOperation) {
             return array(

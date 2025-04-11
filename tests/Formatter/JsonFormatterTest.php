@@ -97,107 +97,7 @@ class JsonFormatterTest extends FormatterTest
 
     protected function getSampleOutput($withUrls, $withLicenses, $decorated)
     {
-        if ($withLicenses) {
-            $package4License = array('license' => 'MIT, BSD-3-Clause');
-            $noLink2License = array('license' => 'MIT');
-            $nullLicense = array('license' => null);
-        } else {
-            $package4License = array();
-            $noLink2License = array();
-            $nullLicense = array();
-        }
-
-        if ($withUrls) {
-            return self::formatOutput(array(
-                'packages' => array(
-                        'a/package-1' => array(
-                                'name' => 'a/package-1',
-                                'direct' => false,
-                                'operation' => 'install',
-                                'version_base' => null,
-                                'version_target' => '1.0.0',
-                                'compare' => 'https://example.com/r/1.0.0',
-                                'link' => 'https://example.com/r/a/package-1',
-                            ) + $nullLicense,
-                        'a/no-link-1' => array(
-                                'name' => 'a/no-link-1',
-                                'direct' => false,
-                                'operation' => 'install',
-                                'version_base' => null,
-                                'version_target' => '1.0.0',
-                                'compare' => null,
-                                'link' => null,
-                            ) + $nullLicense,
-                        'a/package-2' => array(
-                                'name' => 'a/package-2',
-                                'direct' => false,
-                                'operation' => 'upgrade',
-                                'version_base' => '1.0.0',
-                                'version_target' => '1.2.0',
-                                'compare' => 'https://example.com/c/1.0.0..1.2.0',
-                                'link' => 'https://example.com/r/a/package-2',
-                            ) + $nullLicense,
-                        'a/package-3' => array(
-                                'name' => 'a/package-3',
-                                'direct' => false,
-                                'operation' => 'downgrade',
-                                'version_base' => '2.0.0',
-                                'version_target' => '1.1.1',
-                                'compare' => 'https://example.com/c/2.0.0..1.1.1',
-                                'link' => 'https://example.com/r/a/package-3',
-                            ) + $nullLicense,
-                        'a/no-link-2' => array(
-                                'name' => 'a/no-link-2',
-                                'direct' => false,
-                                'operation' => 'downgrade',
-                                'version_base' => '2.0.0',
-                                'version_target' => '1.1.1',
-                                'compare' => null,
-                                'link' => null,
-                            ) + $nullLicense,
-                        'php' => array(
-                            'name' => 'php',
-                            'direct' => false,
-                            'operation' => 'change',
-                            'version_base' => '>=7.4.6',
-                            'version_target' => '^8.0',
-                            'compare' => null,
-                            'link' => null,
-                        ) + $nullLicense,
-                    ),
-                'packages-dev' => array(
-                        'a/package-5' => array(
-                                'name' => 'a/package-5',
-                                'direct' => false,
-                                'operation' => 'change',
-                                'version_base' => 'dev-master 1234567',
-                                'version_target' => '1.1.1',
-                                'compare' => 'https://example.com/c/dev-master..1.1.1',
-                                'link' => 'https://example.com/r/a/package-5',
-                            ) + $nullLicense,
-                        'a/package-4' => array(
-                                'name' => 'a/package-4',
-                                'direct' => false,
-                                'operation' => 'remove',
-                                'version_base' => '0.1.1',
-                                'version_target' => null,
-                                'compare' => 'https://example.com/r/0.1.1',
-                                'link' => 'https://example.com/r/a/package-4',
-                            ) + $package4License,
-                        'a/no-link-2' => array(
-                                'name' => 'a/no-link-2',
-                                'direct' => false,
-                                'operation' => 'remove',
-                                'version_base' => '0.1.1',
-                                'version_target' => null,
-                                'compare' => null,
-                                'link' => null,
-                            ) + $noLink2License,
-                    ),
-            ));
-        }
-
-        return self::formatOutput(array(
+        $packages = array(
             'packages' => array(
                 'a/package-1' => array(
                     'name' => 'a/package-1',
@@ -205,42 +105,60 @@ class JsonFormatterTest extends FormatterTest
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => 'https://example.com/r/1.0.0',
+                    'link' => 'https://example.com/r/a/package-1',
+                ),
                 'a/no-link-1' => array(
                     'name' => 'a/no-link-1',
                     'direct' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => null,
+                    'link' => null,
+                ),
                 'a/package-2' => array(
                     'name' => 'a/package-2',
                     'direct' => false,
                     'operation' => 'upgrade',
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => 'https://example.com/c/1.0.0..1.2.0',
+                    'link' => 'https://example.com/r/a/package-2',
+                ),
                 'a/package-3' => array(
                     'name' => 'a/package-3',
                     'direct' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => 'https://example.com/c/2.0.0..1.1.1',
+                    'link' => 'https://example.com/r/a/package-3',
+                ),
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
                     'direct' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => null,
+                    'link' => null,
+                ),
                 'php' => array(
                     'name' => 'php',
                     'direct' => false,
                     'operation' => 'change',
                     'version_base' => '>=7.4.6',
                     'version_target' => '^8.0',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => null,
+                    'link' => null,
+                ),
             ),
             'packages-dev' => array(
                 'a/package-5' => array(
@@ -249,23 +167,52 @@ class JsonFormatterTest extends FormatterTest
                     'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
-                ) + $nullLicense,
+                    'licenses' => array(),
+                    'compare' => 'https://example.com/c/dev-master..1.1.1',
+                    'link' => 'https://example.com/r/a/package-5',
+                ),
                 'a/package-4' => array(
                     'name' => 'a/package-4',
                     'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
-                ) + $package4License,
+                    'licenses' => array('MIT', 'BSD-3-Clause'),
+                    'compare' => 'https://example.com/r/0.1.1',
+                    'link' => 'https://example.com/r/a/package-4',
+                ),
                 'a/no-link-2' => array(
                     'name' => 'a/no-link-2',
                     'direct' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
-                ) + $noLink2License,
+                    'licenses' => array('MIT'),
+                    'compare' => null,
+                    'link' => null,
+                ),
             ),
-        ));
+        );
+
+        foreach ($packages['packages'] as &$package) {
+            if (!$withLicenses) {
+                unset($package['licenses']);
+            }
+            if (!$withUrls) {
+                unset($package['compare'], $package['link']);
+            }
+        }
+
+        foreach ($packages['packages-dev'] as &$package) {
+            if (!$withLicenses) {
+                unset($package['licenses']);
+            }
+            if (!$withUrls) {
+                unset($package['compare'], $package['link']);
+            }
+        }
+
+        return self::formatOutput($packages);
     }
 
     /**
