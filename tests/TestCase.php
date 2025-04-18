@@ -9,6 +9,7 @@ use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Tests\Util\ComposerApplication;
 use IonBazan\ComposerDiff\Tests\Util\TypedComposerApplication;
+use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -89,10 +90,10 @@ abstract class TestCase extends BaseTestCase
      *
      * @return DiffEntries
      */
-    protected function getEntries(array $operations)
+    protected function getEntries(array $operations, GeneratorContainer $urlGenerators)
     {
-        return new DiffEntries(array_map(function (OperationInterface $operation) {
-            return new DiffEntry($operation);
+        return new DiffEntries(array_map(function (OperationInterface $operation) use ($urlGenerators) {
+            return new DiffEntry($operation, $urlGenerators);
         }, $operations));
     }
 
@@ -102,5 +103,37 @@ abstract class TestCase extends BaseTestCase
     protected function getComposerApplication()
     {
         return PHP_VERSION_ID >= 70000 ? new TypedComposerApplication() : new ComposerApplication();
+    }
+
+    /**
+     * @return MockObject|GeneratorContainer
+     */
+    protected function getGenerators()
+    {
+        $generator = $this->getMockBuilder('IonBazan\ComposerDiff\Url\UrlGenerator')->getMock();
+        $generator->method('getCompareUrl')->willReturnCallback(function (PackageInterface $base, PackageInterface $target) {
+            return sprintf('https://example.com/c/%s..%s', $base->getVersion(), $target->getVersion());
+        });
+        $generator->method('getReleaseUrl')->willReturnCallback(function (PackageInterface $package) {
+            return sprintf('https://example.com/r/%s', $package->getVersion());
+        });
+        $generator->method('getProjectUrl')->willReturnCallback(function (PackageInterface $package) {
+            return sprintf('https://example.com/r/%s', $package->getName());
+        });
+
+        $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')
+            ->disableOriginalConstructor()
+            ->setMethods(array('get'))
+            ->getMock();
+        $generators->method('get')
+            ->willReturnCallback(function (PackageInterface $package) use ($generator) {
+                if ('php' === $package->getName() || false !== strpos($package->getName(), 'a/no-link')) {
+                    return null;
+                }
+
+                return $generator;
+            });
+
+        return $generators;
     }
 }

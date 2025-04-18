@@ -2,7 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FormatterContainer
@@ -14,13 +13,13 @@ class FormatterContainer
      */
     private $formatters;
 
-    public function __construct(OutputInterface $output, GeneratorContainer $generators)
+    public function __construct(OutputInterface $output)
     {
         $this->formatters = array(
-            'mdtable' => new MarkdownTableFormatter($output, $generators),
-            'mdlist' => new MarkdownListFormatter($output, $generators),
-            'github' => new GitHubFormatter($output, $generators),
-            'json' => new JsonFormatter($output, $generators),
+            'mdtable' => new MarkdownTableFormatter($output),
+            'mdlist' => new MarkdownListFormatter($output),
+            'github' => new GitHubFormatter($output),
+            'json' => new JsonFormatter($output),
         );
     }
 

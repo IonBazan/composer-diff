@@ -2,9 +2,6 @@
 
 namespace IonBazan\ComposerDiff\Formatter;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 
@@ -50,61 +47,21 @@ class JsonFormatter extends AbstractFormatter
     {
         $rows = array();
 
+        /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
-            $row = $this->transformEntry($entry);
+            $row = $entry->toArray();
 
-            if ($withUrls) {
-                $row['compare'] = $this->getUrl($entry);
-                $row['link'] = $this->getProjectUrl($entry->getOperation());
+            if (!$withUrls) {
+                unset($row['compare'], $row['link']);
             }
 
-            if ($withLicenses) {
-                $row['license'] = $this->getLicenses($entry);
+            if (!$withLicenses) {
+                unset($row['licenses']);
             }
 
             $rows[$row['name']] = $row;
         }
 
         return $rows;
-    }
-
-    /**
-     * @return array<string, string|bool|null>
-     */
-    private function transformEntry(DiffEntry $entry)
-    {
-        $operation = $entry->getOperation();
-
-        if ($operation instanceof InstallOperation) {
-            return array(
-                'name' => $operation->getPackage()->getName(),
-                'direct' => $entry->isDirect(),
-                'operation' => $entry->getType(),
-                'version_base' => null,
-                'version_target' => $operation->getPackage()->getFullPrettyVersion(),
-            );
-        }
-
-        if ($operation instanceof UpdateOperation) {
-            return array(
-                'name' => $operation->getInitialPackage()->getName(),
-                'direct' => $entry->isDirect(),
-                'operation' => $entry->getType(),
-                'version_base' => $operation->getInitialPackage()->getFullPrettyVersion(),
-                'version_target' => $operation->getTargetPackage()->getFullPrettyVersion(),
-            );
-        }
-
-        if ($operation instanceof UninstallOperation) {
-            return array(
-                'name' => $operation->getPackage()->getName(),
-                'direct' => $entry->isDirect(),
-                'operation' => $entry->getType(),
-                'version_base' => $operation->getPackage()->getFullPrettyVersion(),
-                'version_target' => null,
-            );
-        }
-
-        throw new \InvalidArgumentException('Invalid operation');
     }
 }

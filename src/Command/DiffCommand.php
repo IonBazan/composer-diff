@@ -147,8 +147,10 @@ EOF
         $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
 
         $urlGenerators = new GeneratorContainer($this->gitlabDomains);
-        $formatters = new FormatterContainer($output, $urlGenerators);
+        $formatters = new FormatterContainer($output);
         $formatter = $formatters->getFormatter($input->getOption('format'));
+
+        $this->packageDiff->setUrlGenerator($urlGenerators);
 
         $prodOperations = new DiffEntries(array());
         $devOperations = new DiffEntries(array());

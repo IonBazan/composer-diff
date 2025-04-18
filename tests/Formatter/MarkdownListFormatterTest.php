@@ -3,7 +3,6 @@
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
-use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MarkdownListFormatterTest extends FormatterTest
@@ -112,8 +111,8 @@ OUTPUT;
     /**
      * {@inheritdoc}
      */
-    protected function getFormatter(OutputInterface $output, GeneratorContainer $generators)
+    protected function getFormatter(OutputInterface $output)
     {
-        return new MarkdownListFormatter($output, $generators);
+        return new MarkdownListFormatter($output);
     }
 }

@@ -36,6 +36,27 @@ class PackageDiffTest extends TestCase
         $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
     }
 
+    public function testBasicUsageWithDefaultArguments()
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getPackageDiff(
+            __DIR__.'/fixtures/base/composer.lock',
+            __DIR__.'/fixtures/target/composer.lock',
+            false,
+            true
+        );
+
+        $this->assertSame(array(
+            'install psr/event-dispatcher 1.0.0',
+            'update roave/security-advisories from dev-master to dev-master',
+            'install symfony/deprecation-contracts v2.1.2',
+            'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
+            'install symfony/event-dispatcher-contracts v2.1.2',
+            'install symfony/polyfill-php80 v1.17.1',
+            'install php >=5.3',
+        ), array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+    }
+
     public function testSameBaseAndTarget()
     {
         $diff = new PackageDiff();
@@ -60,6 +81,21 @@ class PackageDiffTest extends TestCase
         $operations = $diff->getDiff($oldRepository, $newRepository);
 
         $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+    }
+
+    /**
+     * @param string[] $expected
+     *
+     * @dataProvider diffOperationsProvider
+     */
+    public function testLoadFromArray()
+    {
+        $diff = new PackageDiff();
+
+        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), true, true)->getPackages());
+        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), false, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), true, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), false, true)->getPackages());
     }
 
     /**
@@ -106,6 +142,14 @@ class PackageDiffTest extends TestCase
         $this->prepareGit();
         $this->setExpectedException('RuntimeException');
         $diff->getPackageDiff('invalid-ref', '', true, true);
+    }
+
+    public function testLoadFromEmptyArray()
+    {
+        $diff = new PackageDiff();
+
+        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), false, true));
+        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), true, true));
     }
 
     public function diffOperationsProvider()
