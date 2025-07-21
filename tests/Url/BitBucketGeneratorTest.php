@@ -64,32 +64,32 @@ class BitBucketGeneratorTest extends GeneratorTest
             'same maintainer' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git'),
-                'https://bitbucket.org/acme/package/branches/compare/3.12.0%0D3.12.1',
+                'https://bitbucket.org/acme/package/branches/compare/3.12.1%0D3.12.0',
             ),
             'without .git' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package'),
-                'https://bitbucket.org/acme/package/branches/compare/3.12.0%0D3.12.1',
+                'https://bitbucket.org/acme/package/branches/compare/3.12.1%0D3.12.0',
             ),
             'dev versions' => array(
                 $this->getPackageWithSource('acme/package', 'dev-master', 'https://bitbucket.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 $this->getPackageWithSource('acme/package', 'dev-master', 'https://bitbucket.org/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                'https://bitbucket.org/acme/package/branches/compare/d462830%0D9b86021',
+                'https://bitbucket.org/acme/package/branches/compare/9b86021%0Dd462830',
             ),
             'invalid or short reference' => array(
                 $this->getPackageWithSource('acme/package', 'dev-master', 'https://bitbucket.org/acme/package.git', 'd462830'),
                 $this->getPackageWithSource('acme/package', 'dev-master', 'https://bitbucket.org/acme/package.git', '1'),
-                'https://bitbucket.org/acme/package/branches/compare/d462830%0D1',
+                'https://bitbucket.org/acme/package/branches/compare/1%0Dd462830',
             ),
             'compare with base fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/IonBazan/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git'),
-                'https://bitbucket.org/acme/package/branches/compare/IonBazan/package:3.12.0%0Dacme/package:3.12.1',
+                'https://bitbucket.org/acme/package/branches/compare/acme/package:3.12.1%0DIonBazan/package:3.12.0',
             ),
             'compare with head fork' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/IonBazan/package.git'),
-                'https://bitbucket.org/IonBazan/package/branches/compare/acme/package:3.12.0%0DIonBazan/package:3.12.1',
+                'https://bitbucket.org/IonBazan/package/branches/compare/IonBazan/package:3.12.1%0Dacme/package:3.12.0',
             ),
             'compare with different repository provider' => array(
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
