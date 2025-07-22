@@ -24,6 +24,12 @@
             "ignore": [
                 "IonBazan\\ComposerDiff\\Formatter\\AbstractFormatter::terminalLink"
             ]
+        },
+        "ReturnRemoval": {
+            "ignore": [
+                "IonBazan\\ComposerDiff\\Formatter\\Helper\\Table::getColumnWidth",
+                "IonBazan\\ComposerDiff\\Command\\DiffCommand::hasDowngrades"
+            ]
         }
     }
 }
