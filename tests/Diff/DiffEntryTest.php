@@ -97,6 +97,13 @@ class DiffEntryTest extends TestCase
         $this->assertNull($entry->getProjectUrl());
     }
 
+    public function testTypeForInvalidOperation()
+    {
+        $operation = $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock();
+        $entry = new DiffEntry($operation);
+        $this->assertSame(DiffEntry::TYPE_CHANGE, $entry->getType());
+    }
+
     public function operationUrlProvider()
     {
         return array(
