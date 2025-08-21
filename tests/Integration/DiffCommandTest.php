@@ -44,7 +44,10 @@ class DiffCommandTest extends TestCase
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
         $plugin = $this->getPluginPackage();
-        $config = array('allow-plugins' => array($plugin->getName() => true));
+        $config = array(
+            'allow-plugins' => array($plugin->getName() => true),
+            'github-oauth' => array('github.com' => 'dummy'),
+        );
         $composer = Factory::create($app->getIO(), array('config' => $config), true);
         $app->setComposer($composer);
         $pm = new PluginManager($app->getIO(), $composer);

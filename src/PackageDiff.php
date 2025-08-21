@@ -230,6 +230,7 @@ class PackageDiff
                 throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
             }
 
+            /* @infection-ignore-all False-positive */
             return '{}'; // Do not throw exception for composer.json as it might not exist and that's fine
         }
 
