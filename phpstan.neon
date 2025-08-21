@@ -4,5 +4,8 @@ parameters:
         - src
     excludePaths:
         - src/Command/BaseNotTypedCommand.php
+        - src/Command/NotTypedConfigureTrait.php
+        - src/Command/TypedConfigureTrait.php
     bootstrapFiles:
+        - src/Command/BaseTypedCommand.php # contains class alias
         - src/Command/DiffCommand.php # contains class alias
