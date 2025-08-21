@@ -18,6 +18,18 @@ abstract class BaseNotTypedCommand extends BaseCommand
         return $this->handle($input, $output);
     }
 
+    protected function configure()
+    {
+        parent::configure();
+
+        $this->doConfigure();
+    }
+
+    /**
+     * @return void
+     */
+    abstract protected function doConfigure();
+
     /**
      * @return int
      */

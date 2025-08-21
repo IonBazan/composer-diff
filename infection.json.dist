@@ -4,7 +4,8 @@
             "src"
         ],
         "excludes": [
-            "src/Command/BaseNotTypedCommand.php"
+            "src/Command/BaseNotTypedCommand.php",
+            "src/Command/NotTypedConfigureTrait.php",
         ]
     },
     "logs": {

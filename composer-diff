@@ -24,7 +24,13 @@ if (!class_exists('Composer\Package\CompletePackage')) {
     exit(1);
 }
 
+$command = new DiffCommand(new PackageDiff());
 $application = new Application();
-$application->add(new DiffCommand(new PackageDiff()));
+
+if (method_exists('Symfony\Component\Console\Application', 'addCommand')) {
+    $application->addCommand($command);
+} else {
+    $application->add($command);
+}
 $application->setDefaultCommand('diff', true);
 $application->run();

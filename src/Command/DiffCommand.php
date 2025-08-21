@@ -53,7 +53,7 @@ class DiffCommand extends BaseCommand
     /**
      * @return void
      */
-    protected function configure()
+    protected function doConfigure()
     {
         $this->setName('diff')
             ->setDescription('Compares composer.lock files and shows package changes')
