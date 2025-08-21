@@ -2,6 +2,9 @@
 
 namespace IonBazan\ComposerDiff\Command;
 
+/**
+ * @codeCoverageIgnore
+ */
 trait NotTypedConfigureTrait
 {
     /**

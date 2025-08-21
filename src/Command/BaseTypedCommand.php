@@ -6,7 +6,6 @@ use Composer\Command\BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 class_alias(
     PHP_VERSION_ID >= 70200
         ? 'IonBazan\ComposerDiff\Command\TypedConfigureTrait'
