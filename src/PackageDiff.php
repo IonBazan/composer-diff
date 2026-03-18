@@ -213,6 +213,10 @@ class PackageDiff
             return file_get_contents($localPath);
         }
 
+        if ($lockFile && false === strpos($originalPath, self::GIT_SEPARATOR) && $this->looksLikeComposerLockFile($localPath)) {
+            return '{}';
+        }
+
         if (false === strpos($originalPath, self::GIT_SEPARATOR)) {
             $path .= self::GIT_SEPARATOR.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
         }
@@ -226,6 +230,10 @@ class PackageDiff
         $outputString = implode("\n", $output);
 
         if (0 !== $exit) {
+            if ($lockFile && $this->isMissingFileError($outputString)) {
+                return '{}';
+            }
+
             if ($lockFile) {
                 throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
             }
@@ -235,6 +243,26 @@ class PackageDiff
         }
 
         return $outputString;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool
+     */
+    private function looksLikeComposerLockFile($path)
+    {
+        return self::EXTENSION_LOCK === substr($path, -strlen(self::EXTENSION_LOCK));
+    }
+
+    /**
+     * @param string $gitOutput
+     *
+     * @return bool
+     */
+    private function isMissingFileError($gitOutput)
+    {
+        return false !== stripos($gitOutput, 'does not exist in') || false !== stripos($gitOutput, 'exists on disk, but not in');
     }
 
     /**

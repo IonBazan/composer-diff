@@ -152,6 +152,43 @@ class PackageDiffTest extends TestCase
         $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), true, true));
     }
 
+    public function testDiffAgainstMissingBaseLockFile()
+    {
+        $diff = new PackageDiff();
+
+        $prodOperations = $diff->getPackageDiff(
+            __DIR__.'/fixtures/missing/composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            false,
+            false
+        );
+        $devOperations = $diff->getPackageDiff(
+            __DIR__.'/fixtures/missing/composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            true,
+            false
+        );
+
+        $this->assertSame(array(
+            'install example/package 1.2.3',
+        ), array_map(array($this, 'entryToString'), $prodOperations->getArrayCopy()));
+        $this->assertSame(array(
+            'install example/dev-package 2.3.4',
+        ), array_map(array($this, 'entryToString'), $devOperations->getArrayCopy()));
+    }
+
+    public function testDiffAgainstMissingGitLockFilePath()
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit();
+        $operations = $diff->getPackageDiff('HEAD:missing/composer.lock', '', false, false);
+
+        $this->assertNotEmpty($operations);
+        foreach ($operations as $entry) {
+            $this->assertInstanceOf('Composer\DependencyResolver\Operation\InstallOperation', $entry->getOperation());
+        }
+    }
+
     public function diffOperationsProvider()
     {
         return array(
