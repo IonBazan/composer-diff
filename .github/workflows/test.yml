@@ -29,11 +29,11 @@ jobs:
         include:
           - php-versions: '5.3'
             dependencies: 'lowest'
-            composer: v1 # Global composer should be in same version as locally installed one
+            composer: v2 # Global composer should be in same version as locally installed one
             operating-system: ubuntu-latest
           - php-versions: '7.0'
             dependencies: 'lowest'
-            composer: v1
+            composer: v2
             operating-system: ubuntu-latest
           - php-versions: '8.2'
             composer: v2
