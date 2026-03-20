@@ -213,11 +213,11 @@ class PackageDiff
             return file_get_contents($localPath);
         }
 
-        if ($lockFile && false === strpos($originalPath, self::GIT_SEPARATOR) && $this->looksLikeComposerLockFile($localPath)) {
+        if ($lockFile && !$this->containsGitSeparator($originalPath) && $this->looksLikeComposerLockFile($localPath)) {
             return '{}';
         }
 
-        if (false === strpos($originalPath, self::GIT_SEPARATOR)) {
+        if (!$this->containsGitSeparator($originalPath)) {
             $path .= self::GIT_SEPARATOR.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
         }
 
@@ -263,6 +263,29 @@ class PackageDiff
     private function isMissingFileError($gitOutput)
     {
         return false !== stripos($gitOutput, 'does not exist in') || false !== stripos($gitOutput, 'exists on disk, but not in');
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool
+     */
+    private function containsGitSeparator($path)
+    {
+        $pos = strpos($path, self::GIT_SEPARATOR);
+
+        if (false === $pos) {
+            return false;
+        }
+
+        // Ignore Windows absolute drive paths (e.g. "C:\path" or "C:/path").
+        if (1 === $pos && ctype_alpha($path[0])) {
+            if (isset($path[2]) && ('\\' === $path[2] || '/' === $path[2])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

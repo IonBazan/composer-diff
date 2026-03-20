@@ -189,6 +189,41 @@ class PackageDiffTest extends TestCase
         }
     }
 
+    public function testDiffAgainstMissingWindowsAbsoluteBaseLockFile()
+    {
+        $diff = new PackageDiff();
+
+        $prodOperations = $diff->getPackageDiff(
+            'C:\\tmp\\missing\\composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            false,
+            false
+        );
+        $devOperations = $diff->getPackageDiff(
+            'C:\\tmp\\missing\\composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            true,
+            false
+        );
+
+        $this->assertSame(array(
+            'install example/package 1.2.3',
+        ), array_map(array($this, 'entryToString'), $prodOperations->getArrayCopy()));
+        $this->assertSame(array(
+            'install example/dev-package 2.3.4',
+        ), array_map(array($this, 'entryToString'), $devOperations->getArrayCopy()));
+    }
+
+    public function testOneLetterGitRefPath()
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit();
+        exec('git branch -f z');
+        $operations = $diff->getPackageDiff('z:composer.lock', '', false, false);
+
+        $this->assertNotEmpty($operations);
+    }
+
     public function diffOperationsProvider()
     {
         return array(
