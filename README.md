@@ -77,7 +77,7 @@ composer diff --help # Display detailed usage instructions
  - `--with-licenses` (`-c`) - include license information
  - `--format` (`-f`) - output format (mdtable, mdlist, json, github) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
- 
+
 ## Advanced usage
 
 ```shell script
@@ -100,7 +100,7 @@ Exit code of the command is built using following bit flags:
 *  `0` - OK.
 *  `1` - General error.
 *  `2` - There were changes in prod packages.
-*  `4` - There were changes is dev packages.
+*  `4` - There were changes in dev packages.
 *  `8` - There were downgrades in prod packages.
 * `16` - There were downgrades in dev packages.
 
@@ -108,7 +108,7 @@ You may check for individual flags or simply check if the status is greater or e
 
 # Contributing
 
-Composer Diff is an open source project that welcomes pull requests and issues from anyone. 
+Composer Diff is an open source project that welcomes pull requests and issues from anyone.
 Before opening pull requests, please consider reading our short [Contribution Guidelines](docs/CONTRIBUTING.md).
 
 # Similar packages

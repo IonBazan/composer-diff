@@ -80,23 +80,23 @@ By default, it will compare current filesystem changes with git <comment>HEAD</c
 To compare with specific branch, pass its name as argument:
 
     <info>%command.full_name% master</info>
-    
+
 You can specify any valid git refs to compare with:
 
     <info>%command.full_name% HEAD~3 be4aabc</info>
-    
+
 You can also use more verbose syntax for <info>base</info> and <info>target</info> options:
 
     <info>%command.full_name% --base master --target composer.lock</info>
-    
+
 To compare files in specific path, use following syntax:
 
     <info>%command.full_name% master:subdirectory/composer.lock /path/to/another/composer.lock</info>
-    
+
 By default, <info>platform</info> dependencies are hidden. Add <info>--with-platform</info> option to include them in the report:
- 
+
     <info>%command.full_name% --with-platform</info>
-    
+
 By default, <info>transient</info> dependencies are displayed. Add <info>--direct</info> option to only show direct dependencies:
 
 <info>%command.full_name% --direct</info>
@@ -104,7 +104,7 @@ By default, <info>transient</info> dependencies are displayed. Add <info>--direc
 Use <info>--with-links</info> to include release and compare URLs in the report:
 
     <info>%command.full_name% --with-links</info>
-    
+
 You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment> and <comment>json</comment>:
 
     <info>%command.full_name% --format=json</info>
@@ -125,7 +125,7 @@ Exit code of the command is built using following bit flags:
 *  0 - OK.
 *  1 - General error.
 *  2 - There were changes in prod packages.
-*  4 - There were changes is dev packages.
+*  4 - There were changes in dev packages.
 *  8 - There were downgrades in prod packages.
 * 16 - There were downgrades in dev packages.
 EOF
