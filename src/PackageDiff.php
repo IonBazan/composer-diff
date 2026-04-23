@@ -25,6 +25,9 @@ class PackageDiff
     /** @var UrlGenerator */
     protected $urlGenerator;
 
+    /** @var bool */
+    protected $skipIoErrors = false;
+
     public function __construct()
     {
         $this->urlGenerator = new GeneratorContainer();
@@ -36,6 +39,16 @@ class PackageDiff
     public function setUrlGenerator(UrlGenerator $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    /**
+     * @param bool $skipIoErrors
+     *
+     * @return void
+     */
+    public function setSkipIoErrors($skipIoErrors)
+    {
+        $this->skipIoErrors = (bool) $skipIoErrors;
     }
 
     /**
@@ -213,79 +226,71 @@ class PackageDiff
             return file_get_contents($localPath);
         }
 
-        if ($lockFile && !$this->containsGitSeparator($originalPath) && $this->looksLikeComposerLockFile($localPath)) {
-            return '{}';
-        }
+        $attemptedSpecs = array();
+        $lastError = '';
 
-        if (!$this->containsGitSeparator($originalPath)) {
-            $path .= self::GIT_SEPARATOR.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
-        }
+        foreach ($this->getGitCandidates($path, $lockFile) as $gitPath) {
+            $attemptedSpecs[] = $gitPath;
+            $output = array();
+            @exec(sprintf('git show %s 2>&1', escapeshellarg($gitPath)), $output, $exit);
+            $outputString = implode("\n", $output);
 
-        if (!$lockFile) {
-            $path = $this->getJsonPath($path);
-        }
+            if (0 !== $exit) {
+                $lastError = $outputString;
 
-        $output = array();
-        @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
-        $outputString = implode("\n", $output);
-
-        if (0 !== $exit) {
-            if ($lockFile && $this->isMissingFileError($outputString)) {
-                return '{}';
+                continue;
             }
 
-            if ($lockFile) {
-                throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
+            if (!$this->looksLikeJsonDocument($outputString)) {
+                $lastError = sprintf('Unexpected non-JSON output for git spec %s', $gitPath);
+
+                continue;
             }
 
-            /* @infection-ignore-all False-positive */
-            return '{}'; // Do not throw exception for composer.json as it might not exist and that's fine
+            return $outputString;
         }
 
-        return $outputString;
+        if ($lockFile && !$this->skipIoErrors) {
+            throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, implode(', ', $attemptedSpecs), $lastError));
+        }
+
+        /* @infection-ignore-all False-positive */
+        // Do not throw exception for composer.json as it might not exist and that's fine.
+        // For composer.lock this fallback is optional and controlled by setSkipIoErrors().
+        return '{}';
     }
 
     /**
      * @param string $path
+     * @param bool   $lockFile
      *
-     * @return bool
+     * @return string[]
      */
-    private function looksLikeComposerLockFile($path)
+    private function getGitCandidates($path, $lockFile = true)
     {
-        return self::EXTENSION_LOCK === substr($path, -strlen(self::EXTENSION_LOCK));
+        $candidates = array();
+
+        if ($lockFile) {
+            $candidates[] = $path;
+            $candidates[] = $path.self::GIT_SEPARATOR.self::COMPOSER.self::EXTENSION_LOCK;
+        } else {
+            $candidates[] = $this->getJsonPath($path);
+            $candidates[] = $this->getJsonPath($path.self::GIT_SEPARATOR.self::COMPOSER.self::EXTENSION_LOCK);
+        }
+
+        return array_values(array_unique($candidates));
     }
 
     /**
-     * @param string $gitOutput
+     * @param string $contents
      *
      * @return bool
      */
-    private function isMissingFileError($gitOutput)
+    private function looksLikeJsonDocument($contents)
     {
-        return false !== stripos($gitOutput, 'does not exist in') || false !== stripos($gitOutput, 'exists on disk, but not in');
-    }
+        $data = json_decode($contents, true);
 
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
-    private function containsGitSeparator($path)
-    {
-        $pos = strpos($path, self::GIT_SEPARATOR);
-
-        if (false === $pos) {
-            return false;
-        }
-
-        // Ignore Windows absolute drive paths (e.g. "C:\path" or "C:/path").
-        if (1 === $pos && ctype_alpha($path[0])) {
-            if (isset($path[2]) && ('\\' === $path[2] || '/' === $path[2])) {
-                return false;
-            }
-        }
-
-        return true;
+        return JSON_ERROR_NONE === json_last_error() && is_array($data);
     }
 
     /**

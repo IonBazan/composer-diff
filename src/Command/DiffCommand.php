@@ -69,6 +69,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
+            ->addOption('skip-io-errors', null, InputOption::VALUE_NONE, 'Treat missing composer.lock files as empty')
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
@@ -117,6 +118,10 @@ Passing <info>--strict</info> option may help you to disallow changes or downgra
 
     <info>%command.full_name% --strict</info>
 
+Use <info>--skip-io-errors</info> to treat missing base <comment>composer.lock</comment> files as empty input:
+
+    <info>%command.full_name% /path/to/missing/composer.lock composer.lock --skip-io-errors</info>
+
 Exit code
 ---------
 
@@ -151,6 +156,7 @@ EOF
         $formatter = $formatters->getFormatter($input->getOption('format'));
 
         $this->packageDiff->setUrlGenerator($urlGenerators);
+        $this->packageDiff->setSkipIoErrors($input->getOption('skip-io-errors'));
 
         $prodOperations = new DiffEntries(array());
         $devOperations = new DiffEntries(array());

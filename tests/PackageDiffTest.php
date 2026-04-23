@@ -152,9 +152,22 @@ class PackageDiffTest extends TestCase
         $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), true, true));
     }
 
-    public function testDiffAgainstMissingBaseLockFile()
+    public function testDiffAgainstMissingBaseLockFileThrowsByDefault()
     {
         $diff = new PackageDiff();
+        $this->setExpectedException('RuntimeException');
+        $diff->getPackageDiff(
+            __DIR__.'/fixtures/missing/composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            false,
+            false
+        );
+    }
+
+    public function testDiffAgainstMissingBaseLockFileWithSkipIoErrors()
+    {
+        $diff = new PackageDiff();
+        $diff->setSkipIoErrors(true);
 
         $prodOperations = $diff->getPackageDiff(
             __DIR__.'/fixtures/missing/composer.lock',
@@ -177,9 +190,18 @@ class PackageDiffTest extends TestCase
         ), array_map(array($this, 'entryToString'), $devOperations->getArrayCopy()));
     }
 
-    public function testDiffAgainstMissingGitLockFilePath()
+    public function testDiffAgainstMissingGitLockFilePathThrowsByDefault()
     {
         $diff = new PackageDiff();
+        $this->prepareGit();
+        $this->setExpectedException('RuntimeException');
+        $diff->getPackageDiff('HEAD:missing/composer.lock', '', false, false);
+    }
+
+    public function testDiffAgainstMissingGitLockFilePathWithSkipIoErrors()
+    {
+        $diff = new PackageDiff();
+        $diff->setSkipIoErrors(true);
         $this->prepareGit();
         $operations = $diff->getPackageDiff('HEAD:missing/composer.lock', '', false, false);
 
@@ -189,9 +211,22 @@ class PackageDiffTest extends TestCase
         }
     }
 
-    public function testDiffAgainstMissingWindowsAbsoluteBaseLockFile()
+    public function testDiffAgainstMissingWindowsAbsoluteBaseLockFileThrowsByDefault()
     {
         $diff = new PackageDiff();
+        $this->setExpectedException('RuntimeException');
+        $diff->getPackageDiff(
+            'C:\\tmp\\missing\\composer.lock',
+            __DIR__.'/fixtures/empty-target/composer.lock',
+            false,
+            false
+        );
+    }
+
+    public function testDiffAgainstMissingWindowsAbsoluteBaseLockFileWithSkipIoErrors()
+    {
+        $diff = new PackageDiff();
+        $diff->setSkipIoErrors(true);
 
         $prodOperations = $diff->getPackageDiff(
             'C:\\tmp\\missing\\composer.lock',

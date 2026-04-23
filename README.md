@@ -77,13 +77,14 @@ composer diff --help # Display detailed usage instructions
  - `--with-licenses` (`-c`) - include license information
  - `--format` (`-f`) - output format (mdtable, mdlist, json, github) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
+ - `--skip-io-errors` - treat missing `composer.lock` files as empty input
 
 ## Advanced usage
 
 ```shell script
 composer diff master # Compare current composer.lock with the one on master branch
 composer diff master:composer.lock develop:composer.lock -p # Compare master and develop branches, including platform dependencies
-composer diff /path/to/missing/composer.lock composer.lock # Compare a new lock file against a non-existing base lock file
+composer diff /path/to/missing/composer.lock composer.lock --skip-io-errors # Compare a new lock file against a non-existing base lock file
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table

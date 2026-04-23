@@ -80,6 +80,27 @@ class DiffCommandTest extends TestCase
         $this->assertSame(0, $result);
     }
 
+    public function testSkipIoErrorsOption()
+    {
+        $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff, array('gitlab2.org'));
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+
+        $diff->expects($this->once())
+            ->method('setSkipIoErrors')
+            ->with(true);
+
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries(array(), $this->getGenerators()));
+
+        $result = $tester->execute(array('--skip-io-errors' => null));
+
+        $this->assertSame(0, $result);
+    }
+
     /**
      * @param int                  $exitCode
      * @param OperationInterface[] $prodOperations
