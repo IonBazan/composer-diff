@@ -2,10 +2,6 @@
     "source": {
         "directories": [
             "src"
-        ],
-        "excludes": [
-            "src/Command/BaseNotTypedCommand.php",
-            "src/Command/NotTypedConfigureTrait.php",
         ]
     },
     "logs": {

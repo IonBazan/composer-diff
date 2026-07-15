@@ -12,15 +12,12 @@ abstract class GitGenerator implements UrlGenerator
     /**
      * {@inheritdoc}
      */
-    public function supportsPackage(PackageInterface $package)
+    public function supportsPackage(PackageInterface $package): bool
     {
         return false !== strpos((string) $package->getSourceUrl(), $this->getDomain());
     }
 
-    /**
-     * @return string
-     */
-    protected function getCompareRef(PackageInterface $package)
+    protected function getCompareRef(PackageInterface $package): string
     {
         if (!$package->isDev()) {
             return $package->getPrettyVersion();
@@ -35,10 +32,7 @@ abstract class GitGenerator implements UrlGenerator
         return $reference;
     }
 
-    /**
-     * @return string
-     */
-    protected function getUser(PackageInterface $package)
+    protected function getUser(PackageInterface $package): string
     {
         return preg_replace(
             "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
@@ -47,10 +41,7 @@ abstract class GitGenerator implements UrlGenerator
         );
     }
 
-    /**
-     * @return string
-     */
-    protected function getRepo(PackageInterface $package)
+    protected function getRepo(PackageInterface $package): string
     {
         return preg_replace(
             "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
@@ -59,10 +50,7 @@ abstract class GitGenerator implements UrlGenerator
         );
     }
 
-    /**
-     * @return string
-     */
-    protected function getRepositoryUrl(PackageInterface $package)
+    protected function getRepositoryUrl(PackageInterface $package): string
     {
         $httpsUrl = preg_replace(
             "/^git@(?:git\.)?({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
@@ -73,16 +61,10 @@ abstract class GitGenerator implements UrlGenerator
         return preg_replace('#^(.+)\.git$#', '$1', $httpsUrl);
     }
 
-    /**
-     * @return string
-     */
-    private function getQuotedDomain()
+    private function getQuotedDomain(): string
     {
         return preg_quote($this->getDomain(), '/');
     }
 
-    /**
-     * @return string
-     */
-    abstract protected function getDomain();
+    abstract protected function getDomain(): string;
 }

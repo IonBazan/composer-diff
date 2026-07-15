@@ -33,11 +33,7 @@ class DiffEntry
     /** @var string|null */
     private $projectUrl;
 
-    /**
-     * @param UrlGenerator|null $urlGenerator
-     * @param bool              $direct
-     */
-    public function __construct(OperationInterface $operation, $urlGenerator = null, $direct = false)
+    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false)
     {
         $this->operation = $operation;
         $this->direct = $direct;
@@ -48,82 +44,52 @@ class DiffEntry
         }
     }
 
-    /**
-     * @return OperationInterface
-     */
-    public function getOperation()
+    public function getOperation(): OperationInterface
     {
         return $this->operation;
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDirect()
+    public function isDirect(): bool
     {
         return $this->direct;
     }
 
-    /**
-     * @return bool
-     */
-    public function isInstall()
+    public function isInstall(): bool
     {
         return self::TYPE_INSTALL === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUpgrade()
+    public function isUpgrade(): bool
     {
         return self::TYPE_UPGRADE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDowngrade()
+    public function isDowngrade(): bool
     {
         return self::TYPE_DOWNGRADE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isRemove()
+    public function isRemove(): bool
     {
         return self::TYPE_REMOVE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isChange()
+    public function isChange(): bool
     {
         return self::TYPE_CHANGE === $this->type;
     }
 
-    /**
-     * @return string
-     */
-    public function getPackageName()
+    public function getPackageName(): string
     {
         return $this->getPackage()->getName();
     }
 
-    /**
-     * @return PackageInterface
-     */
-    public function getPackage()
+    public function getPackage(): PackageInterface
     {
         $operation = $this->getOperation();
 
@@ -141,12 +107,12 @@ class DiffEntry
     /**
      * @return string[]
      */
-    public function getLicenses()
+    public function getLicenses(): array
     {
         $package = $this->getPackage();
 
         if (!$package instanceof CompletePackageInterface) {
-            return array();
+            return [];
         }
 
         return $package->getLicense();
@@ -164,9 +130,9 @@ class DiffEntry
      *     link: string|null,
      * }
      */
-    public function toArray()
+    public function toArray(): array
     {
-        return array(
+        return [
             'name' => $this->getPackageName(),
             'direct' => $this->isDirect(),
             'operation' => $this->getType(),
@@ -175,13 +141,10 @@ class DiffEntry
             'licenses' => $this->getLicenses(),
             'compare' => $this->getUrl(),
             'link' => $this->getProjectUrl(),
-        );
+        ];
     }
 
-    /**
-     * @return string|null
-     */
-    public function getBaseVersion()
+    public function getBaseVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
             return $this->operation->getInitialPackage()->getFullPrettyVersion();
@@ -194,10 +157,7 @@ class DiffEntry
         return null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getTargetVersion()
+    public function getTargetVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
             return $this->operation->getTargetPackage()->getFullPrettyVersion();
@@ -210,26 +170,17 @@ class DiffEntry
         return null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getUrl()
+    public function getUrl(): ?string
     {
         return $this->compareUrl;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getProjectUrl()
+    public function getProjectUrl(): ?string
     {
         return $this->projectUrl;
     }
 
-    /**
-     * @return void
-     */
-    private function setUrls(UrlGenerator $generator)
+    private function setUrls(UrlGenerator $generator): void
     {
         $package = $this->getPackage();
         $this->projectUrl = $generator->getProjectUrl($package);
@@ -245,10 +196,7 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
-    /**
-     * @return string
-     */
-    private function determineType()
+    private function determineType(): string
     {
         if ($this->operation instanceof InstallOperation) {
             return self::TYPE_INSTALL;

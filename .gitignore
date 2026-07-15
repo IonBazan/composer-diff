@@ -9,3 +9,5 @@
 /.phpunit.result.cache
 /infection.log
 /infection.json
+/tools/vendor/
+/tools/bin/

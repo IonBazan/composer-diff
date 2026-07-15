@@ -3,6 +3,7 @@
 namespace IonBazan\ComposerDiff\Tests;
 
 use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\AliasPackage;
@@ -16,13 +17,10 @@ class PackageDiffTest extends TestCase
 {
     /**
      * @param string[] $expected
-     * @param bool     $dev
-     * @param bool     $withPlatform
-     * @param bool     $onlyDirect
      *
      * @dataProvider operationsProvider
      */
-    public function testBasicUsage(array $expected, $dev, $withPlatform, $onlyDirect = false)
+    public function testBasicUsage(array $expected, bool $dev, bool $withPlatform, bool $onlyDirect = false): void
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
@@ -33,10 +31,10 @@ class PackageDiffTest extends TestCase
             $onlyDirect
         );
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+        $this->assertSame($expected, array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
-    public function testBasicUsageWithDefaultArguments()
+    public function testBasicUsageWithDefaultArguments(): void
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
@@ -46,7 +44,7 @@ class PackageDiffTest extends TestCase
             true
         );
 
-        $this->assertSame(array(
+        $this->assertSame([
             'install psr/event-dispatcher 1.0.0',
             'update roave/security-advisories from dev-master to dev-master',
             'install symfony/deprecation-contracts v2.1.2',
@@ -54,10 +52,10 @@ class PackageDiffTest extends TestCase
             'install symfony/event-dispatcher-contracts v2.1.2',
             'install symfony/polyfill-php80 v1.17.1',
             'install php >=5.3',
-        ), array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+        ], array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
-    public function testSameBaseAndTarget()
+    public function testSameBaseAndTarget(): void
     {
         $diff = new PackageDiff();
         $operations = $diff->getPackageDiff(
@@ -67,7 +65,7 @@ class PackageDiffTest extends TestCase
             true
         );
 
-        $this->assertEmpty($operations);
+        $this->assertCount(0, $operations);
     }
 
     /**
@@ -75,12 +73,12 @@ class PackageDiffTest extends TestCase
      *
      * @dataProvider diffOperationsProvider
      */
-    public function testDiff(array $expected, RepositoryInterface $oldRepository, RepositoryInterface $newRepository)
+    public function testDiff(array $expected, RepositoryInterface $oldRepository, RepositoryInterface $newRepository): void
     {
         $diff = new PackageDiff();
         $operations = $diff->getDiff($oldRepository, $newRepository);
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+        $this->assertSame($expected, array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
     /**
@@ -88,120 +86,131 @@ class PackageDiffTest extends TestCase
      *
      * @dataProvider diffOperationsProvider
      */
-    public function testLoadFromArray()
+    public function testGetOperations(array $expected, RepositoryInterface $oldRepository, RepositoryInterface $newRepository): void
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getOperations($oldRepository, $newRepository);
+
+        $this->assertSame($expected, array_map([$this, 'operationToString'], $operations));
+    }
+
+    /**
+     * @dataProvider diffOperationsProvider
+     */
+    public function testLoadFromArray(): void
     {
         $diff = new PackageDiff();
 
-        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), true, true)->getPackages());
-        $this->assertCount(1, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), false, true)->getPackages());
-        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform' => array('php' => '>=5.3')), true, true)->getPackages());
-        $this->assertCount(0, $diff->loadPackagesFromArray(array('platform-dev' => array('php' => '>=5.3')), false, true)->getPackages());
+        $this->assertCount(1, $diff->loadPackagesFromArray(['platform-dev' => ['php' => '>=5.3']], true, true)->getPackages());
+        $this->assertCount(1, $diff->loadPackagesFromArray(['platform' => ['php' => '>=5.3']], false, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(['platform' => ['php' => '>=5.3']], true, true)->getPackages());
+        $this->assertCount(0, $diff->loadPackagesFromArray(['platform-dev' => ['php' => '>=5.3']], false, true)->getPackages());
     }
 
     /**
      * @param string[] $expected
-     * @param bool     $dev
-     * @param bool     $withPlatform
-     * @param bool     $onlyDirect
      *
      * @dataProvider operationsProvider
      */
-    public function testGitUsage(array $expected, $dev, $withPlatform, $onlyDirect = false)
+    public function testGitUsage(array $expected, bool $dev, bool $withPlatform, bool $onlyDirect = false): void
     {
         $diff = new PackageDiff();
         $this->prepareGit();
         $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform, $onlyDirect);
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+        $this->assertSame($expected, array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
     /**
      * @param string[] $expected
-     * @param bool     $dev
-     * @param bool     $withPlatform
-     * @param bool     $onlyDirect
      *
      * @dataProvider operationsProvider
      */
-    public function testGitUsageWithoutJson(array $expected, $dev, $withPlatform, $onlyDirect = false)
+    public function testGitUsageWithoutJson(array $expected, bool $dev, bool $withPlatform, bool $onlyDirect = false): void
     {
         $diff = new PackageDiff();
         $this->prepareGit(true);
         $operations = $diff->getPackageDiff('HEAD', '', $dev, $withPlatform, $onlyDirect);
 
         if ($onlyDirect) {
-            $expected = array(); // if there is no json file, we can't determine direct dependencies
+            $expected = []; // if there is no json file, we can't determine direct dependencies
         }
 
-        $this->assertSame($expected, array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
+        $this->assertSame($expected, array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
-    public function testInvalidGitRef()
+    public function testInvalidGitRef(): void
     {
         $diff = new PackageDiff();
         $this->prepareGit();
-        $this->setExpectedException('RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
-    public function testLoadFromEmptyArray()
+    public function testLoadFromEmptyArray(): void
     {
         $diff = new PackageDiff();
 
-        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), false, true));
-        $this->assertInstanceOf('Composer\Repository\ArrayRepository', $diff->loadPackagesFromArray(array(), true, true));
+        $this->assertInstanceOf(ArrayRepository::class, $diff->loadPackagesFromArray([], false, true));
+        $this->assertInstanceOf(ArrayRepository::class, $diff->loadPackagesFromArray([], true, true));
     }
 
-    public function diffOperationsProvider()
+    /**
+     * @return iterable<array<mixed>>
+     */
+    public function diffOperationsProvider(): iterable
     {
-        return array(
-            'update alias version' => array(
-                array(),
-                new ArrayRepository(array(
+        return [
+            'update alias version' => [
+                [],
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '1.0', '1.0'),
-                )),
-                new ArrayRepository(array(
+                ]),
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
-                )),
-            ),
-            'same alias version but different actual package version' => array(
-                array(
+                ]),
+            ],
+            'same alias version but different actual package version' => [
+                [
                     'update vendor/package-a from 1.0 to 2.0',
-                ),
-                new ArrayRepository(array(
+                ],
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '1.0', '1.0'),
-                )),
-                new ArrayRepository(array(
+                ]),
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '2.0', '2.0'), '1.0', '1.0'),
-                )),
-            ),
-            'uninstall aliased package' => array(
-                array(
+                ]),
+            ],
+            'uninstall aliased package' => [
+                [
                     'uninstall vendor/package-a 1.0',
-                ),
-                new ArrayRepository(array(
+                ],
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
-                )),
-                new ArrayRepository(array(
-                )),
-            ),
-            'add aliased package' => array(
-                array(
+                ]),
+                new ArrayRepository([
+                ]),
+            ],
+            'add aliased package' => [
+                [
                     'install vendor/package-a 1.0',
-                ),
-                new ArrayRepository(array()),
-                new ArrayRepository(array(
+                ],
+                new ArrayRepository([]),
+                new ArrayRepository([
                     new AliasPackage(new Package('vendor/package-a', '1.0', '1.0'), '2.0', '2.0'),
-                )),
-            ),
-        );
+                ]),
+            ],
+        ];
     }
 
-    public function operationsProvider()
+    /**
+     * @return iterable<array<mixed>>
+     */
+    public function operationsProvider(): iterable
     {
-        return array(
-            'prod, with platform' => array(
-                'expected' => array(
+        return [
+            'prod, with platform' => [
+                'expected' => [
                     'install psr/event-dispatcher 1.0.0',
                     'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
@@ -209,24 +218,24 @@ class PackageDiffTest extends TestCase
                     'install symfony/event-dispatcher-contracts v2.1.2',
                     'install symfony/polyfill-php80 v1.17.1',
                     'install php >=5.3',
-                ),
+                ],
                 'dev' => false,
                 'withPlatform' => true,
-            ),
-            'prod, no platform' => array(
-                'expected' => array(
+            ],
+            'prod, no platform' => [
+                'expected' => [
                     'install psr/event-dispatcher 1.0.0',
                     'update roave/security-advisories from dev-master to dev-master',
                     'install symfony/deprecation-contracts v2.1.2',
                     'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
                     'install symfony/event-dispatcher-contracts v2.1.2',
                     'install symfony/polyfill-php80 v1.17.1',
-                ),
+                ],
                 'dev' => false,
                 'withPlatform' => false,
-            ),
-            'dev, no platform' => array(
-                'expected' => array(
+            ],
+            'dev, no platform' => [
+                'expected' => [
                     'update phpunit/php-code-coverage from 8.0.2 to 7.0.10',
                     'update phpunit/php-file-iterator from 3.0.2 to 2.0.2',
                     'update phpunit/php-text-template from 2.0.1 to 1.2.1',
@@ -247,31 +256,31 @@ class PackageDiffTest extends TestCase
                     'update sebastian/version from 3.0.0 to 2.0.1',
                     'uninstall phpunit/php-invoker 3.0.1',
                     'uninstall sebastian/code-unit 1.0.3',
-                ),
+                ],
                 'dev' => true,
                 'withPlatform' => false,
-            ),
-            'prod, only direct' => array(
-                'expected' => array(
+            ],
+            'prod, only direct' => [
+                'expected' => [
                     'update roave/security-advisories from dev-master to dev-master',
                     'update symfony/event-dispatcher from v2.8.52 to v5.1.2',
-                ),
+                ],
                 'dev' => false,
                 'withPlatform' => false,
                 'onlyDirect' => true,
-            ),
-            'dev, only direct' => array(
-                'expected' => array(
+            ],
+            'dev, only direct' => [
+                'expected' => [
                     'update phpunit/phpunit from 9.2.5 to 8.5.8',
-                ),
+                ],
                 'dev' => true,
                 'withPlatform' => false,
                 'onlyDirect' => true,
-            ),
-        );
+            ],
+        ];
     }
 
-    private function prepareGit($onlyLock = false)
+    private function prepareGit(bool $onlyLock = false): void
     {
         $gitDir = __DIR__.'/test-git';
         @mkdir($gitDir);
@@ -290,10 +299,13 @@ class PackageDiffTest extends TestCase
         !$onlyLock && file_put_contents($gitDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/target/composer.json'));
     }
 
-    private function entryToString(DiffEntry $entry)
+    private function entryToString(DiffEntry $entry): string
     {
-        $operation = $entry->getOperation();
+        return $this->operationToString($entry->getOperation());
+    }
 
+    private function operationToString(OperationInterface $operation): string
+    {
         if ($operation instanceof InstallOperation) {
             return sprintf('install %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
         }

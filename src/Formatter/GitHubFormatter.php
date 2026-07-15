@@ -10,7 +10,7 @@ class GitHubFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
     {
         $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses);
         $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses);
@@ -19,7 +19,7 @@ class GitHubFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
     {
         if (!\count($entries)) {
             return;
@@ -30,14 +30,11 @@ class GitHubFormatter extends AbstractFormatter
     }
 
     /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     *
      * @return string[]
      */
-    private function transformEntries(DiffEntries $entries, $withUrls, $withLicenses)
+    private function transformEntries(DiffEntries $entries, bool $withUrls, bool $withLicenses): array
     {
-        $rows = array();
+        $rows = [];
 
         foreach ($entries as $entry) {
             $rows[] = $this->transformEntry($entry, $withUrls, $withLicenses);
@@ -46,13 +43,7 @@ class GitHubFormatter extends AbstractFormatter
         return $rows;
     }
 
-    /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     *
-     * @return string
-     */
-    private function transformEntry(DiffEntry $entry, $withUrls, $withLicenses)
+    private function transformEntry(DiffEntry $entry, bool $withUrls, bool $withLicenses): string
     {
         $url = $withUrls ? $entry->getUrl() : null;
         $url = (null !== $url) ? ' '.$url : '';

@@ -2,6 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Tests\Integration;
 
+use IonBazan\ComposerDiff\Composer\Plugin;
 use Composer\Factory;
 use Composer\IO\NullIO;
 use Composer\Package\Package;
@@ -16,11 +17,11 @@ use Symfony\Component\Console\Tester\CommandTester;
 class DiffCommandTest extends TestCase
 {
     /**
-     * @param string $expectedOutput
-     *
      * @dataProvider commandArgumentsDataProvider
+     *
+     * @param array<string, mixed> $input
      */
-    public function testCommand($expectedOutput, array $input)
+    public function testCommand(string $expectedOutput, array $input): void
     {
         $command = new DiffCommand(new PackageDiff());
         $command->setApplication($this->getComposerApplication());
@@ -31,38 +32,41 @@ class DiffCommandTest extends TestCase
     }
 
     /**
-     * @param string $expectedOutput
-     *
      * @dataProvider commandArgumentsDataProvider
      *
      * @runInSeparateProcess To handle autoloader stuff
+     *
+     * @param array<string, mixed> $input
      */
-    public function testComposerApplication($expectedOutput, array $input)
+    public function testComposerApplication(string $expectedOutput, array $input): void
     {
-        $input = array_merge(array('command' => 'diff'), $input);
+        $input = array_merge(['command' => 'diff'], $input);
         $app = $this->getComposerApplication();
         $app->setIO(new NullIO()); // For Composer v1
         $app->setAutoExit(false);
         $plugin = $this->getPluginPackage();
-        $config = array(
-            'allow-plugins' => array($plugin->getName() => true),
-            'github-oauth' => array('github.com' => 'dummy'),
-        );
-        $composer = Factory::create($app->getIO(), array('config' => $config), true);
+        $config = [
+            'allow-plugins' => [$plugin->getName() => true],
+            'github-oauth' => ['github.com' => 'dummy'],
+        ];
+        $composer = Factory::create($app->getIO(), ['config' => $config], true);
         $app->setComposer($composer);
         $pm = new PluginManager($app->getIO(), $composer);
         $composer->setPluginManager($pm);
         $pm->registerPackage($plugin, true);
         $tester = new ApplicationTester($app);
-        $result = $tester->run($input, array('verbosity' => Output::VERBOSITY_VERY_VERBOSE));
+        $result = $tester->run($input, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
         $this->assertSame($expectedOutput, $tester->getDisplay());
         $this->assertSame(0, $result);
     }
 
-    public function commandArgumentsDataProvider()
+    /**
+     * @return iterable<array<mixed>>
+     */
+    public function commandArgumentsDataProvider(): iterable
     {
-        return array(
-            'with platform' => array(
+        return [
+            'with platform' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -100,13 +104,13 @@ class DiffCommandTest extends TestCase
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '-p' => null,
-                ),
-            ),
-            'only direct, with platform' => array(
+                ],
+            ],
+            'only direct, with platform' => [
                 <<<OUTPUT
 | Prod Packages             | Operation | Base               | Target             |
 |---------------------------|-----------|--------------------|--------------------|
@@ -121,14 +125,14 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--direct' => null,
                     '-p' => null,
-                ),
-            ),
-            'only direct, with platform reversed' => array(
+                ],
+            ],
+            'only direct, with platform reversed' => [
                 <<<OUTPUT
 | Prod Packages             | Operation  | Base               | Target             |
 |---------------------------|------------|--------------------|--------------------|
@@ -143,14 +147,14 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/target/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '--direct' => null,
                     '-p' => null,
-                ),
-            ),
-            'no-dev' => array(
+                ],
+            ],
+            'no-dev' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -164,13 +168,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-dev' => null,
-                ),
-            ),
-            'no-dev with arguments' => array(
+                ],
+            ],
+            'no-dev with arguments' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation | Base               | Target             |
 |------------------------------------|-----------|--------------------|--------------------|
@@ -184,13 +188,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     'base' => __DIR__.'/../fixtures/base/composer.lock',
                     'target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-dev' => null,
-                ),
-            ),
-            'no-prod' => array(
+                ],
+            ],
+            'no-prod' => [
                 <<<OUTPUT
 | Dev Packages                       | Operation  | Base  | Target |
 |------------------------------------|------------|-------|--------|
@@ -218,13 +222,13 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/target/composer.lock',
                     '--no-prod' => null,
-                ),
-            ),
-            'reversed, with platform' => array(
+                ],
+            ],
+            'reversed, with platform' => [
                 <<<OUTPUT
 | Prod Packages                      | Operation  | Base               | Target             |
 |------------------------------------|------------|--------------------|--------------------|
@@ -262,30 +266,27 @@ OUTPUT
 
 OUTPUT
             ,
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/target/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                ),
-            ),
-            'no changes' => array(
+                ],
+            ],
+            'no changes' => [
                 '',
-                array(
+                [
                     '--base' => __DIR__.'/../fixtures/base/composer.lock',
                     '--target' => __DIR__.'/../fixtures/base/composer.lock',
                     '-p' => null,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
-    /**
-     * @return Package
-     */
-    private function getPluginPackage()
+    private function getPluginPackage(): Package
     {
         $plugin = new Package('test-plugin-package', '1.0', '1.0');
-        $plugin->setExtra(array('class' => 'IonBazan\ComposerDiff\Composer\Plugin'));
+        $plugin->setExtra(['class' => Plugin::class]);
 
         return $plugin;
     }

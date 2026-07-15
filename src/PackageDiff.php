@@ -30,23 +30,17 @@ class PackageDiff
         $this->urlGenerator = new GeneratorContainer();
     }
 
-    /**
-     * @return void
-     */
-    public function setUrlGenerator(UrlGenerator $urlGenerator)
+    public function setUrlGenerator(UrlGenerator $urlGenerator): void
     {
         $this->urlGenerator = $urlGenerator;
     }
 
     /**
      * @param string[] $directPackages
-     * @param bool     $onlyDirect
-     *
-     * @return DiffEntries
      */
-    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = array(), $onlyDirect = false)
+    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = [], bool $onlyDirect = false): DiffEntries
     {
-        $entries = array();
+        $entries = [];
 
         foreach ($this->getOperations($oldPackages, $targetPackages) as $operation) {
             $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
@@ -65,9 +59,9 @@ class PackageDiff
     /**
      * @return array<InstallOperation|UpdateOperation|UninstallOperation>
      */
-    public function getOperations(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages)
+    public function getOperations(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages): array
     {
-        $operations = array();
+        $operations = [];
 
         foreach ($targetPackages->getPackages() as $newPackage) {
             $matchingPackages = $oldPackages->findPackages($newPackage->getName());
@@ -106,16 +100,7 @@ class PackageDiff
         return $operations;
     }
 
-    /**
-     * @param string $from
-     * @param string $to
-     * @param bool   $dev
-     * @param bool   $withPlatform
-     * @param bool   $onlyDirect
-     *
-     * @return DiffEntries
-     */
-    public function getPackageDiff($from, $to, $dev, $withPlatform, $onlyDirect = false)
+    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false): DiffEntries
     {
         return $this->getDiff(
             $this->loadPackages($from, $dev, $withPlatform),
@@ -127,15 +112,11 @@ class PackageDiff
 
     /**
      * @param mixed[] $composerLock
-     * @param bool    $dev
-     * @param bool    $withPlatform
-     *
-     * @return ArrayRepository
      */
-    public function loadPackagesFromArray(array $composerLock, $dev, $withPlatform)
+    public function loadPackagesFromArray(array $composerLock, bool $dev, bool $withPlatform): ArrayRepository
     {
         $loader = new ArrayLoader();
-        $packages = array();
+        $packages = [];
         $packagesKey = 'packages'.($dev ? '-dev' : '');
         $platformKey = 'platform'.($dev ? '-dev' : '');
 
@@ -154,14 +135,7 @@ class PackageDiff
         return new ArrayRepository($packages);
     }
 
-    /**
-     * @param string $path
-     * @param bool   $dev
-     * @param bool   $withPlatform
-     *
-     * @return ArrayRepository
-     */
-    private function loadPackages($path, $dev, $withPlatform)
+    private function loadPackages(string $path, bool $dev, bool $withPlatform): ArrayRepository
     {
         $data = \json_decode($this->getFileContents($path), true);
 
@@ -169,17 +143,15 @@ class PackageDiff
     }
 
     /**
-     * @param string $path
-     *
      * @return string[]
      */
-    private function getDirectPackages($path)
+    private function getDirectPackages(string $path): array
     {
         $data = \json_decode($this->getFileContents($path, false), true);
 
-        $packages = array();
+        $packages = [];
 
-        foreach (array('require', 'require-dev') as $key) {
+        foreach (['require', 'require-dev'] as $key) {
             if (isset($data[$key])) {
                 $packages = array_merge($packages, array_keys($data[$key]));
             }
@@ -188,13 +160,7 @@ class PackageDiff
         return $packages; // @phpstan-ignore return.type
     }
 
-    /**
-     * @param string $path
-     * @param bool   $lockFile
-     *
-     * @return string
-     */
-    private function getFileContents($path, $lockFile = true)
+    private function getFileContents(string $path, bool $lockFile = true): string
     {
         $originalPath = $path;
 
@@ -221,7 +187,7 @@ class PackageDiff
             $path = $this->getJsonPath($path);
         }
 
-        $output = array();
+        $output = [];
         @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
         $outputString = implode("\n", $output);
 
@@ -237,12 +203,7 @@ class PackageDiff
         return $outputString;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
-    private function getJsonPath($path)
+    private function getJsonPath(string $path): string
     {
         if (self::EXTENSION_LOCK === substr($path, -strlen(self::EXTENSION_LOCK))) {
             return substr($path, 0, -strlen(self::EXTENSION_LOCK)).self::EXTENSION_JSON;

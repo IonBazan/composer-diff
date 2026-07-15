@@ -2,61 +2,37 @@
 
 namespace IonBazan\ComposerDiff\Tests;
 
+use IonBazan\ComposerDiff\Url\UrlGenerator;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Tests\Util\ComposerApplication;
-use IonBazan\ComposerDiff\Tests\Util\TypedComposerApplication;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    public function setExpectedException($exception, $message = '', $code = null)
-    {
-        if (!class_exists('PHPUnit\Framework\Error\Notice')) {
-            $exception = str_replace('PHPUnit\\Framework\\Error\\', 'PHPUnit_Framework_Error_', $exception);
-        }
-        if (method_exists($this, 'expectException')) {
-            $this->expectException($exception);
-            if (strlen($message)) {
-                $this->expectExceptionMessage($message);
-            }
-        } else {
-            parent::setExpectedException($exception, $message, $code);
-        }
-    }
-
     /**
-     * @param string      $name
-     * @param string      $version
-     * @param string|null $fullVersion
-     *
-     * @return MockObject|PackageInterface
+     * @return MockObject&PackageInterface
      */
-    protected function getPackage($name, $version, $fullVersion = null)
+    protected function getPackage(string $name, string $version, ?string $fullVersion = null): PackageInterface
     {
-        $package = $this->getMockBuilder('Composer\Package\PackageInterface')->getMock();
+        $package = $this->getMockBuilder(PackageInterface::class)->getMock();
         $package->method('getName')->willReturn($name);
         $package->method('getVersion')->willReturn($version);
         $package->method('getPrettyVersion')->willReturn($version);
-        $package->method('getFullPrettyVersion')->willReturn(null !== $fullVersion ? $fullVersion : $version);
+        $package->method('getFullPrettyVersion')->willReturn($fullVersion ?? $version);
 
         return $package;
     }
 
     /**
-     * @param string      $name
-     * @param string      $version
-     * @param string|null $sourceUrl
-     * @param string|null $sourceReference
-     *
-     * @return mixed
+     * @return MockObject&PackageInterface
      */
-    protected function getPackageWithSource($name, $version, $sourceUrl, $sourceReference = null)
+    protected function getPackageWithSource(string $name, string $version, ?string $sourceUrl, ?string $sourceReference = null): PackageInterface
     {
         $package = $this->getPackage($name, $version, $sourceReference);
         $package->method('getSourceUrl')->willReturn($sourceUrl);
@@ -67,19 +43,17 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * @param string      $name
-     * @param string      $version
-     * @param string|null $fullVersion
+     * @param string[] $license
      *
-     * @return MockObject|CompletePackageInterface
+     * @return MockObject&CompletePackageInterface
      */
-    protected function getCompletePackage($name, $version, $fullVersion = null, $license = array())
+    protected function getCompletePackage(string $name, string $version, ?string $fullVersion = null, array $license = []): CompletePackageInterface
     {
-        $package = $this->getMockBuilder('Composer\Package\CompletePackageInterface')->getMock();
+        $package = $this->getMockBuilder(CompletePackageInterface::class)->getMock();
         $package->method('getName')->willReturn($name);
         $package->method('getVersion')->willReturn($version);
         $package->method('getPrettyVersion')->willReturn($version);
-        $package->method('getFullPrettyVersion')->willReturn(null !== $fullVersion ? $fullVersion : $version);
+        $package->method('getFullPrettyVersion')->willReturn($fullVersion ?? $version);
         $package->method('getLicense')->willReturn($license);
 
         return $package;
@@ -87,43 +61,38 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * @param OperationInterface[] $operations
-     *
-     * @return DiffEntries
      */
-    protected function getEntries(array $operations, GeneratorContainer $urlGenerators)
+    protected function getEntries(array $operations, GeneratorContainer $urlGenerators): DiffEntries
     {
-        return new DiffEntries(array_map(function (OperationInterface $operation) use ($urlGenerators) {
+        return new DiffEntries(array_map(function (OperationInterface $operation) use ($urlGenerators): DiffEntry {
             return new DiffEntry($operation, $urlGenerators);
         }, $operations));
     }
 
-    /**
-     * @return ComposerApplication|TypedComposerApplication
-     */
-    protected function getComposerApplication()
+    protected function getComposerApplication(): ComposerApplication
     {
-        return PHP_VERSION_ID >= 70000 ? new TypedComposerApplication() : new ComposerApplication();
+        return new ComposerApplication();
     }
 
     /**
-     * @return MockObject|GeneratorContainer
+     * @return MockObject&GeneratorContainer
      */
-    protected function getGenerators()
+    protected function getGenerators(): GeneratorContainer
     {
-        $generator = $this->getMockBuilder('IonBazan\ComposerDiff\Url\UrlGenerator')->getMock();
-        $generator->method('getCompareUrl')->willReturnCallback(function (PackageInterface $base, PackageInterface $target) {
+        $generator = $this->getMockBuilder(UrlGenerator::class)->getMock();
+        $generator->method('getCompareUrl')->willReturnCallback(function (PackageInterface $base, PackageInterface $target): string {
             return sprintf('https://example.com/c/%s..%s', $base->getVersion(), $target->getVersion());
         });
-        $generator->method('getReleaseUrl')->willReturnCallback(function (PackageInterface $package) {
+        $generator->method('getReleaseUrl')->willReturnCallback(function (PackageInterface $package): string {
             return sprintf('https://example.com/r/%s', $package->getVersion());
         });
-        $generator->method('getProjectUrl')->willReturnCallback(function (PackageInterface $package) {
+        $generator->method('getProjectUrl')->willReturnCallback(function (PackageInterface $package): string {
             return sprintf('https://example.com/r/%s', $package->getName());
         });
 
-        $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')
+        $generators = $this->getMockBuilder(GeneratorContainer::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('get'))
+            ->setMethods(['get'])
             ->getMock();
         $generators->method('get')
             ->willReturnCallback(function (PackageInterface $package) use ($generator) {

@@ -1,43 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/5.7/phpunit.xsd"
-         backupGlobals="false"
-         backupStaticAttributes="false"
-         beStrictAboutTestsThatDoNotTestAnything="true"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         failOnRisky="true"
-         processIsolation="false"
-         stopOnFailure="false"
-         bootstrap="vendor/autoload.php"
->
-    <php>
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
-        <env name="COMPOSER_DISABLE_XDEBUG_WARN" value="1"/>
-        <env name="COMPOSER_ROOT_VERSION" value="1.x-dev"/>
-    </php>
-    <testsuites>
-        <testsuite name="Composer Diff Test Suite">
-            <directory>./tests/</directory>
-            <exclude>./tests/fixtures/</exclude>
-            <exclude>./tests/test-git/</exclude>
-        </testsuite>
-    </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory>./src/</directory>
-            <exclude>
-                <file>./src/Command/NotTypedConfigureTrait.php</file>
-                <file>./src/Command/TypedConfigureTrait.php</file>
-            </exclude>
-        </whitelist>
-    </filter>
-    <logging>
-        <log type="coverage-clover" target="clover.xml" />
-        <log type="coverage-html" target="coverage" />
-    </logging>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" backupStaticAttributes="false" beStrictAboutTestsThatDoNotTestAnything="true" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" failOnRisky="true" processIsolation="false" stopOnFailure="false" bootstrap="vendor/autoload.php">
+  <coverage>
+    <include>
+      <directory>./src/</directory>
+    </include>
+    <report>
+      <clover outputFile="clover.xml"/>
+      <html outputDirectory="coverage"/>
+    </report>
+  </coverage>
+  <php>
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+    <env name="COMPOSER_DISABLE_XDEBUG_WARN" value="1"/>
+    <env name="COMPOSER_ROOT_VERSION" value="2.x-dev"/>
+  </php>
+  <testsuites>
+    <testsuite name="Composer Diff Test Suite">
+      <directory>./tests/</directory>
+      <exclude>./tests/fixtures/</exclude>
+      <exclude>./tests/test-git/</exclude>
+    </testsuite>
+  </testsuites>
+  <logging/>
 </phpunit>

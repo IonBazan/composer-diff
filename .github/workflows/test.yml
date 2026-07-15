@@ -11,12 +11,6 @@ jobs:
         composer: [v2]
         dependencies: [highest]
         php-versions:
-          - '5.3'
-          - '5.4'
-          - '5.5'
-          - '5.6'
-          - '7.0'
-          - '7.1'
           - '7.2'
           - '7.3'
           - '7.4'
@@ -26,21 +20,18 @@ jobs:
           - '8.3'
           - '8.4'
           - '8.5'
+          - '8.6'
         include:
-          - php-versions: '5.3'
-            dependencies: 'lowest'
-            composer: v2 # Global composer should be in same version as locally installed one
-            operating-system: ubuntu-latest
-          - php-versions: '7.0'
+          - php-versions: '7.2'
             dependencies: 'lowest'
             composer: v2
             operating-system: ubuntu-latest
-          - php-versions: '8.2'
+          - php-versions: '8.5'
             composer: v2
             operating-system: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
@@ -49,22 +40,22 @@ jobs:
           coverage: xdebug
           tools: composer:${{ matrix.composer }}
       - name: Install Composer dependencies (${{ matrix.dependencies }})
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - name: Check PSR-4 mapping
-        if: ${{ matrix.php-versions == 8.4 && matrix.composer == 'v2' }}
+        if: ${{ matrix.php-versions == 8.5 && matrix.composer == 'v2' }}
         run: composer dump-autoload --dev --optimize --strict-psr
       - name: Set default branch for tests
         run: git config --global init.defaultBranch main
       - name: Run Tests
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run mutation tests
-        if: ${{ matrix.php-versions == 8.4 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.5 && matrix.operating-system == 'ubuntu-latest' }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
@@ -72,7 +63,7 @@ jobs:
           composer require infection/infection --update-with-all-dependencies
           vendor/bin/infection --ignore-msi-with-no-mutations --min-covered-msi=100 --min-msi=100 -s -j4
       - name: Run phpstan
-        if: ${{ matrix.php-versions == 8.4 && matrix.operating-system == 'ubuntu-latest' }}
+        if: ${{ matrix.php-versions == 8.5 && matrix.operating-system == 'ubuntu-latest' }}
         run: |
           composer require phpstan/phpstan --dev
           vendor/bin/phpstan

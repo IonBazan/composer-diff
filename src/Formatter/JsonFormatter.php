@@ -10,42 +10,37 @@ class JsonFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
     {
-        $this->format(array(
+        $this->format([
             'packages' => $this->transformEntries($prodEntries, $withUrls, $withLicenses),
             'packages-dev' => $this->transformEntries($devEntries, $withUrls, $withLicenses),
-        ));
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
     {
         $this->format($this->transformEntries($entries, $withUrls, $withLicenses));
     }
 
     /**
      * @param array<string, array<string, string|null>>|array<string, array<array<string, string|null>>> $data
-     *
-     * @return void
      */
-    private function format(array $data)
+    private function format(array $data): void
     {
         // @phpstan-ignore argument.type
-        $this->output->writeln(json_encode($data, 128)); // JSON_PRETTY_PRINT
+        $this->output->writeln(json_encode($data, JSON_PRETTY_PRINT));
     }
 
     /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     *
      * @return array<array<string, mixed>>
      */
-    private function transformEntries(DiffEntries $entries, $withUrls, $withLicenses)
+    private function transformEntries(DiffEntries $entries, bool $withUrls, bool $withLicenses): array
     {
-        $rows = array();
+        $rows = [];
 
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {

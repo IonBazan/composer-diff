@@ -15,12 +15,12 @@ class FormatterContainer
 
     public function __construct(OutputInterface $output)
     {
-        $this->formatters = array(
+        $this->formatters = [
             'mdtable' => new MarkdownTableFormatter($output),
             'mdlist' => new MarkdownListFormatter($output),
             'github' => new GitHubFormatter($output),
             'json' => new JsonFormatter($output),
-        );
+        ];
     }
 
     /**

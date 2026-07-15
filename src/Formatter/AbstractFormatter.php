@@ -17,27 +17,17 @@ abstract class AbstractFormatter implements Formatter
         $this->output = $output;
     }
 
-    /**
-     * @return string
-     */
-    protected function getDecoratedPackageName(DiffEntry $entry)
+    protected function getDecoratedPackageName(DiffEntry $entry): string
     {
         return $this->terminalLink($entry->getProjectUrl(), $entry->getPackageName());
     }
 
-    /**
-     * @param string|null $url
-     * @param string      $title
-     *
-     * @return string
-     */
-    private function terminalLink($url, $title)
+    private function terminalLink(?string $url, string $title): string
     {
         if (null === $url) {
             return $title;
         }
 
-        // @phpstan-ignore function.alreadyNarrowedType
-        return method_exists('Symfony\Component\Console\Formatter\OutputFormatterStyle', 'setHref') ? sprintf('<href=%s>%s</>', $url, $title) : $title;
+        return sprintf('<href=%s>%s</>', $url, $title);
     }
 }

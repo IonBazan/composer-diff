@@ -1,7 +1,7 @@
 # Composer Diff Plugin
 
-[![PHP 5.3+ | 7.x | 8.x](https://img.shields.io/badge/PHP-^5.3_|_^7_|_^8-blue.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
-[![Composer v1 | v2](https://img.shields.io/badge/Composer-^1.1_|_^2-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
+[![PHP 7.2+ | 8.x](https://img.shields.io/badge/PHP-^7.2_|_^8-blue.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
+[![Composer v2](https://img.shields.io/badge/Composer-^2-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![Dependencies: 0](https://img.shields.io/badge/dependencies-0-success.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![Latest version](https://img.shields.io/packagist/v/ion-bazan/composer-diff.svg)](https://packagist.org/packages/ion-bazan/composer-diff)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IonBazan/composer-diff/test.yml)](https://github.com/IonBazan/composer-diff/actions)
@@ -23,6 +23,9 @@ Generates packages changes report in Markdown format by comparing `composer.lock
 ```shell script
 composer global require ion-bazan/composer-diff
 ```
+
+If you are using Composer v1 (deprecated) or PHP version older than 7.2, 
+please refer to [version 1.x](https://github.com/IonBazan/composer-diff/tree/1.x) of this package which offers compatibility with PHP 5.3+.
 
 # Usage
 
@@ -120,7 +123,7 @@ While there are several existing packages offering similar functionality:
 
 This package offers:
 
- - Support for wide range of PHP versions, starting from 5.3.2 up to 8.0 and newer.
+ - Support for wide range of PHP versions, starting from 7.2 up to 8.5 and newer (v1.x supports PHP 5.3.2+).
  - No dependencies if you run it as composer plugin.
  - Both standalone executable and composer plugin interface - you choose how you want to use it.
  - Allows generating reports in several formats.

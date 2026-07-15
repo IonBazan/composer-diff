@@ -6,20 +6,7 @@ use IonBazan\ComposerDiff\Diff\DiffEntries;
 
 interface Formatter
 {
-    /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     *
-     * @return void
-     */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses);
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void;
 
-    /**
-     * @param string $title
-     * @param bool   $withUrls
-     * @param bool   $withLicenses
-     *
-     * @return void
-     */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses);
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void;
 }

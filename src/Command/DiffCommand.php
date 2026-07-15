@@ -7,21 +7,11 @@ use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\FormatterContainer;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use Composer\Command\BaseCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
-/*
- * This is a trick to maintain compatibility with both PHP 5 and 7 with Symfony 2.3 all the way to 7 with typed returns.
- * This is only needed when using this package as a dependency with Symfony 7+, not when using as Composer plugin.
- */
-class_alias(
-    PHP_VERSION_ID >= 70000
-        ? 'IonBazan\ComposerDiff\Command\BaseTypedCommand'
-        : 'IonBazan\ComposerDiff\Command\BaseNotTypedCommand',
-    'IonBazan\ComposerDiff\Command\BaseCommand'
-);
 
 class DiffCommand extends BaseCommand
 {
@@ -42,7 +32,7 @@ class DiffCommand extends BaseCommand
     /**
      * @param string[] $gitlabDomains
      */
-    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = array())
+    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = [])
     {
         $this->packageDiff = $packageDiff;
         $this->gitlabDomains = $gitlabDomains;
@@ -50,10 +40,7 @@ class DiffCommand extends BaseCommand
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function doConfigure()
+    protected function configure(): void
     {
         $this->setName('diff')
             ->setDescription('Compares composer.lock files and shows package changes')
@@ -68,7 +55,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
-            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', array())
+            ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
@@ -133,13 +120,10 @@ EOF
         ;
     }
 
-    /**
-     * @return int
-     */
-    protected function handle(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $base = null !== $input->getArgument('base') ? $input->getArgument('base') : $input->getOption('base');
-        $target = null !== $input->getArgument('target') ? $input->getArgument('target') : $input->getOption('target');
+        $base = $input->getArgument('base') ?? $input->getOption('base');
+        $target = $input->getArgument('target') ?? $input->getOption('target');
         $onlyDirect = $input->getOption('direct');
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
@@ -152,8 +136,8 @@ EOF
 
         $this->packageDiff->setUrlGenerator($urlGenerators);
 
-        $prodOperations = new DiffEntries(array());
-        $devOperations = new DiffEntries(array());
+        $prodOperations = new DiffEntries([]);
+        $devOperations = new DiffEntries([]);
 
         if (!$input->getOption('no-prod')) {
             $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect);
@@ -171,7 +155,7 @@ EOF
     /**
      * @return int Exit code
      */
-    private function getExitCode(DiffEntries $prodEntries, DiffEntries $devEntries)
+    private function getExitCode(DiffEntries $prodEntries, DiffEntries $devEntries): int
     {
         $exitCode = 0;
 
@@ -194,10 +178,7 @@ EOF
         return $exitCode;
     }
 
-    /**
-     * @return bool
-     */
-    private function hasDowngrades(DiffEntries $entries)
+    private function hasDowngrades(DiffEntries $entries): bool
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {

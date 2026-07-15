@@ -11,10 +11,7 @@ class GitlabGenerator extends GitGenerator
      */
     private $domain;
 
-    /**
-     * @param string $domain
-     */
-    public function __construct($domain = 'gitlab.org')
+    public function __construct(string $domain = 'gitlab.org')
     {
         $this->domain = $domain;
     }
@@ -22,7 +19,7 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    protected function getDomain()
+    protected function getDomain(): string
     {
         return $this->domain;
     }
@@ -30,7 +27,7 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
         if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
             return null;
@@ -50,7 +47,7 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
             return null;
@@ -62,7 +59,7 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): ?string
     {
         return $this->getRepositoryUrl($package);
     }

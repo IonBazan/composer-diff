@@ -2,12 +2,13 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MarkdownTableFormatterTest extends FormatterTest
 {
-    protected function getSampleOutput($withUrls, $withLicenses, $decorated)
+    protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string
     {
         if ($withLicenses) {
             $prodLicenseHeader = ' License |';
@@ -155,10 +156,7 @@ OUTPUT;
 OUTPUT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getFormatter(OutputInterface $output)
+    protected function getFormatter(OutputInterface $output): Formatter
     {
         return new MarkdownTableFormatter($output);
     }

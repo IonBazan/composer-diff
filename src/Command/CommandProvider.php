@@ -26,6 +26,6 @@ class CommandProvider implements BaseCommandProvider
      */
     public function getCommands()
     {
-        return array(new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains')));
+        return [new DiffCommand(new PackageDiff(), $this->composer->getConfig()->get('gitlab-domains'))];
     }
 }

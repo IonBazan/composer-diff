@@ -9,7 +9,7 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
         if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
             return null;
@@ -26,7 +26,7 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
             return null;
@@ -38,7 +38,7 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): ?string
     {
         return $this->getRepositoryUrl($package);
     }
@@ -46,7 +46,7 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    protected function getDomain()
+    protected function getDomain(): string
     {
         return 'github.com';
     }

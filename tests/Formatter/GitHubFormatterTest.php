@@ -2,12 +2,13 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GitHubFormatterTest extends FormatterTest
 {
-    protected function getSampleOutput($withUrls, $withLicenses, $decorated)
+    protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string
     {
         if ($withLicenses) {
             $package4License = ' (License: MIT, BSD-3-Clause)';
@@ -32,10 +33,7 @@ OUTPUT;
 OUTPUT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getFormatter(OutputInterface $output)
+    protected function getFormatter(OutputInterface $output): Formatter
     {
         return new GitHubFormatter($output);
     }

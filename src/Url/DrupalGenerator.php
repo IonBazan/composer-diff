@@ -11,15 +11,12 @@ class DrupalGenerator extends GitlabGenerator
     /**
      * {@inheritdoc}
      */
-    public function supportsPackage(PackageInterface $package)
+    public function supportsPackage(PackageInterface $package): bool
     {
         return self::DRUPAL_CORE === $package->getName() || parent::supportsPackage($package);
     }
 
-    /**
-     * @return string
-     */
-    protected function getCompareRef(PackageInterface $package)
+    protected function getCompareRef(PackageInterface $package): string
     {
         if (!$package->isDev()) {
             return $package->getDistReference();
@@ -31,7 +28,7 @@ class DrupalGenerator extends GitlabGenerator
     /**
      * {@inheritdoc}
      */
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): ?string
     {
         // Not sure we can support dev releases right now. Can we distinguish major version dev releases from regular branches?
         if ($package->isDev()) {
@@ -44,7 +41,7 @@ class DrupalGenerator extends GitlabGenerator
     /**
      * {@inheritdoc}
      */
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): ?string
     {
         return sprintf('https://www.drupal.org/project/%s', $this->getDrupalProjectName($package));
     }
@@ -52,15 +49,12 @@ class DrupalGenerator extends GitlabGenerator
     /**
      * {@inheritdoc}
      */
-    protected function getDomain()
+    protected function getDomain(): string
     {
         return 'git.drupalcode.org';
     }
 
-    /**
-     * @return string|null
-     */
-    private function getVersionReference(PackageInterface $package)
+    private function getVersionReference(PackageInterface $package): ?string
     {
         if ($package->getDistReference()) {
             return $package->getDistReference();
@@ -69,10 +63,7 @@ class DrupalGenerator extends GitlabGenerator
         return $package->getSourceReference();
     }
 
-    /**
-     * @return string
-     */
-    private function getDrupalProjectName(PackageInterface $package)
+    private function getDrupalProjectName(PackageInterface $package): ?string
     {
         if (self::DRUPAL_CORE === $package->getName()) {
             return 'drupal';

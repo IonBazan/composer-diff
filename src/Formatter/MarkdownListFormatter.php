@@ -10,7 +10,7 @@ class MarkdownListFormatter extends MarkdownFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, $withUrls, $withLicenses)
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
     {
         $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses);
         $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses);
@@ -19,7 +19,7 @@ class MarkdownListFormatter extends MarkdownFormatter
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, $title, $withUrls, $withLicenses)
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
     {
         if (!\count($entries)) {
             return;
@@ -36,13 +36,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         $this->output->writeln('');
     }
 
-    /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     *
-     * @return string
-     */
-    private function getRow(DiffEntry $entry, $withUrls, $withLicenses)
+    private function getRow(DiffEntry $entry, bool $withUrls, bool $withLicenses): string
     {
         $url = $withUrls ? $this->formatUrl($entry->getUrl(), 'Compare') : null;
         $url = (null !== $url && '' !== $url) ? ' '.$url : '';

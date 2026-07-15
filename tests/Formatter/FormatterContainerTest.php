@@ -2,31 +2,41 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Formatter\Formatter;
+use Symfony\Component\Console\Output\OutputInterface;
+use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
+use IonBazan\ComposerDiff\Formatter\JsonFormatter;
+use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use IonBazan\ComposerDiff\Formatter\FormatterContainer;
+use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
 use IonBazan\ComposerDiff\Tests\TestCase;
 
 class FormatterContainerTest extends TestCase
 {
     /**
      * @dataProvider formatterProvider
+     *
+     * @param class-string<Formatter> $expectedFormatter
      */
-    public function testGetFormatter($expectedFormatter, $code)
+    public function testGetFormatter(string $expectedFormatter, string $code): void
     {
-        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
-        $generators = $this->getMockBuilder('IonBazan\ComposerDiff\Url\GeneratorContainer')->getMock();
-        $container = new FormatterContainer($output, $generators);
+        $output = $this->getMockBuilder(OutputInterface::class)->getMock();
+        $container = new FormatterContainer($output);
 
         $this->assertInstanceOf($expectedFormatter, $container->getFormatter($code));
     }
 
-    public static function formatterProvider()
+    /**
+     * @return iterable<array{0: class-string<Formatter>, 1: string}>
+     */
+    public static function formatterProvider(): iterable
     {
-        return array(
-            array('IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter', 'mdtable'),
-            array('IonBazan\ComposerDiff\Formatter\MarkdownListFormatter', 'mdlist'),
-            array('IonBazan\ComposerDiff\Formatter\JsonFormatter', 'json'),
-            array('IonBazan\ComposerDiff\Formatter\GitHubFormatter', 'github'),
-            array('IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter', 'anything-else'),
-        );
+        return [
+            [MarkdownTableFormatter::class, 'mdtable'],
+            [MarkdownListFormatter::class, 'mdlist'],
+            [JsonFormatter::class, 'json'],
+            [GitHubFormatter::class, 'github'],
+            [MarkdownTableFormatter::class, 'anything-else'],
+        ];
     }
 }

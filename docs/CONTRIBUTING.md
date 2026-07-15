@@ -8,10 +8,10 @@ Here are a few guidelines to be aware of:
 - All code must follow the project coding style standards which will be enforced by [StyleCI](https://styleci.io/).
 
 Since this project has rather strict coding standards, which include:
-  - PHPStan level 6
+  - PHPStan level 7
   - 100% test coverage
   - 100% MSI (Mutation Score Indicator)
-  - Compatibility with PHP 5.3.2 up to 8.0 and newer
+  - Compatibility with PHP 7.2 up to 8.5 and newer
 
 It might be a bit challenging to get started but fret not, 
 as the maintainers will be happy to assist you should you have any questions or need help with your contribution.

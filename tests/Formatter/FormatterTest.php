@@ -14,18 +14,17 @@ use Symfony\Component\Console\Output\StreamOutput;
 
 abstract class FormatterTest extends TestCase
 {
-    public function testItNoopsWhenListIsEmpty()
+    public function testItNoopsWhenListIsEmpty(): void
     {
-        $output = new StreamOutput(fopen('php://memory', 'wb', false));
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
         $formatter = $this->getFormatter($output);
-        $formatter->render(new DiffEntries(array()), new DiffEntries(array()), true, false);
+        $formatter->render(new DiffEntries([]), new DiffEntries([]), true, false);
         $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
     /**
-     * @param bool $withUrls
-     * @param bool $decorated
-     *
      * @testWith   [false, false]
      *             [false, true]
      *             [true, false]
@@ -35,9 +34,11 @@ abstract class FormatterTest extends TestCase
      *             [true, false, true]
      *             [true, true, true]
      */
-    public function testItRendersTheListOfOperations($withUrls, $withLicenses, $decorated = false)
+    public function testItRendersTheListOfOperations(bool $withUrls, bool $withLicenses, bool $decorated = false): void
     {
-        $output = new StreamOutput(fopen('php://memory', 'wb', false), OutputInterface::VERBOSITY_NORMAL, $decorated);
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream, OutputInterface::VERBOSITY_NORMAL, $decorated);
         $this->getFormatter($output)->render(
             $this->getEntries($this->getSampleProdOperations(), $this->getGenerators()),
             $this->getEntries($this->getSampleDevOperations(), $this->getGenerators()),
@@ -47,79 +48,61 @@ abstract class FormatterTest extends TestCase
         $this->assertSame($this->getSampleOutput($withUrls, $withLicenses, $decorated), $this->getDisplay($output));
     }
 
-    public function testItFailsWithInvalidOperation()
+    public function testItFailsWithInvalidOperation(): void
     {
-        $output = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock();
-        $this->setExpectedException('InvalidArgumentException', 'Invalid operation');
-        $this->getFormatter($output)->render($this->getEntries(array(
-            $this->getMockBuilder('Composer\DependencyResolver\Operation\OperationInterface')->getMock(),
-        ), $this->getGenerators()), $this->getEntries(array(), $this->getGenerators()), false, false);
+        $output = $this->getMockBuilder(OutputInterface::class)->getMock();
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid operation');
+        $this->getFormatter($output)->render($this->getEntries([
+            $this->getMockBuilder(OperationInterface::class)->getMock(),
+        ], $this->getGenerators()), $this->getEntries([], $this->getGenerators()), false, false);
     }
 
-    /**
-     * @return Formatter
-     */
-    abstract protected function getFormatter(OutputInterface $output);
+    abstract protected function getFormatter(OutputInterface $output): Formatter;
 
-    /**
-     * @param bool $withUrls
-     * @param bool $withLicenses
-     * @param bool $decorated
-     *
-     * @return string
-     */
-    abstract protected function getSampleOutput($withUrls, $withLicenses, $decorated);
+    abstract protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string;
 
-    /**
-     * @return string
-     */
-    protected static function getEmptyOutput()
+    protected static function getEmptyOutput(): string
     {
         return '';
     }
 
-    /**
-     * @return false|string
-     */
-    protected function getDisplay(OutputInterface $output)
+    protected function getDisplay(StreamOutput $output): string
     {
         rewind($output->getStream());
 
         return stream_get_contents($output->getStream());
     }
 
-    /**
-     * @return bool
-     */
-    protected function supportsLinks()
+    protected function supportsLinks(): bool
     {
-        return method_exists('Symfony\Component\Console\Formatter\OutputFormatterStyle', 'setHref');
+        return true;
     }
 
     /**
      * @return OperationInterface[]
      */
-    private function getSampleProdOperations()
+    private function getSampleProdOperations(): array
     {
-        return array(
+        return [
             new InstallOperation($this->getPackage('a/package-1', '1.0.0')),
             new InstallOperation($this->getPackage('a/no-link-1', '1.0.0')),
             new UpdateOperation($this->getPackage('a/package-2', '1.0.0'), $this->getPackage('a/package-2', '1.2.0')),
             new UpdateOperation($this->getPackage('a/package-3', '2.0.0'), $this->getPackage('a/package-3', '1.1.1')),
             new UpdateOperation($this->getPackage('a/no-link-2', '2.0.0'), $this->getPackage('a/no-link-2', '1.1.1')),
             new UpdateOperation($this->getPackage('php', '>=7.4.6'), $this->getPackage('php', '^8.0')),
-        );
+        ];
     }
 
     /**
      * @return OperationInterface[]
      */
-    private function getSampleDevOperations()
+    private function getSampleDevOperations(): array
     {
-        return array(
+        return [
             new UpdateOperation($this->getCompletePackage('a/package-5', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-5', '1.1.1')),
-            new UninstallOperation($this->getCompletePackage('a/package-4', '0.1.1', null, array('MIT', 'BSD-3-Clause'))),
-            new UninstallOperation($this->getCompletePackage('a/no-link-2', '0.1.1', null, array('MIT'))),
-        );
+            new UninstallOperation($this->getCompletePackage('a/package-4', '0.1.1', null, ['MIT', 'BSD-3-Clause'])),
+            new UninstallOperation($this->getCompletePackage('a/no-link-2', '0.1.1', null, ['MIT'])),
+        ];
     }
 }

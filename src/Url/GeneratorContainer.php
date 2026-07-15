@@ -10,19 +10,19 @@ class GeneratorContainer implements UrlGenerator
     /**
      * @var UrlGenerator[]
      */
-    protected $generators = array();
+    protected $generators = [];
 
     /**
      * @param string[] $gitlabDomains
      */
-    public function __construct(array $gitlabDomains = array())
+    public function __construct(array $gitlabDomains = [])
     {
-        $generators = array(
+        $generators = [
             new DrupalGenerator(),
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
-        );
+        ];
 
         foreach ($gitlabDomains as $domain) {
             $generators[] = new GitlabGenerator($domain);
@@ -31,10 +31,7 @@ class GeneratorContainer implements UrlGenerator
         $this->generators = $generators;
     }
 
-    /**
-     * @return UrlGenerator|null
-     */
-    public function get(PackageInterface $package)
+    public function get(PackageInterface $package): ?UrlGenerator
     {
         foreach ($this->generators as $generator) {
             if ($generator->supportsPackage($package)) {
@@ -45,12 +42,12 @@ class GeneratorContainer implements UrlGenerator
         return null;
     }
 
-    public function supportsPackage(PackageInterface $package)
+    public function supportsPackage(PackageInterface $package): bool
     {
         return null !== $this->get($package);
     }
 
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage)
+    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
         if (!$generator = $this->get($targetPackage)) {
             return null;
@@ -59,7 +56,7 @@ class GeneratorContainer implements UrlGenerator
         return $generator->getCompareUrl($initialPackage, $targetPackage);
     }
 
-    public function getReleaseUrl(PackageInterface $package)
+    public function getReleaseUrl(PackageInterface $package): ?string
     {
         if (!$generator = $this->get($package)) {
             return null;
@@ -68,7 +65,7 @@ class GeneratorContainer implements UrlGenerator
         return $generator->getReleaseUrl($package);
     }
 
-    public function getProjectUrl(PackageInterface $package)
+    public function getProjectUrl(PackageInterface $package): ?string
     {
         if ($generator = $this->get($package)) {
             return $generator->getProjectUrl($package);
