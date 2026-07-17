@@ -20,6 +20,7 @@ class FormatterContainer
             'mdlist' => new MarkdownListFormatter($output),
             'github' => new GitHubFormatter($output),
             'json' => new JsonFormatter($output),
+            'pr' => new GithubPrFormatter($output),
         ];
     }
 

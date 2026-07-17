@@ -78,7 +78,7 @@ composer diff --help # Display detailed usage instructions
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
  - `--with-links` (`-l`) - include compare/release URLs
  - `--with-licenses` (`-c`) - include license information
- - `--format` (`-f`) - output format (mdtable, mdlist, json, github) - default: `mdtable`
+ - `--format` (`-f`) - output format (mdtable, mdlist, json, github, pr) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
  - `--filter` - limit output to packages matching the given glob pattern (e.g. `symfony/*`); can be specified multiple times
  - `--sort` - sort packages alphabetically by name; use `--sort=operation` to group by operation type (installs, upgrades, downgrades, removals)
@@ -91,6 +91,7 @@ composer diff master:composer.lock develop:composer.lock -p # Compare master and
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table
+composer diff -f pr # Collapsible <details> blocks for GitHub PR descriptions
 composer diff --filter="symfony/*" # Show only symfony packages
 composer diff --filter="symfony/*" --filter="doctrine/*" # Show symfony and doctrine packages
 composer diff --sort # Sort packages alphabetically by name
