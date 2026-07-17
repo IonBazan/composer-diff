@@ -46,6 +46,50 @@ class DiffCommandTest extends TestCase
         $this->assertSame($expectedOutput, $tester->getDisplay());
     }
 
+    public function testFilterOption(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries([
+                new InstallOperation($this->getPackageWithSource('symfony/console', '6.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('doctrine/orm', '2.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('symfony/http-kernel', '6.0.0', 'github.com')),
+            ], $this->getGenerators()))
+        ;
+        $tester->execute(['--filter' => ['symfony/*']]);
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('symfony/console', $output);
+        $this->assertStringContainsString('symfony/http-kernel', $output);
+        $this->assertStringNotContainsString('doctrine/orm', $output);
+    }
+
+    public function testMultipleFilterPatterns(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries([
+                new InstallOperation($this->getPackageWithSource('symfony/console', '6.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('doctrine/orm', '2.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('twig/twig', '3.0.0', 'github.com')),
+            ], $this->getGenerators()))
+        ;
+        $tester->execute(['--filter' => ['symfony/*', 'doctrine/*']]);
+        $output = $tester->getDisplay();
+        $this->assertStringContainsString('symfony/console', $output);
+        $this->assertStringContainsString('doctrine/orm', $output);
+        $this->assertStringNotContainsString('twig/twig', $output);
+    }
+
     public function testExtraGitlabDomains(): void
     {
         $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
