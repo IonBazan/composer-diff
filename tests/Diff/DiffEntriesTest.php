@@ -47,6 +47,7 @@ class DiffEntriesTest extends TestCase
             new DiffEntry(new UpdateOperation($this->getPackage('a/downgrade', '2.0.0'), $this->getPackage('a/downgrade', '1.0.0'))),
             new DiffEntry(new InstallOperation($this->getPackage('a/install', '1.0.0'))),
             new DiffEntry(new UninstallOperation($this->getPackage('a/remove', '1.0.0'))),
+            new DiffEntry(new UpdateOperation($this->getPackage('a/change', 'dev-main'), $this->getPackage('a/change', 'dev-feature'))),
         ]);
 
         $sorted = $entries->sorted('operation');
@@ -57,6 +58,7 @@ class DiffEntriesTest extends TestCase
             'b/install',
             'a/upgrade',
             'a/downgrade',
+            'a/change',
             'a/remove',
             'b/remove',
         ], $names);

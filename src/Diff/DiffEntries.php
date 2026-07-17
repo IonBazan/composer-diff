@@ -41,16 +41,16 @@ class DiffEntries extends ArrayIterator
         $entries = $this->getArrayCopy();
 
         if ('operation' === $by) {
-            $order = [
-                DiffEntry::TYPE_INSTALL => 0,
-                DiffEntry::TYPE_UPGRADE => 1,
-                DiffEntry::TYPE_DOWNGRADE => 2,
-                DiffEntry::TYPE_CHANGE => 3,
-                DiffEntry::TYPE_REMOVE => 4,
-            ];
+            $order = array_flip([
+                DiffEntry::TYPE_INSTALL,
+                DiffEntry::TYPE_UPGRADE,
+                DiffEntry::TYPE_DOWNGRADE,
+                DiffEntry::TYPE_CHANGE,
+                DiffEntry::TYPE_REMOVE,
+            ]);
 
             usort($entries, static function (DiffEntry $a, DiffEntry $b) use ($order): int {
-                $cmp = ($order[$a->getType()] ?? 99) - ($order[$b->getType()] ?? 99);
+                $cmp = $order[$a->getType()] - $order[$b->getType()];
                 if (0 !== $cmp) {
                     return $cmp;
                 }
