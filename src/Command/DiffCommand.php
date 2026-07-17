@@ -57,6 +57,7 @@ class DiffCommand extends BaseCommand
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
+            ->addOption('sort', null, InputOption::VALUE_OPTIONAL, 'Sort packages by "name" or "operation"', false)
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
@@ -100,6 +101,16 @@ You can customize output format by specifying it with <info>--format</info> opti
 Hide <info>dev</info> dependencies using <info>--no-dev</info> option:
 
     <info>%command.full_name% --no-dev</info>
+
+Use <info>--filter</info> to restrict output to packages matching a glob pattern:
+
+    <info>%command.full_name% --filter="symfony/*"</info>
+    <info>%command.full_name% --filter="symfony/*" --filter="doctrine/*"</info>
+
+Use <info>--sort</info> to order packages alphabetically by name, or <info>--sort=operation</info> to group by operation type:
+
+    <info>%command.full_name% --sort</info>
+    <info>%command.full_name% --sort=operation</info>
 
 Passing <info>--strict</info> option may help you to disallow changes or downgrades by returning non-zero exit code:
 
@@ -152,6 +163,13 @@ EOF
         if (!empty($filters)) {
             $prodOperations = $prodOperations->matching($filters);
             $devOperations = $devOperations->matching($filters);
+        }
+
+        $sort = $input->getOption('sort');
+        if (false !== $sort) {
+            $sortBy = is_string($sort) ? $sort : 'name';
+            $prodOperations = $prodOperations->sorted($sortBy);
+            $devOperations = $devOperations->sorted($sortBy);
         }
 
         $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);

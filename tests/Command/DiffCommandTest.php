@@ -68,6 +68,56 @@ class DiffCommandTest extends TestCase
         $this->assertStringNotContainsString('doctrine/orm', $output);
     }
 
+    public function testSortByName(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries([
+                new InstallOperation($this->getPackageWithSource('symfony/console', '6.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('doctrine/orm', '2.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('symfony/http-kernel', '6.0.0', 'github.com')),
+            ], $this->getGenerators()))
+        ;
+        $tester->execute(['--sort' => null]);
+        $output = $tester->getDisplay();
+        $pos1 = strpos($output, 'doctrine/orm');
+        $pos2 = strpos($output, 'symfony/console');
+        $pos3 = strpos($output, 'symfony/http-kernel');
+        $this->assertNotFalse($pos1);
+        $this->assertNotFalse($pos2);
+        $this->assertNotFalse($pos3);
+        $this->assertLessThan($pos2, $pos1);
+        $this->assertLessThan($pos3, $pos2);
+    }
+
+    public function testSortByOperation(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->willReturn($this->getEntries([
+                new UninstallOperation($this->getPackageWithSource('b/package', '1.0.0', 'github.com')),
+                new InstallOperation($this->getPackageWithSource('a/package', '2.0.0', 'github.com')),
+            ], $this->getGenerators()))
+        ;
+        $tester->execute(['--sort' => 'operation']);
+        $output = $tester->getDisplay();
+        $installPos = strpos($output, 'a/package');
+        $removePos = strpos($output, 'b/package');
+        $this->assertNotFalse($installPos);
+        $this->assertNotFalse($removePos);
+        $this->assertLessThan($removePos, $installPos);
+    }
+
     public function testMultipleFilterPatterns(): void
     {
         $diff = $this->getMockBuilder(PackageDiff::class)->getMock();

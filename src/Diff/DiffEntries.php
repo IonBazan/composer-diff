@@ -30,4 +30,39 @@ class DiffEntries extends ArrayIterator
 
         return new self($filtered);
     }
+
+    /**
+     * Returns a new collection sorted by package name or operation type.
+     *
+     * @param string $by 'name' or 'operation'
+     */
+    public function sorted(string $by = 'name'): self
+    {
+        $entries = $this->getArrayCopy();
+
+        if ('operation' === $by) {
+            $order = array_flip([
+                DiffEntry::TYPE_INSTALL,
+                DiffEntry::TYPE_UPGRADE,
+                DiffEntry::TYPE_DOWNGRADE,
+                DiffEntry::TYPE_CHANGE,
+                DiffEntry::TYPE_REMOVE,
+            ]);
+
+            usort($entries, static function (DiffEntry $a, DiffEntry $b) use ($order): int {
+                $cmp = $order[$a->getType()] - $order[$b->getType()];
+                if (0 !== $cmp) {
+                    return $cmp;
+                }
+
+                return strcmp($a->getPackageName(), $b->getPackageName());
+            });
+        } else {
+            usort($entries, static function (DiffEntry $a, DiffEntry $b): int {
+                return strcmp($a->getPackageName(), $b->getPackageName());
+            });
+        }
+
+        return new self($entries);
+    }
 }
