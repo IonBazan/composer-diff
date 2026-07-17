@@ -100,11 +100,11 @@ class PackageDiff
         return $operations;
     }
 
-    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false): DiffEntries
+    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false): DiffEntries
     {
         return $this->getDiff(
-            $this->loadPackages($from, $dev, $withPlatform),
-            $this->loadPackages($to, $dev, $withPlatform),
+            $this->loadPackages($from, $dev, $withPlatform, $allowMissingFiles),
+            $this->loadPackages($to, $dev, $withPlatform, $allowMissingFiles),
             array_merge($this->getDirectPackages($from), $this->getDirectPackages($to)),
             $onlyDirect
         );
@@ -135,9 +135,9 @@ class PackageDiff
         return new ArrayRepository($packages);
     }
 
-    private function loadPackages(string $path, bool $dev, bool $withPlatform): ArrayRepository
+    private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles = false): ArrayRepository
     {
-        $data = \json_decode($this->getFileContents($path), true);
+        $data = \json_decode($this->getFileContents($path, true, $allowMissingFiles), true);
 
         return $this->loadPackagesFromArray($data, $dev, $withPlatform);
     }
@@ -160,7 +160,7 @@ class PackageDiff
         return $packages; // @phpstan-ignore return.type
     }
 
-    private function getFileContents(string $path, bool $lockFile = true): string
+    private function getFileContents(string $path, bool $lockFile = true, bool $allowMissingFiles = false): string
     {
         $originalPath = $path;
 
@@ -192,12 +192,12 @@ class PackageDiff
         $outputString = implode("\n", $output);
 
         if (0 !== $exit) {
-            if ($lockFile) {
+            if ($lockFile && !$allowMissingFiles) {
                 throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
             }
 
             /* @infection-ignore-all False-positive */
-            return '{}'; // Do not throw exception for composer.json as it might not exist and that's fine
+            return '{}';
         }
 
         return $outputString;
