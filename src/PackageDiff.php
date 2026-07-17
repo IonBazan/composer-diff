@@ -135,7 +135,7 @@ class PackageDiff
         return new ArrayRepository($packages);
     }
 
-    private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles = false): ArrayRepository
+    private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles): ArrayRepository
     {
         $data = \json_decode($this->getFileContents($path, true, $allowMissingFiles), true);
 
