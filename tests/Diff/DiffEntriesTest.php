@@ -20,7 +20,7 @@ class DiffEntriesTest extends TestCase
         ]);
 
         $sorted = $entries->sorted('name');
-        $names = array_map(static fn (DiffEntry $e) => $e->getPackageName(), $sorted->getArrayCopy());
+        $names = array_map(static function (DiffEntry $e) { return $e->getPackageName(); }, $sorted->getArrayCopy());
 
         $this->assertSame(['a/package', 'b/package', 'c/package'], $names);
     }
@@ -33,7 +33,7 @@ class DiffEntriesTest extends TestCase
         ]);
 
         $sorted = $entries->sorted();
-        $names = array_map(static fn (DiffEntry $e) => $e->getPackageName(), $sorted->getArrayCopy());
+        $names = array_map(static function (DiffEntry $e) { return $e->getPackageName(); }, $sorted->getArrayCopy());
 
         $this->assertSame(['a/package', 'b/package'], $names);
     }
@@ -50,7 +50,7 @@ class DiffEntriesTest extends TestCase
         ]);
 
         $sorted = $entries->sorted('operation');
-        $names = array_map(static fn (DiffEntry $e) => $e->getPackageName(), $sorted->getArrayCopy());
+        $names = array_map(static function (DiffEntry $e) { return $e->getPackageName(); }, $sorted->getArrayCopy());
 
         $this->assertSame([
             'a/install',
@@ -71,10 +71,10 @@ class DiffEntriesTest extends TestCase
 
         $sorted = $entries->sorted();
 
-        $originalNames = array_map(static fn (DiffEntry $e) => $e->getPackageName(), $entries->getArrayCopy());
+        $originalNames = array_map(static function (DiffEntry $e) { return $e->getPackageName(); }, $entries->getArrayCopy());
         $this->assertSame(['b/package', 'a/package'], $originalNames);
 
-        $sortedNames = array_map(static fn (DiffEntry $e) => $e->getPackageName(), $sorted->getArrayCopy());
+        $sortedNames = array_map(static function (DiffEntry $e) { return $e->getPackageName(); }, $sorted->getArrayCopy());
         $this->assertSame(['a/package', 'b/package'], $sortedNames);
     }
 }
