@@ -1,11 +1,12 @@
 # Output formatters
 
-There are currently four output formats available:
+There are currently five output formats available:
 
 - `mdtable` - Markdown table (default)
 - `mdlist` - Markdown list
 - `json` - JSON
 - `github` - GitHub Annotations
+- `pr` - Collapsible GitHub PR description
 
 You can select the output format using the `--format` (`-f`) option.
 
@@ -336,6 +337,28 @@ Example output:
         }
     }
 }
+```
+
+## Collapsible GitHub PR description (pr)
+
+This format wraps each section in GitHub-flavored `<details>`/`<summary>` blocks, making it ideal for posting dependency change summaries in pull request descriptions. Each section is collapsed by default and shows the section title with the package count.
+
+Example output:
+
+```
+<details>
+<summary>Prod Packages (6 packages)</summary>
+
+| Prod Packages                      | Operation | Base               | Target             |
+|------------------------------------|-----------|--------------------|--------------------|
+| psr/event-dispatcher               | New       | -                  | 1.0.0              |
+| roave/security-advisories          | Changed   | dev-master 3c97c13 | dev-master ac36586 |
+| symfony/deprecation-contracts      | New       | -                  | v2.1.2             |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52            | v5.1.2             |
+| symfony/event-dispatcher-contracts | New       | -                  | v2.1.2             |
+| symfony/polyfill-php80             | New       | -                  | v1.17.1            |
+
+</details>
 ```
 
 ## GitHub Annotations (github)
