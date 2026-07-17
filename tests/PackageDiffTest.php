@@ -147,6 +147,36 @@ class PackageDiffTest extends TestCase
         $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
+    public function testMissingLocalFileThrowsByDefault(): void
+    {
+        $diff = new PackageDiff();
+        $this->expectException(\RuntimeException::class);
+        $diff->getPackageDiff(__DIR__.'/fixtures/nonexistent/composer.lock', __DIR__.'/fixtures/target/composer.lock', false, false);
+    }
+
+    public function testMissingLocalFileAllowed(): void
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getPackageDiff(__DIR__.'/fixtures/nonexistent/composer.lock', __DIR__.'/fixtures/target/composer.lock', false, false, false, true);
+
+        foreach ($operations as $entry) {
+            $this->assertTrue($entry->isInstall(), 'All entries should be installs when base is missing');
+        }
+        $this->assertNotCount(0, $operations);
+    }
+
+    public function testMissingGitRefAllowed(): void
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit();
+        $operations = $diff->getPackageDiff('HEAD:nonexistent/composer.lock', '', false, false, false, true);
+
+        foreach ($operations as $entry) {
+            $this->assertTrue($entry->isInstall(), 'All entries should be installs when base ref is missing');
+        }
+        $this->assertNotCount(0, $operations);
+    }
+
     public function testLoadFromEmptyArray(): void
     {
         $diff = new PackageDiff();

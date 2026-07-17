@@ -59,6 +59,7 @@ class DiffCommand extends BaseCommand
             ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
             ->addOption('sort', null, InputOption::VALUE_OPTIONAL, 'Sort packages by "name" or "operation"', false)
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
+            ->addOption('allow-missing', null, InputOption::VALUE_NONE, 'Treat missing composer.lock files as empty (useful for new projects/directories)')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
 
@@ -155,13 +156,14 @@ EOF
         $prodOperations = new DiffEntries([]);
         $devOperations = new DiffEntries([]);
         $filters = $input->getOption('filter');
+        $allowMissingFiles = $input->getOption('allow-missing');
 
         if (!$input->getOption('no-prod')) {
-            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect);
+            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect, $allowMissingFiles);
         }
 
         if (!$input->getOption('no-dev')) {
-            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect);
+            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect, $allowMissingFiles);
         }
 
         if (!empty($filters)) {

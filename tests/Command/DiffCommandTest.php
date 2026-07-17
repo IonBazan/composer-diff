@@ -140,6 +140,21 @@ class DiffCommandTest extends TestCase
         $this->assertStringNotContainsString('twig/twig', $output);
     }
 
+    public function testAllowMissingOption(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $command = new DiffCommand($diff);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+
+        $diff->expects($this->atLeast(1))
+            ->method('getPackageDiff')
+            ->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), true)
+            ->willReturn($this->getEntries([], $this->getGenerators()));
+
+        $this->assertSame(0, $tester->execute(['--allow-missing' => true]));
+    }
+
     public function testExtraGitlabDomains(): void
     {
         $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
