@@ -54,7 +54,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github, pr)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
             ->addOption('sort', null, InputOption::VALUE_OPTIONAL, 'Sort packages by "name" or "operation"', false)
@@ -94,9 +94,13 @@ Use <info>--with-links</info> to include release and compare URLs in the report:
 
     <info>%command.full_name% --with-links</info>
     
-You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment> and <comment>json</comment>:
+You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment>, <comment>json</comment>, <comment>github</comment> and <comment>pr</comment>:
 
     <info>%command.full_name% --format=json</info>
+
+Use <info>--format=pr</info> to wrap the output in collapsible <comment><details></comment> blocks, suitable for GitHub PR descriptions:
+
+    <info>%command.full_name% --format=pr</info>
 
 Hide <info>dev</info> dependencies using <info>--no-dev</info> option:
 

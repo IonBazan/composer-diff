@@ -7,6 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
 use IonBazan\ComposerDiff\Formatter\JsonFormatter;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
+use IonBazan\ComposerDiff\Formatter\GithubPrFormatter;
 use IonBazan\ComposerDiff\Formatter\FormatterContainer;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
 use IonBazan\ComposerDiff\Tests\TestCase;
@@ -36,6 +37,7 @@ class FormatterContainerTest extends TestCase
             [MarkdownListFormatter::class, 'mdlist'],
             [JsonFormatter::class, 'json'],
             [GitHubFormatter::class, 'github'],
+            [GithubPrFormatter::class, 'pr'],
             [MarkdownTableFormatter::class, 'anything-else'],
         ];
     }
