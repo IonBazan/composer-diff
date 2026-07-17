@@ -162,7 +162,7 @@ class PackageDiffTest extends TestCase
         foreach ($operations as $entry) {
             $this->assertTrue($entry->isInstall(), 'All entries should be installs when base is missing');
         }
-        $this->assertNotEmpty($operations);
+        $this->assertNotCount(0, $operations);
     }
 
     public function testMissingGitRefAllowed(): void
@@ -174,7 +174,7 @@ class PackageDiffTest extends TestCase
         foreach ($operations as $entry) {
             $this->assertTrue($entry->isInstall(), 'All entries should be installs when base ref is missing');
         }
-        $this->assertNotEmpty($operations);
+        $this->assertNotCount(0, $operations);
     }
 
     public function testLoadFromEmptyArray(): void
