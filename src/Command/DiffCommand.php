@@ -56,6 +56,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
+            ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
             ->addOption('strict', 's', InputOption::VALUE_NONE, 'Return non-zero exit code if there are any changes')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all dependency changes between two <comment>composer.lock</comment> files.
@@ -138,6 +139,7 @@ EOF
 
         $prodOperations = new DiffEntries([]);
         $devOperations = new DiffEntries([]);
+        $filters = $input->getOption('filter');
 
         if (!$input->getOption('no-prod')) {
             $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect);
@@ -145,6 +147,11 @@ EOF
 
         if (!$input->getOption('no-dev')) {
             $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect);
+        }
+
+        if (!empty($filters)) {
+            $prodOperations = $prodOperations->matching($filters);
+            $devOperations = $devOperations->matching($filters);
         }
 
         $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);

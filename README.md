@@ -80,6 +80,7 @@ composer diff --help # Display detailed usage instructions
  - `--with-licenses` (`-c`) - include license information
  - `--format` (`-f`) - output format (mdtable, mdlist, json, github) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
+ - `--filter` - limit output to packages matching the given glob pattern (e.g. `symfony/*`); can be specified multiple times
  
 ## Advanced usage
 
@@ -89,6 +90,8 @@ composer diff master:composer.lock develop:composer.lock -p # Compare master and
 composer diff --no-dev # ignore dev dependencies
 composer diff -p # include platform dependencies
 composer diff -f json # Output as JSON instead of table
+composer diff --filter="symfony/*" # Show only symfony packages
+composer diff --filter="symfony/*" --filter="doctrine/*" # Show symfony and doctrine packages
 ```
 
 You can find more documentation in the [docs](docs) directory.
