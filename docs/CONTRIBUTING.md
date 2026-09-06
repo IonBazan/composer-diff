@@ -47,3 +47,16 @@ cd ~/work/my-project # Navigate to your project directory
 ```
 
 You can specify any other options as well like `--no-dev`, `--with-platform`, etc.
+
+## AI Tools
+
+AI tools can be useful, but unreviewed AI slop or automated AI agents are not.
+
+The standard is the same regardless of how the code was written: you are responsible for every line of your contribution. If you can't explain why a line is there and why it's correct, it shouldn't be in your PR.
+
+Specifically:
+
+- If you use AI to help write code, you must understand every line of what you're submitting.
+- Do not paste raw AI output into issues, PRs, or comments. If you use AI to help draft text, rewrite it in your own words.
+- Remove AI-generated footers, co-author attributions, and "Generated with..." signatures before submitting.
+- Automated submissions, meaning bots or agents opening issues or posting PRs without meaningful human review, will be treated as spam.
