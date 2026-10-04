@@ -118,6 +118,46 @@ class DiffCommandTest extends TestCase
         $this->assertLessThan($removePos, $installPos);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @testWith [{"--sort": "size"}, "Invalid sort \"size\". Supported values: name, operation"]
+     *           [{"--format": "xml"}, "Invalid format \"xml\". Supported formats: mdtable, mdlist, github, json, pr"]
+     *           [{"--no-dev": true, "--no-prod": true}, "The --no-dev and --no-prod options cannot be used together"]
+     */
+    public function testInvalidOptions(array $options, string $message): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $command = new DiffCommand($diff);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+        $diff->expects($this->never())->method('getPackageDiff');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($message);
+        $tester->execute($options);
+    }
+
+    public function testGitlabDomainsDoNotAccumulateBetweenRuns(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $command = new DiffCommand($diff, ['gitlab2.org']);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+        $package = $this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org');
+        $generators = [];
+        $diff->method('getPackageDiff')->willReturn($this->getEntries([], $this->getGenerators()));
+        $diff->method('setUrlGenerator')->willReturnCallback(function (GeneratorContainer $generator) use (&$generators): void {
+            $generators[] = $generator;
+        });
+
+        $tester->execute(['--gitlab-domains' => ['gitlab3.org']]);
+        $tester->execute([]);
+
+        $this->assertTrue($generators[0]->supportsPackage($package));
+        $this->assertFalse($generators[1]->supportsPackage($package));
+    }
+
     public function testMultipleFilterPatterns(): void
     {
         $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
@@ -312,7 +352,7 @@ OUTPUT
                 [
                     '--no-dev' => null,
                     '-l' => null,
-                    '-f' => 'anything',
+                    '-f' => 'mdtable',
                 ],
             ],
             'Markdown list' => [

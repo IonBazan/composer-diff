@@ -145,9 +145,18 @@ EOF
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $withLicenses = $input->getOption('with-licenses');
-        $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
+        $sort = $input->getOption('sort');
+        $sortBy = is_string($sort) ? $sort : 'name';
 
-        $urlGenerators = new GeneratorContainer($this->gitlabDomains);
+        if (!in_array($sortBy, ['name', 'operation'], true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid sort "%s". Supported values: name, operation', $sortBy));
+        }
+
+        if ($input->getOption('no-dev') && $input->getOption('no-prod')) {
+            throw new \InvalidArgumentException('The --no-dev and --no-prod options cannot be used together');
+        }
+
+        $urlGenerators = new GeneratorContainer(array_merge($this->gitlabDomains, $input->getOption('gitlab-domains')));
         $formatters = new FormatterContainer($output);
         $formatter = $formatters->getFormatter($input->getOption('format'));
 
@@ -171,9 +180,7 @@ EOF
             $devOperations = $devOperations->matching($filters);
         }
 
-        $sort = $input->getOption('sort');
         if (false !== $sort) {
-            $sortBy = is_string($sort) ? $sort : 'name';
             $prodOperations = $prodOperations->sorted($sortBy);
             $devOperations = $devOperations->sorted($sortBy);
         }

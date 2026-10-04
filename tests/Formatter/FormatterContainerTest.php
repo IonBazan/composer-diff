@@ -27,6 +27,15 @@ class FormatterContainerTest extends TestCase
         $this->assertInstanceOf($expectedFormatter, $container->getFormatter($code));
     }
 
+    public function testInvalidFormatter(): void
+    {
+        $container = new FormatterContainer($this->getMockBuilder(OutputInterface::class)->getMock());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr');
+        $container->getFormatter('anything-else');
+    }
+
     /**
      * @return iterable<array{0: class-string<Formatter>, 1: string}>
      */
@@ -38,7 +47,6 @@ class FormatterContainerTest extends TestCase
             [JsonFormatter::class, 'json'],
             [GitHubFormatter::class, 'github'],
             [GithubPrFormatter::class, 'pr'],
-            [MarkdownTableFormatter::class, 'anything-else'],
         ];
     }
 }
