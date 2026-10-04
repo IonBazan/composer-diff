@@ -46,7 +46,7 @@ class DiffCommand extends BaseCommand
             ->setDescription('Compares composer.lock files and shows package changes')
             ->addArgument('base', InputArgument::OPTIONAL, 'Base (original) composer.lock file path or git ref')
             ->addArgument('target', InputArgument::OPTIONAL, 'Target (modified) composer.lock file path or git ref')
-            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base (original) composer.lock file path or git ref', 'HEAD:composer.lock')
+            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base (original) composer.lock file path or git ref', 'HEAD:./composer.lock')
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target (modified) composer.lock file path or git ref', 'composer.lock')
             ->addOption('no-dev', null, InputOption::VALUE_NONE, 'Ignore dev dependencies')
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')

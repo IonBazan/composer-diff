@@ -177,6 +177,62 @@ class PackageDiffTest extends TestCase
         $this->assertNotCount(0, $operations);
     }
 
+    public function testGitUsageFromSubdirectory(): void
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit(false, 'sub');
+        file_put_contents(__DIR__.'/test-git/composer.lock', '{}');
+        exec('git add composer.lock && git commit -m "add root lock"');
+        chdir(__DIR__.'/test-git/sub');
+
+        $this->assertSame(
+            'update phpunit/phpunit from 9.2.5 to 8.5.8',
+            $this->entryToString($diff->getPackageDiff('HEAD', '', true, false, true)[0])
+        );
+    }
+
+    public function testGitWarningIsNotPartOfFileContents(): void
+    {
+        $diff = new PackageDiff();
+        $this->prepareGit();
+        $branch = trim((string) exec('git rev-parse --abbrev-ref HEAD'));
+        exec('git tag '.$branch);
+
+        $this->assertCount(20, $diff->getPackageDiff($branch, '', true, false));
+    }
+
+    public function testInvalidLockFile(): void
+    {
+        $diff = new PackageDiff();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not parse '.__DIR__.'/fixtures/invalid/composer.lock as JSON: Syntax error');
+        $diff->getPackageDiff(__DIR__.'/fixtures/invalid/composer.lock', __DIR__.'/fixtures/target/composer.lock', false, false);
+    }
+
+    public function testInvalidJsonFile(): void
+    {
+        $diff = new PackageDiff();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not parse '.__DIR__.'/fixtures/invalid-json/composer.lock as JSON: Syntax error');
+        $diff->getPackageDiff(__DIR__.'/fixtures/invalid-json/composer.lock', __DIR__.'/fixtures/target/composer.lock', false, false);
+    }
+
+    public function testUnreadableUrl(): void
+    {
+        $diff = new PackageDiff();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not read http://127.0.0.1:1/composer.lock');
+        $diff->getPackageDiff('http://127.0.0.1:1/composer.lock', __DIR__.'/fixtures/target/composer.lock', false, false);
+    }
+
+    public function testDirectPackagesAreCaseInsensitive(): void
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getPackageDiff(__DIR__.'/fixtures/uppercase/base/composer.lock', __DIR__.'/fixtures/uppercase/target/composer.lock', true, false, true);
+
+        $this->assertSame(['update phpunit/phpunit from 9.2.5 to 8.5.8'], array_map([$this, 'entryToString'], $operations->getArrayCopy()));
+    }
+
     public function testLoadFromEmptyArray(): void
     {
         $diff = new PackageDiff();
@@ -310,23 +366,40 @@ class PackageDiffTest extends TestCase
         ];
     }
 
-    private function prepareGit(bool $onlyLock = false): void
+    private function prepareGit(bool $onlyLock = false, string $subdirectory = ''): void
     {
         $gitDir = __DIR__.'/test-git';
-        @mkdir($gitDir);
+        // Keeps git from falling back to this package's own repository when test-git has no .git yet
+        putenv('GIT_CEILING_DIRECTORIES='.__DIR__);
+        $this->removeDirectory($gitDir);
+        mkdir($gitDir);
         chdir($gitDir);
-        @unlink($gitDir.'/composer.json');
-        @unlink($gitDir.'/composer.lock');
-        @unlink($gitDir.'/.git/index');
-        exec('git config init.defaultBranch main');
         exec('git init');
         exec('git config user.name test');
         exec('git config user.email test@example.com');
-        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
-        !$onlyLock && file_put_contents($gitDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/base/composer.json'));
-        exec('git add composer.* && git commit -m "init"');
-        file_put_contents($gitDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
-        !$onlyLock && file_put_contents($gitDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/target/composer.json'));
+        $projectDir = $gitDir.('' !== $subdirectory ? '/'.$subdirectory : '');
+        @mkdir($projectDir);
+        file_put_contents($projectDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/base/composer.lock'));
+        !$onlyLock && file_put_contents($projectDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/base/composer.json'));
+        exec('git add -A && git commit -m "init"');
+        file_put_contents($projectDir.'/composer.lock', file_get_contents(__DIR__.'/fixtures/target/composer.lock'));
+        !$onlyLock && file_put_contents($projectDir.'/composer.json', file_get_contents(__DIR__.'/fixtures/target/composer.json'));
+    }
+
+    private function removeDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+
+        foreach ($files as $file) {
+            @chmod($file->getPathname(), 0777);
+            $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
+        }
+
+        rmdir($dir);
     }
 
     private function entryToString(DiffEntry $entry): string

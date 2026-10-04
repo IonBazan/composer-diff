@@ -10,6 +10,7 @@ use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Repository\ArrayRepository;
 use Composer\Repository\RepositoryInterface;
+use Composer\Util\ProcessExecutor;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
@@ -21,6 +22,7 @@ class PackageDiff
     const EXTENSION_LOCK = '.lock';
     const EXTENSION_JSON = '.json';
     const GIT_SEPARATOR = ':';
+    const CURRENT_DIRECTORY = './';
 
     /** @var UrlGenerator */
     protected $urlGenerator;
@@ -137,9 +139,7 @@ class PackageDiff
 
     private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles): ArrayRepository
     {
-        $data = \json_decode($this->getFileContents($path, true, $allowMissingFiles), true);
-
-        return $this->loadPackagesFromArray($data, $dev, $withPlatform);
+        return $this->loadPackagesFromArray($this->decode($this->getFileContents($path, true, $allowMissingFiles), $path), $dev, $withPlatform);
     }
 
     /**
@@ -147,17 +147,31 @@ class PackageDiff
      */
     private function getDirectPackages(string $path): array
     {
-        $data = \json_decode($this->getFileContents($path, false), true);
+        $data = $this->decode($this->getFileContents($path, false), $path);
 
         $packages = [];
 
         foreach (['require', 'require-dev'] as $key) {
-            if (isset($data[$key])) {
-                $packages = array_merge($packages, array_keys($data[$key]));
+            foreach (array_keys($data[$key] ?? []) as $name) {
+                $packages[] = strtolower((string) $name);
             }
         }
 
-        return $packages; // @phpstan-ignore return.type
+        return $packages;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function decode(string $contents, string $path): array
+    {
+        $data = \json_decode($contents, true);
+
+        if (!is_array($data)) {
+            throw new \RuntimeException(sprintf('Could not parse %s as JSON: %s', $path, json_last_error_msg()));
+        }
+
+        return $data;
     }
 
     private function getFileContents(string $path, bool $lockFile = true, bool $allowMissingFiles = false): string
@@ -175,32 +189,36 @@ class PackageDiff
         }
 
         if (filter_var($localPath, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) || file_exists($localPath)) {
-            // @phpstan-ignore return.type
-            return file_get_contents($localPath);
+            $contents = @file_get_contents($localPath);
+
+            if (false === $contents) {
+                throw new \RuntimeException(sprintf('Could not read %s', $localPath));
+            }
+
+            return $contents;
         }
 
         if (false === strpos($originalPath, self::GIT_SEPARATOR)) {
-            $path .= self::GIT_SEPARATOR.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
+            $path .= self::GIT_SEPARATOR.self::CURRENT_DIRECTORY.self::COMPOSER.($lockFile ? self::EXTENSION_LOCK : self::EXTENSION_JSON);
         }
 
         if (!$lockFile) {
             $path = $this->getJsonPath($path);
         }
 
-        $output = [];
-        @exec(sprintf('git show %s 2>&1', escapeshellarg($path)), $output, $exit);
-        $outputString = implode("\n", $output);
+        $process = new ProcessExecutor();
+        $output = '';
 
-        if (0 !== $exit) {
+        if (0 !== $process->execute(sprintf('git show %s', ProcessExecutor::escape($path)), $output)) {
             if ($lockFile && !$allowMissingFiles) {
-                throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, $outputString));
+                throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, trim($process->getErrorOutput())));
             }
 
             /* @infection-ignore-all False-positive */
             return '{}';
         }
 
-        return $outputString;
+        return $output;
     }
 
     private function getJsonPath(string $path): string
