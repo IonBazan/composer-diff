@@ -56,6 +56,19 @@ class DiffEntryTest extends TestCase
         $this->assertSame($package, $entry->getPackage());
     }
 
+    public function testUpdateUsesTargetPackage(): void
+    {
+        $target = $this->getCompletePackage('a/package-1', '2.0.0', null, ['GPL-3.0']);
+        $operation = new UpdateOperation($this->getCompletePackage('a/package-1', '1.0.0', null, ['MIT']), $target);
+        $urlGenerator = $this->getMockBuilder(UrlGenerator::class)->getMock();
+        $urlGenerator->method('getProjectUrl')->with($target)->willReturn('project');
+        $entry = new DiffEntry($operation, $urlGenerator);
+
+        $this->assertSame($target, $entry->getPackage());
+        $this->assertSame(['GPL-3.0'], $entry->getLicenses());
+        $this->assertSame('project', $entry->getProjectUrl());
+    }
+
     /**
      * @dataProvider operationUrlProvider
      */
