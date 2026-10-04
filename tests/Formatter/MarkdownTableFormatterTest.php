@@ -2,8 +2,12 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use Composer\DependencyResolver\Operation\UpdateOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MarkdownTableFormatterTest extends FormatterTest
@@ -154,6 +158,23 @@ OUTPUT;
 
 
 OUTPUT;
+    }
+
+    public function testItEscapesPipes(): void
+    {
+        $output = new BufferedOutput();
+        $this->getFormatter($output)->renderSingle(new DiffEntries([
+            new DiffEntry(new UpdateOperation($this->getPackage('php', '^7.4 || ^8.0'), $this->getPackage('php', '^8.1'))),
+        ]), 'Prod Packages', false, false);
+
+        $this->assertSame(<<<'OUTPUT'
+| Prod Packages | Operation | Base           | Target |
+|---------------|-----------|----------------|--------|
+| php           | Changed   | ^7.4 \|\| ^8.0 | ^8.1   |
+
+
+OUTPUT
+            , $output->fetch());
     }
 
     protected function getFormatter(OutputInterface $output): Formatter
