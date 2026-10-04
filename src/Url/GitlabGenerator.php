@@ -11,7 +11,7 @@ class GitlabGenerator extends GitGenerator
      */
     private $domain;
 
-    public function __construct(string $domain = 'gitlab.org')
+    public function __construct(string $domain = 'gitlab.com')
     {
         $this->domain = $domain;
     }

@@ -33,7 +33,7 @@ class DiffCommandTest extends TestCase
                 new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
                 new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
                 new UninstallOperation($this->getPackageWithSource('a/package-3', '0.1.1', 'github.com')),
-                new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org')),
+                new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.com')),
                 new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
                 new UpdateOperation($this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-7', '1.0.0', 'github.com')),
@@ -165,7 +165,7 @@ class DiffCommandTest extends TestCase
 
         $packages = [
             $this->getPackageWithSource('a/package-1', '1.0.0', 'github.com'),
-            $this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org'),
+            $this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.com'),
             $this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org'),
             $this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org'),
             $this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'),
@@ -301,7 +301,7 @@ OUTPUT
 | [a/package-1](github.com)  | New        | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)    |
 | [a/package-2](github.com)  | Upgraded   | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0...1.2.0) |
 | [a/package-3](github.com)  | Removed    | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)    |
-| [a/package-4](gitlab.org)  | Removed    | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)            |
+| [a/package-4](gitlab.com)  | Removed    | 0.1.1 | -      | [Compare](gitlab.com/tags/0.1.1)            |
 | [a/package-5](gitlab2.org) | Removed    | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)           |
 | a/package-6                | Removed    | 0.1.1 | -      |                                             |
 | [a/package-7](github.com)  | Downgraded | 1.2.0 | 1.0.0  | [Compare](github.com/compare/1.2.0...1.0.0) |

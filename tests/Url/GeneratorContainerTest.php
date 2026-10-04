@@ -16,12 +16,13 @@ class GeneratorContainerTest extends TestCase
         $container = new GeneratorContainer(['gitlab2.org']);
         $githubGenerator = $container->get($this->getPackageWithSource('', '', 'https://github.com'));
         $this->assertInstanceOf(GithubGenerator::class, $githubGenerator);
-        $gitlabGenerator = $container->get($this->getPackageWithSource('', '', 'https://gitlab.org'));
+        $gitlabGenerator = $container->get($this->getPackageWithSource('', '', 'https://gitlab.com'));
         $this->assertInstanceOf(GitlabGenerator::class, $gitlabGenerator);
         $gitlab2Generator = $container->get($this->getPackageWithSource('', '', 'https://gitlab2.org'));
         $this->assertInstanceOf(GitlabGenerator::class, $gitlab2Generator);
         $this->assertNotSame($gitlabGenerator, $gitlab2Generator);
         $this->assertNull($container->get($this->getPackageWithSource('', '', 'https://gitlab3.org')));
+        $this->assertNull($container->get($this->getPackageWithSource('', '', 'https://gitlab.org')));
         $this->assertNull($container->get($this->getPackageWithSource('', '', null)));
         $drupalGenerator = $container->get($this->getPackageWithSource('', '', 'https://git.drupalcode.org'));
         $this->assertInstanceOf(DrupalGenerator::class, $drupalGenerator);
