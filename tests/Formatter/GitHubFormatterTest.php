@@ -2,8 +2,12 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use Composer\DependencyResolver\Operation\InstallOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GitHubFormatterTest extends FormatterTest
@@ -31,6 +35,20 @@ OUTPUT;
 ::notice title=Dev Packages:: - Change a/package-5 (dev-master 1234567 => 1.1.1)%0A - Uninstall a/package-4 (0.1.1){$package4License}%0A - Uninstall a/no-link-2 (0.1.1){$noLink2License}
 
 OUTPUT;
+    }
+
+    public function testItEscapesWorkflowCommandValues(): void
+    {
+        $output = new BufferedOutput();
+        $this->getFormatter($output)->renderSingle(new DiffEntries([
+            new DiffEntry(new InstallOperation($this->getPackage('a/package-1', "1.0%0D\r2"))),
+            new DiffEntry(new InstallOperation($this->getPackage('a/package-2', '1.0'))),
+        ]), 'Title: a, b%', false, false);
+
+        $this->assertSame(
+            '::notice title=Title%3A a%2C b%25:: - Install a/package-1 (1.0%250D%0D2)%0A - Install a/package-2 (1.0)'.PHP_EOL,
+            $output->fetch()
+        );
     }
 
     protected function getFormatter(OutputInterface $output): Formatter
