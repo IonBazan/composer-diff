@@ -78,7 +78,7 @@ composer diff --help # Display detailed usage instructions
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
  - `--with-links` (`-l`) - include compare/release URLs
  - `--with-licenses` (`-c`) - include license information
- - `--format` (`-f`) - output format (mdtable, mdlist, json, github, pr) - default: `mdtable`
+ - `--format` (`-f`) - output format (mdtable, mdlist, json, github, pr or one added by an [extension](docs/extensions.md)) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
  - `--filter` - limit output to packages matching the given glob pattern (e.g. `symfony/*`); can be specified multiple times
  - `--sort` - sort packages alphabetically by name; use `--sort=operation` to group by operation type (installs, upgrades, downgrades, removals)
@@ -117,6 +117,11 @@ Exit code of the command is built using following bit flags:
 
 You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
 
+## Extensions
+
+Other packages can add output formats and URL generators, and a `post-composer-diff` event lets you filter results or
+fail the command with your own rules. See [Extensions](docs/extensions.md).
+
 # Contributing
 
 Composer Diff is an open source project that welcomes pull requests and issues from anyone. 
@@ -137,6 +142,7 @@ This package offers:
  - Both standalone executable and composer plugin interface - you choose how you want to use it.
  - Allows generating reports in several formats.
  - Extra Gitlab domains support.
+ - Custom formatters, URL generators and a post-diff event through [extensions](docs/extensions.md).
  - [GitHub Action](https://github.com/marketplace/actions/composer-diff) with example workflow
  - 100% test coverage.
  - MIT license.

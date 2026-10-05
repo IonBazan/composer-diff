@@ -10,6 +10,7 @@ use Composer\Plugin\PluginManager;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Tests\TestCase;
+use IonBazan\ComposerDiff\Tests\Util\PostDiffListener;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -58,6 +59,40 @@ class DiffCommandTest extends TestCase
         $result = $tester->run($input, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
         $this->assertSame($expectedOutput, $tester->getDisplay());
         $this->assertSame(0, $result);
+    }
+
+    /**
+     * @runInSeparateProcess To handle autoloader stuff
+     */
+    public function testRootScriptListensToPostDiffEvent(): void
+    {
+        $app = $this->getComposerApplication();
+        $app->setIO(new NullIO());
+        $app->setAutoExit(false);
+        $plugin = $this->getPluginPackage();
+        $composer = Factory::create($app->getIO(), [
+            'config' => ['allow-plugins' => [$plugin->getName() => true]],
+            'scripts' => ['post-composer-diff' => PostDiffListener::class.'::onPostDiff'],
+        ], true);
+        $app->setComposer($composer);
+        $pm = new PluginManager($app->getIO(), $composer);
+        $composer->setPluginManager($pm);
+        $pm->registerPackage($plugin, true);
+        $tester = new ApplicationTester($app);
+        $result = $tester->run([
+            'command' => 'diff',
+            '--base' => __DIR__.'/../fixtures/base/composer.lock',
+            '--target' => __DIR__.'/../fixtures/target/composer.lock',
+        ]);
+        $this->assertSame(<<<OUTPUT
+| Prod Packages            | Operation | Base    | Target |
+|--------------------------|-----------|---------|--------|
+| symfony/event-dispatcher | Upgraded  | v2.8.52 | v5.1.2 |
+
+
+OUTPUT
+            , $tester->getDisplay());
+        $this->assertSame(32, $result);
     }
 
     /**

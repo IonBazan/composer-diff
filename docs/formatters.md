@@ -1,6 +1,6 @@
 # Output formatters
 
-There are currently five output formats available:
+There are currently five built-in output formats available:
 
 - `mdtable` - Markdown table (default)
 - `mdlist` - Markdown list
@@ -9,6 +9,7 @@ There are currently five output formats available:
 - `pr` - Collapsible GitHub PR description
 
 You can select the output format using the `--format` (`-f`) option.
+Other packages can add formats, see [Extensions](extensions.md#custom-formatters).
 
 ```shell script
 composer diff --format mdlist
