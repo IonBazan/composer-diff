@@ -2,6 +2,7 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Formatter\CsvFormatter;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use Symfony\Component\Console\Output\OutputInterface;
 use IonBazan\ComposerDiff\Formatter\MarkdownListFormatter;
@@ -32,7 +33,7 @@ class FormatterContainerTest extends TestCase
         $container = new FormatterContainer($this->getMockBuilder(OutputInterface::class)->getMock());
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr');
+        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr, csv');
         $container->getFormatter('anything-else');
     }
 
@@ -44,7 +45,7 @@ class FormatterContainerTest extends TestCase
 
         $this->assertSame($formatter, $container->getFormatter('custom'));
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr, custom');
+        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr, csv, custom');
         $container->getFormatter('anything-else');
     }
 
@@ -69,6 +70,7 @@ class FormatterContainerTest extends TestCase
             [JsonFormatter::class, 'json'],
             [GitHubFormatter::class, 'github'],
             [GithubPrFormatter::class, 'pr'],
+            [CsvFormatter::class, 'csv'],
         ];
     }
 }

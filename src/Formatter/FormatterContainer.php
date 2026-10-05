@@ -21,6 +21,7 @@ class FormatterContainer
             'github' => new GitHubFormatter($output),
             'json' => new JsonFormatter($output),
             'pr' => new GithubPrFormatter($output),
+            'csv' => new CsvFormatter($output),
         ];
     }
 
