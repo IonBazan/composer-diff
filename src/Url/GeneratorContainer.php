@@ -14,7 +14,7 @@ class GeneratorContainer implements UrlGenerator
 
     /**
      * @param string[]       $gitlabDomains
-     * @param UrlGenerator[] $generators   Checked before the built-in generators
+     * @param UrlGenerator[] $generators    Checked before the built-in generators
      */
     public function __construct(array $gitlabDomains = [], array $generators = [])
     {
