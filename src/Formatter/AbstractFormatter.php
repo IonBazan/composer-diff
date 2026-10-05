@@ -19,7 +19,7 @@ abstract class AbstractFormatter implements Formatter
 
     protected function getDecoratedPackageName(DiffEntry $entry): string
     {
-        return $this->terminalLink($entry->getProjectUrl(), $entry->getPackageName());
+        return $this->terminalLink($entry->getProjectUrl(), $entry->getDisplayName());
     }
 
     private function terminalLink(?string $url, string $title): string

@@ -8,6 +8,7 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
 
 class DiffEntryTest extends TestCase
@@ -29,6 +30,7 @@ class DiffEntryTest extends TestCase
         $this->assertSame([
             'name' => 'a/package-1',
             'direct' => false,
+            'effective' => false,
             'operation' => 'install',
             'version_base' => null,
             'version_target' => '1.0.0',
@@ -46,6 +48,19 @@ class DiffEntryTest extends TestCase
 
         $entry = new DiffEntry($operation, null, false);
         $this->assertFalse($entry->isDirect());
+    }
+
+    public function testEffectivePlatformPackage(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(new EffectivePlatformPackage('php', '>=7.2', '>=7.2'), new EffectivePlatformPackage('php', '>=8.0', '>=8.0')));
+        $this->assertTrue($entry->isEffective());
+        $this->assertSame('php', $entry->getPackageName());
+        $this->assertSame('php (effective)', $entry->getDisplayName());
+        $this->assertTrue($entry->toArray()['effective']);
+
+        $entry = new DiffEntry(new InstallOperation($this->getPackage('php', '>=7.2')));
+        $this->assertFalse($entry->isEffective());
+        $this->assertSame('php', $entry->getDisplayName());
     }
 
     public function testGetPackage(): void

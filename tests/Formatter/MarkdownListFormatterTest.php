@@ -109,6 +109,20 @@ Dev Packages
 OUTPUT;
     }
 
+    protected function getEffectivePlatformOutput(): string
+    {
+        return <<<OUTPUT
+Prod Packages
+=============
+
+ - Install ext-intl (effective) (*)
+ - Change php (effective) (>=7.2 => >=8.0)
+ - Uninstall ext-xdebug (effective) (*)
+
+
+OUTPUT;
+    }
+
     protected function getFormatter(OutputInterface $output): Formatter
     {
         return new MarkdownListFormatter($output);

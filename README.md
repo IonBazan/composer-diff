@@ -125,6 +125,7 @@ A few details:
 - Requirements on Composer itself (`composer-plugin-api`, `composer-runtime-api`, and `composer` when running Composer 2.2 or newer), usually coming from Composer plugins, are listed like any other platform package.
 - If the requirements have no common version range, which can happen in lock files created with `--ignore-platform-reqs`, the row shows `conflicting (N constraints)`.
 - Effective rows are never marked as direct dependencies, so `--direct` hides them.
+- In JSON and CSV output, effective rows keep the plain platform name (for example `php`) and are marked with `"effective": true` (an `effective` column in CSV). Formatters show them as `php (effective)`, and JSON uses that label as the row key.
 
 ### Strict mode
 

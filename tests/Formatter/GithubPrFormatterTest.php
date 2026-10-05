@@ -216,6 +216,24 @@ OUTPUT;
 OUTPUT;
     }
 
+    protected function getEffectivePlatformOutput(): string
+    {
+        return <<<OUTPUT
+<details>
+<summary>Prod Packages (3 packages)</summary>
+
+| Prod Packages          | Operation | Base  | Target |
+|------------------------|-----------|-------|--------|
+| ext-intl (effective)   | New       | -     | *      |
+| php (effective)        | Changed   | >=7.2 | >=8.0  |
+| ext-xdebug (effective) | Removed   | *     | -      |
+
+</details>
+
+
+OUTPUT;
+    }
+
     protected function getFormatter(OutputInterface $output): Formatter
     {
         return new GithubPrFormatter($output);

@@ -396,6 +396,7 @@ OUTPUT
                             'a/package-1' => [
                                     'name' => 'a/package-1',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'install',
                                     'version_base' => null,
                                     'version_target' => '1.0.0',
@@ -403,6 +404,7 @@ OUTPUT
                             'a/package-2' => [
                                     'name' => 'a/package-2',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'upgrade',
                                     'version_base' => '1.0.0',
                                     'version_target' => '1.2.0',
@@ -410,6 +412,7 @@ OUTPUT
                             'a/package-3' => [
                                     'name' => 'a/package-3',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -417,6 +420,7 @@ OUTPUT
                             'a/package-4' => [
                                     'name' => 'a/package-4',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -424,6 +428,7 @@ OUTPUT
                             'a/package-5' => [
                                     'name' => 'a/package-5',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -431,6 +436,7 @@ OUTPUT
                             'a/package-6' => [
                                     'name' => 'a/package-6',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -438,6 +444,7 @@ OUTPUT
                             'a/package-7' => [
                                 'name' => 'a/package-7',
                                 'direct' => false,
+                                'effective' => false,
                                 'operation' => 'downgrade',
                                 'version_base' => '1.2.0',
                                 'version_target' => '1.0.0',

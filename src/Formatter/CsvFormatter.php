@@ -23,7 +23,7 @@ class CsvFormatter extends AbstractFormatter
 
     private function writeHeader(bool $withUrls, bool $withLicenses): void
     {
-        $header = ['section', 'name', 'direct', 'operation', 'version_base', 'version_target'];
+        $header = ['section', 'name', 'direct', 'effective', 'operation', 'version_base', 'version_target'];
 
         if ($withLicenses) {
             $header[] = 'licenses';
@@ -45,6 +45,7 @@ class CsvFormatter extends AbstractFormatter
                 $section,
                 $entry->getPackageName(),
                 $entry->isDirect() ? 'true' : 'false',
+                $entry->isEffective() ? 'true' : 'false',
                 $entry->getType(),
                 $entry->getBaseVersion(),
                 $entry->getTargetVersion(),

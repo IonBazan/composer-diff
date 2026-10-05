@@ -23,10 +23,21 @@ class CsvFormatterTest extends FormatterTest
         $this->getFormatter($output)->renderSingle($entries, 'test', false, true);
 
         $this->assertSame(
-            'section,name,direct,operation,version_base,version_target,licenses'.PHP_EOL.
-            "test,a/package-1,true,install,,1.0.0,\"Quoted \"\"license\"\", Multi\nline, Carriage\rreturn, <info>Tagged</info>\"".PHP_EOL,
+            'section,name,direct,effective,operation,version_base,version_target,licenses'.PHP_EOL.
+            "test,a/package-1,true,false,install,,1.0.0,\"Quoted \"\"license\"\", Multi\nline, Carriage\rreturn, <info>Tagged</info>\"".PHP_EOL,
             $this->getDisplay($output)
         );
+    }
+
+    protected function getEffectivePlatformOutput(): string
+    {
+        return <<<OUTPUT
+section,name,direct,effective,operation,version_base,version_target
+prod,ext-intl,false,true,install,,*
+prod,php,false,true,change,>=7.2,>=8.0
+prod,ext-xdebug,false,true,remove,*,
+
+OUTPUT;
     }
 
     protected function getFormatter(OutputInterface $output): Formatter
@@ -36,70 +47,70 @@ class CsvFormatterTest extends FormatterTest
 
     protected static function getEmptyOutput(): string
     {
-        return 'section,name,direct,operation,version_base,version_target,compare,link'.PHP_EOL;
+        return 'section,name,direct,effective,operation,version_base,version_target,compare,link'.PHP_EOL;
     }
 
     protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string
     {
         if ($withUrls && $withLicenses) {
             return <<<OUTPUT
-section,name,direct,operation,version_base,version_target,licenses,compare,link
-prod,a/package-1,false,install,,1.0.0,,https://example.com/r/1.0.0,https://example.com/r/a/package-1
-prod,a/no-link-1,false,install,,1.0.0,,,
-prod,a/package-2,false,upgrade,1.0.0,1.2.0,,https://example.com/c/1.0.0..1.2.0,https://example.com/r/a/package-2
-prod,a/package-3,false,downgrade,2.0.0,1.1.1,,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
-prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,,,
-prod,php,false,change,>=7.4.6,^8.0,,,
-dev,a/package-5,false,change,"dev-master 1234567",1.1.1,,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
-dev,a/package-4,false,remove,0.1.1,,"MIT, BSD-3-Clause",https://example.com/r/0.1.1,https://example.com/r/a/package-4
-dev,a/no-link-2,false,remove,0.1.1,,MIT,,
+section,name,direct,effective,operation,version_base,version_target,licenses,compare,link
+prod,a/package-1,false,false,install,,1.0.0,,https://example.com/r/1.0.0,https://example.com/r/a/package-1
+prod,a/no-link-1,false,false,install,,1.0.0,,,
+prod,a/package-2,false,false,upgrade,1.0.0,1.2.0,,https://example.com/c/1.0.0..1.2.0,https://example.com/r/a/package-2
+prod,a/package-3,false,false,downgrade,2.0.0,1.1.1,,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
+prod,a/no-link-2,false,false,downgrade,2.0.0,1.1.1,,,
+prod,php,false,false,change,>=7.4.6,^8.0,,,
+dev,a/package-5,false,false,change,"dev-master 1234567",1.1.1,,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
+dev,a/package-4,false,false,remove,0.1.1,,"MIT, BSD-3-Clause",https://example.com/r/0.1.1,https://example.com/r/a/package-4
+dev,a/no-link-2,false,false,remove,0.1.1,,MIT,,
 
 OUTPUT;
         }
 
         if ($withUrls) {
             return <<<OUTPUT
-section,name,direct,operation,version_base,version_target,compare,link
-prod,a/package-1,false,install,,1.0.0,https://example.com/r/1.0.0,https://example.com/r/a/package-1
-prod,a/no-link-1,false,install,,1.0.0,,
-prod,a/package-2,false,upgrade,1.0.0,1.2.0,https://example.com/c/1.0.0..1.2.0,https://example.com/r/a/package-2
-prod,a/package-3,false,downgrade,2.0.0,1.1.1,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
-prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,,
-prod,php,false,change,>=7.4.6,^8.0,,
-dev,a/package-5,false,change,"dev-master 1234567",1.1.1,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
-dev,a/package-4,false,remove,0.1.1,,https://example.com/r/0.1.1,https://example.com/r/a/package-4
-dev,a/no-link-2,false,remove,0.1.1,,,
+section,name,direct,effective,operation,version_base,version_target,compare,link
+prod,a/package-1,false,false,install,,1.0.0,https://example.com/r/1.0.0,https://example.com/r/a/package-1
+prod,a/no-link-1,false,false,install,,1.0.0,,
+prod,a/package-2,false,false,upgrade,1.0.0,1.2.0,https://example.com/c/1.0.0..1.2.0,https://example.com/r/a/package-2
+prod,a/package-3,false,false,downgrade,2.0.0,1.1.1,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
+prod,a/no-link-2,false,false,downgrade,2.0.0,1.1.1,,
+prod,php,false,false,change,>=7.4.6,^8.0,,
+dev,a/package-5,false,false,change,"dev-master 1234567",1.1.1,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
+dev,a/package-4,false,false,remove,0.1.1,,https://example.com/r/0.1.1,https://example.com/r/a/package-4
+dev,a/no-link-2,false,false,remove,0.1.1,,,
 
 OUTPUT;
         }
 
         if ($withLicenses) {
             return <<<OUTPUT
-section,name,direct,operation,version_base,version_target,licenses
-prod,a/package-1,false,install,,1.0.0,
-prod,a/no-link-1,false,install,,1.0.0,
-prod,a/package-2,false,upgrade,1.0.0,1.2.0,
-prod,a/package-3,false,downgrade,2.0.0,1.1.1,
-prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,
-prod,php,false,change,>=7.4.6,^8.0,
-dev,a/package-5,false,change,"dev-master 1234567",1.1.1,
-dev,a/package-4,false,remove,0.1.1,,"MIT, BSD-3-Clause"
-dev,a/no-link-2,false,remove,0.1.1,,MIT
+section,name,direct,effective,operation,version_base,version_target,licenses
+prod,a/package-1,false,false,install,,1.0.0,
+prod,a/no-link-1,false,false,install,,1.0.0,
+prod,a/package-2,false,false,upgrade,1.0.0,1.2.0,
+prod,a/package-3,false,false,downgrade,2.0.0,1.1.1,
+prod,a/no-link-2,false,false,downgrade,2.0.0,1.1.1,
+prod,php,false,false,change,>=7.4.6,^8.0,
+dev,a/package-5,false,false,change,"dev-master 1234567",1.1.1,
+dev,a/package-4,false,false,remove,0.1.1,,"MIT, BSD-3-Clause"
+dev,a/no-link-2,false,false,remove,0.1.1,,MIT
 
 OUTPUT;
         }
 
         return <<<OUTPUT
-section,name,direct,operation,version_base,version_target
-prod,a/package-1,false,install,,1.0.0
-prod,a/no-link-1,false,install,,1.0.0
-prod,a/package-2,false,upgrade,1.0.0,1.2.0
-prod,a/package-3,false,downgrade,2.0.0,1.1.1
-prod,a/no-link-2,false,downgrade,2.0.0,1.1.1
-prod,php,false,change,>=7.4.6,^8.0
-dev,a/package-5,false,change,"dev-master 1234567",1.1.1
-dev,a/package-4,false,remove,0.1.1,
-dev,a/no-link-2,false,remove,0.1.1,
+section,name,direct,effective,operation,version_base,version_target
+prod,a/package-1,false,false,install,,1.0.0
+prod,a/no-link-1,false,false,install,,1.0.0
+prod,a/package-2,false,false,upgrade,1.0.0,1.2.0
+prod,a/package-3,false,false,downgrade,2.0.0,1.1.1
+prod,a/no-link-2,false,false,downgrade,2.0.0,1.1.1
+prod,php,false,false,change,>=7.4.6,^8.0
+dev,a/package-5,false,false,change,"dev-master 1234567",1.1.1
+dev,a/package-4,false,false,remove,0.1.1,
+dev,a/no-link-2,false,false,remove,0.1.1,
 
 OUTPUT;
     }

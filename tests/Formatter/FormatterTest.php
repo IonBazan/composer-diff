@@ -7,6 +7,7 @@ use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -61,6 +62,26 @@ abstract class FormatterTest extends TestCase
     abstract protected function getFormatter(OutputInterface $output): Formatter;
 
     abstract protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string;
+
+    abstract protected function getEffectivePlatformOutput(): string;
+
+    public function testItLabelsEffectivePlatformRequirements(): void
+    {
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->render(
+            $this->getEntries([
+                new InstallOperation(new EffectivePlatformPackage('ext-intl', '*', '*')),
+                new UpdateOperation(new EffectivePlatformPackage('php', '>=7.2', '>=7.2'), new EffectivePlatformPackage('php', '>=8.0', '>=8.0')),
+                new UninstallOperation(new EffectivePlatformPackage('ext-xdebug', '*', '*')),
+            ], $this->getGenerators()),
+            new DiffEntries([]),
+            false,
+            false
+        );
+        $this->assertSame($this->getEffectivePlatformOutput(), $this->getDisplay($output));
+    }
 
     protected static function getEmptyOutput(): string
     {

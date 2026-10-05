@@ -54,7 +54,7 @@ class JsonFormatter extends AbstractFormatter
                 unset($row['licenses']);
             }
 
-            $rows[$row['name']] = $row;
+            $rows[$entry->getDisplayName()] = $row;
         }
 
         return $rows;

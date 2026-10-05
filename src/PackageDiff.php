@@ -8,6 +8,7 @@ use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\PackageInterface;
 use Composer\Repository\ArrayRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
@@ -18,6 +19,7 @@ use Composer\Semver\VersionParser;
 use Composer\Util\ProcessExecutor;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
@@ -51,7 +53,7 @@ class PackageDiff
 
         foreach ($this->getOperations($oldPackages, $targetPackages) as $operation) {
             $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
-            $direct = in_array($package->getName(), $directPackages, true);
+            $direct = !$package instanceof EffectivePlatformPackage && in_array($package->getName(), $directPackages, true);
 
             if ($onlyDirect && !$direct) {
                 continue;
@@ -71,7 +73,7 @@ class PackageDiff
         $operations = [];
 
         foreach ($targetPackages->getPackages() as $newPackage) {
-            $matchingPackages = $oldPackages->findPackages($newPackage->getName());
+            $matchingPackages = $this->findMatchingPackages($oldPackages, $newPackage);
 
             if ($newPackage instanceof AliasPackage) {
                 continue;
@@ -99,12 +101,22 @@ class PackageDiff
                 continue;
             }
 
-            if (!$targetPackages->findPackage($oldPackage->getName(), '*')) {
+            if (!$this->findMatchingPackages($targetPackages, $oldPackage)) {
                 $operations[] = new UninstallOperation($oldPackage);
             }
         }
 
         return $operations;
+    }
+
+    /**
+     * @return PackageInterface[]
+     */
+    private function findMatchingPackages(RepositoryInterface $repository, PackageInterface $package): array
+    {
+        return array_filter($repository->findPackages($package->getName()), function (PackageInterface $candidate) use ($package): bool {
+            return $candidate instanceof EffectivePlatformPackage === $package instanceof EffectivePlatformPackage;
+        });
     }
 
     public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false): DiffEntries
@@ -143,11 +155,11 @@ class PackageDiff
     }
 
     /**
-     * @return array<string|null>
+     * @return array<string|bool|null>
      */
     private function getChange(DiffEntry $entry): array
     {
-        return [$entry->getPackageName(), $entry->getBaseVersion(), $entry->getTargetVersion()];
+        return [$entry->getPackageName(), $entry->isEffective(), $entry->getBaseVersion(), $entry->getTargetVersion()];
     }
 
     /**
@@ -171,7 +183,7 @@ class PackageDiff
             }
 
             foreach ($this->getEffectiveRequirements($composerLock, $dev) as $name => $version) {
-                $packages[] = new CompletePackage($name.' (effective)', $version, $version);
+                $packages[] = new EffectivePlatformPackage($name, $version, $version);
             }
         }
 

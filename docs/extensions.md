@@ -183,7 +183,7 @@ class TsvFormatter extends AbstractFormatter
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
-            $this->output->writeln(implode("\t", [$title, $entry->getPackageName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
+            $this->output->writeln(implode("\t", [$title, $entry->getDisplayName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
         }
     }
 }
@@ -311,7 +311,7 @@ class DiffPolicy
         /** @var DiffEntry $entry */
         foreach ($event->getProdEntries() as $entry) {
             if ($entry->isDowngrade()) {
-                $event->getIO()->writeError(sprintf('<error>%s must not be downgraded</error>', $entry->getPackageName()));
+                $event->getIO()->writeError(sprintf('<error>%s must not be downgraded</error>', $entry->getDisplayName()));
                 $event->setExitCode(32);
             }
         }

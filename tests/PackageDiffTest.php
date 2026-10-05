@@ -12,6 +12,7 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\ArrayRepository;
 use Composer\Repository\RepositoryInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\PackageDiff;
 
 class PackageDiffTest extends TestCase
@@ -506,8 +507,13 @@ class PackageDiffTest extends TestCase
     private function getPrettyVersions(RepositoryInterface $repository): array
     {
         return array_map(function (PackageInterface $package): string {
-            return $package->getName().' '.$package->getPrettyVersion();
+            return $this->getLabel($package).' '.$package->getPrettyVersion();
         }, $repository->getPackages());
+    }
+
+    private function getLabel(PackageInterface $package): string
+    {
+        return $package->getName().($package instanceof EffectivePlatformPackage ? ' (effective)' : '');
     }
 
     private function entryToString(DiffEntry $entry): string
@@ -518,15 +524,15 @@ class PackageDiffTest extends TestCase
     private function operationToString(OperationInterface $operation): string
     {
         if ($operation instanceof InstallOperation) {
-            return sprintf('install %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
+            return sprintf('install %s %s', $this->getLabel($operation->getPackage()), $operation->getPackage()->getPrettyVersion());
         }
 
         if ($operation instanceof UpdateOperation) {
-            return sprintf('update %s from %s to %s', $operation->getInitialPackage()->getName(), $operation->getInitialPackage()->getPrettyVersion(), $operation->getTargetPackage()->getPrettyVersion());
+            return sprintf('update %s from %s to %s', $this->getLabel($operation->getInitialPackage()), $operation->getInitialPackage()->getPrettyVersion(), $operation->getTargetPackage()->getPrettyVersion());
         }
 
         if ($operation instanceof UninstallOperation) {
-            return sprintf('uninstall %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
+            return sprintf('uninstall %s %s', $this->getLabel($operation->getPackage()), $operation->getPackage()->getPrettyVersion());
         }
 
         throw new \InvalidArgumentException('Invalid operation provided');
