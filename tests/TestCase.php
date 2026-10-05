@@ -102,6 +102,12 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getComposerApplication()
     {
+        // Old Composer versions reject the GitHub token format CI puts in the global auth config
+        foreach (array('COMPOSER_HOME' => sys_get_temp_dir().'/composer-diff-test-home', 'COMPOSER_AUTH' => '') as $name => $value) {
+            putenv($name.'='.$value);
+            $_SERVER[$name] = $_ENV[$name] = $value;
+        }
+
         return PHP_VERSION_ID >= 70000 ? new TypedComposerApplication() : new ComposerApplication();
     }
 
