@@ -15,3 +15,5 @@ Each generator must have following methods:
 - `getCompareUrl()`: Generates URL for comparing two versions of the package.
 - `getReleaseUrl()`: Generates URL for viewing a release or commit of a package.
 - `getProjectUrl()`: Mainly used to generate URL to the project repository root.
+
+Other packages can add URL generators, see [Extensions](extensions.md#custom-url-generators).

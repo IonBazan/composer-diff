@@ -4,10 +4,15 @@ namespace IonBazan\ComposerDiff\Command;
 
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Event\PostDiffEvent;
 use IonBazan\ComposerDiff\Formatter\FormatterContainer;
+use IonBazan\ComposerDiff\Formatter\FormatterProvider;
 use IonBazan\ComposerDiff\PackageDiff;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
+use IonBazan\ComposerDiff\Url\UrlGeneratorProvider;
 use Composer\Command\BaseCommand;
+use Composer\Composer;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -30,12 +35,20 @@ class DiffCommand extends BaseCommand
     protected $gitlabDomains;
 
     /**
+     * Not using BaseCommand::getComposer() as it would create a Composer instance when none is injected.
+     *
+     * @var Composer|null
+     */
+    private $composerInstance;
+
+    /**
      * @param string[] $gitlabDomains
      */
-    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = [])
+    public function __construct(PackageDiff $packageDiff, array $gitlabDomains = [], ?Composer $composer = null)
     {
         $this->packageDiff = $packageDiff;
         $this->gitlabDomains = $gitlabDomains;
+        $this->composerInstance = $composer;
 
         parent::__construct();
     }
@@ -54,7 +67,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github, pr)', 'mdtable')
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, github, pr or one added by an extension)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
             ->addOption('sort', null, InputOption::VALUE_OPTIONAL, 'Sort packages by "name" or "operation"', false)
@@ -95,7 +108,8 @@ Use <info>--with-links</info> to include release and compare URLs in the report:
 
     <info>%command.full_name% --with-links</info>
     
-You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment>, <comment>json</comment>, <comment>github</comment> and <comment>pr</comment>:
+You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment>, <comment>json</comment>, <comment>github</comment> and <comment>pr</comment>.
+Plugins can register additional formats:
 
     <info>%command.full_name% --format=json</info>
 
@@ -156,8 +170,15 @@ EOF
             throw new \InvalidArgumentException('The --no-dev and --no-prod options cannot be used together');
         }
 
-        $urlGenerators = new GeneratorContainer(array_merge($this->gitlabDomains, $input->getOption('gitlab-domains')));
+        $urlGenerators = new GeneratorContainer(array_merge($this->gitlabDomains, $input->getOption('gitlab-domains')), $this->getExtensionUrlGenerators());
         $formatters = new FormatterContainer($output);
+
+        foreach ($this->getCapabilities(FormatterProvider::class) as $provider) {
+            foreach ($provider->getFormatters($output) as $name => $extensionFormatter) {
+                $formatters->addFormatter($name, $extensionFormatter);
+            }
+        }
+
         $formatter = $formatters->getFormatter($input->getOption('format'));
 
         $this->packageDiff->setUrlGenerator($urlGenerators);
@@ -185,9 +206,49 @@ EOF
             $devOperations = $devOperations->sorted($sortBy);
         }
 
+        $extensionExitCode = 0;
+
+        if (null !== $this->composerInstance) {
+            $event = new PostDiffEvent($this->composerInstance, $this->getIO(), $prodOperations, $devOperations);
+            $this->composerInstance->getEventDispatcher()->dispatch($event->getName(), $event);
+            $prodOperations = $event->getProdEntries();
+            $devOperations = $event->getDevEntries();
+            $extensionExitCode = $event->getExitCode();
+        }
+
         $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);
 
-        return $input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0;
+        return ($input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0) | $extensionExitCode;
+    }
+
+    /**
+     * @return UrlGenerator[]
+     */
+    private function getExtensionUrlGenerators(): array
+    {
+        $generators = [];
+
+        foreach ($this->getCapabilities(UrlGeneratorProvider::class) as $provider) {
+            $generators = array_merge($generators, $provider->getUrlGenerators());
+        }
+
+        return $generators;
+    }
+
+    /**
+     * @template T of \Composer\Plugin\Capability\Capability
+     *
+     * @param class-string<T> $capability
+     *
+     * @return T[]
+     */
+    private function getCapabilities(string $capability): array
+    {
+        if (null === $this->composerInstance) {
+            return [];
+        }
+
+        return $this->composerInstance->getPluginManager()->getPluginCapabilities($capability, ['composer' => $this->composerInstance, 'io' => $this->getIO()]);
     }
 
     /**

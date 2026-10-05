@@ -8,6 +8,7 @@ use IonBazan\ComposerDiff\Url\DrupalGenerator;
 use Composer\Package\CompletePackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class GeneratorContainerTest extends TestCase
 {
@@ -46,5 +47,14 @@ class GeneratorContainerTest extends TestCase
 
         $package->setHomepage(null);
         self::assertNull($generator->getProjectUrl($package));
+    }
+
+    public function testCustomGeneratorsTakePrecedenceOverBuiltInOnes(): void
+    {
+        $custom = $this->getMockBuilder(UrlGenerator::class)->getMock();
+        $custom->method('supportsPackage')->willReturn(true);
+        $container = new GeneratorContainer([], [$custom]);
+
+        $this->assertSame($custom, $container->get($this->getPackageWithSource('', '', 'https://github.com')));
     }
 }

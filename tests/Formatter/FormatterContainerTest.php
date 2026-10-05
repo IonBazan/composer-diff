@@ -36,6 +36,28 @@ class FormatterContainerTest extends TestCase
         $container->getFormatter('anything-else');
     }
 
+    public function testAddFormatter(): void
+    {
+        $container = new FormatterContainer($this->getMockBuilder(OutputInterface::class)->getMock());
+        $formatter = $this->getMockBuilder(Formatter::class)->getMock();
+        $container->addFormatter('custom', $formatter);
+
+        $this->assertSame($formatter, $container->getFormatter('custom'));
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json, pr, custom');
+        $container->getFormatter('anything-else');
+    }
+
+    public function testAddFormatterRejectsDuplicateName(): void
+    {
+        $container = new FormatterContainer($this->getMockBuilder(OutputInterface::class)->getMock());
+        $container->addFormatter('custom', $this->getMockBuilder(Formatter::class)->getMock());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Format "custom" is already registered');
+        $container->addFormatter('custom', $this->getMockBuilder(Formatter::class)->getMock());
+    }
+
     /**
      * @return iterable<array{0: class-string<Formatter>, 1: string}>
      */

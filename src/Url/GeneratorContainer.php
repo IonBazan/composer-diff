@@ -13,16 +13,17 @@ class GeneratorContainer implements UrlGenerator
     protected $generators = [];
 
     /**
-     * @param string[] $gitlabDomains
+     * @param string[]       $gitlabDomains
+     * @param UrlGenerator[] $generators   Checked before the built-in generators
      */
-    public function __construct(array $gitlabDomains = [])
+    public function __construct(array $gitlabDomains = [], array $generators = [])
     {
-        $generators = [
+        $generators = array_merge($generators, [
             new DrupalGenerator(),
             new GithubGenerator(),
             new BitBucketGenerator(),
             new GitlabGenerator(),
-        ];
+        ]);
 
         foreach ($gitlabDomains as $domain) {
             $generators[] = new GitlabGenerator($domain);

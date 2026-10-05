@@ -24,6 +24,15 @@ class FormatterContainer
         ];
     }
 
+    public function addFormatter(string $name, Formatter $formatter): void
+    {
+        if (isset($this->formatters[$name])) {
+            throw new \InvalidArgumentException(sprintf('Format "%s" is already registered', $name));
+        }
+
+        $this->formatters[$name] = $formatter;
+    }
+
     /**
      * @param string $name
      *

@@ -3,13 +3,26 @@
 namespace IonBazan\ComposerDiff\Tests\Command;
 
 use IonBazan\ComposerDiff\PackageDiff;
+use Composer\Composer;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\IO\NullIO;
+use Composer\Package\PackageInterface;
+use Composer\Plugin\PluginManager;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Command\DiffCommand;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Event\PostDiffEvent;
+use IonBazan\ComposerDiff\Formatter\Formatter;
+use IonBazan\ComposerDiff\Formatter\FormatterProvider;
 use IonBazan\ComposerDiff\Tests\TestCase;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\UrlGenerator;
+use IonBazan\ComposerDiff\Url\UrlGeneratorProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class DiffCommandTest extends TestCase
@@ -452,5 +465,151 @@ OUTPUT
                 ],
             ],
         ];
+    }
+
+    public function testItUsesFormattersAndUrlGeneratorsFromPlugins(): void
+    {
+        $prodEntries = $this->getEntries([new InstallOperation($this->getPackage('a/package-1', '1.0.0'))], $this->getGenerators());
+        $devEntries = $this->getEntries([new InstallOperation($this->getPackage('a/package-2', '1.0.0'))], $this->getGenerators());
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $diff->expects($this->exactly(2))
+            ->method('getPackageDiff')
+            ->willReturnOnConsecutiveCalls($prodEntries, $devEntries);
+
+        $formatter = $this->getMockBuilder(Formatter::class)->getMock();
+        $formatter->expects($this->once())->method('render')->with($prodEntries, $devEntries, true, false);
+        $formatterProvider = $this->getMockBuilder(FormatterProvider::class)->getMock();
+        $formatterProvider->expects($this->once())
+            ->method('getFormatters')
+            ->with($this->isInstanceOf(OutputInterface::class))
+            ->willReturn(['custom' => $formatter]);
+
+        $firstPackage = $this->getPackageWithSource('a/first', '1.0.0', 'https://github.com/a/first');
+        $secondPackage = $this->getPackageWithSource('a/second', '1.0.0', 'https://github.com/a/second');
+        $firstGenerator = $this->getUrlGenerator($firstPackage);
+        $secondGenerator = $this->getUrlGenerator($secondPackage);
+        $firstProvider = $this->getMockBuilder(UrlGeneratorProvider::class)->getMock();
+        $firstProvider->method('getUrlGenerators')->willReturn([$firstGenerator]);
+        $secondProvider = $this->getMockBuilder(UrlGeneratorProvider::class)->getMock();
+        $secondProvider->method('getUrlGenerators')->willReturn([$secondGenerator]);
+
+        $diff->expects($this->once())
+            ->method('setUrlGenerator')
+            ->with($this->callback(function (GeneratorContainer $container) use ($firstPackage, $firstGenerator, $secondPackage, $secondGenerator): bool {
+                return $firstGenerator === $container->get($firstPackage) && $secondGenerator === $container->get($secondPackage);
+            }));
+
+        $io = new NullIO();
+        $composer = $this->getComposer(function (string $capability, array $args) use ($formatterProvider, $firstProvider, $secondProvider): array {
+            return FormatterProvider::class === $capability ? [$formatterProvider] : [$firstProvider, $secondProvider];
+        }, $io);
+
+        $application = $this->getComposerApplication();
+        $application->setIO($io);
+        $command = new DiffCommand($diff, [], $composer);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+
+        $this->assertSame(0, $tester->execute(['--format' => 'custom', '--with-links' => null]));
+    }
+
+    public function testItRejectsPluginFormatterOverridingBuiltInOne(): void
+    {
+        $formatterProvider = $this->getMockBuilder(FormatterProvider::class)->getMock();
+        $formatterProvider->method('getFormatters')->willReturn(['json' => $this->getMockBuilder(Formatter::class)->getMock()]);
+        $composer = $this->getComposer(function (string $capability) use ($formatterProvider): array {
+            return FormatterProvider::class === $capability ? [$formatterProvider] : [];
+        });
+        $command = new DiffCommand($this->getMockBuilder(PackageDiff::class)->getMock(), [], $composer);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Format "json" is already registered');
+        $tester->execute([]);
+    }
+
+    public function testPostDiffListenersCanChangeEntriesAndExitCode(): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $diff->expects($this->exactly(2))
+            ->method('getPackageDiff')
+            ->willReturnOnConsecutiveCalls(
+                $this->getEntries([new InstallOperation($this->getPackage('a/prod-removed', '1.0.0'))], $this->getGenerators()),
+                $this->getEntries([new InstallOperation($this->getPackage('a/dev-removed', '1.0.0'))], $this->getGenerators())
+            );
+        $keptEntries = $this->getEntries([new InstallOperation($this->getPackage('a/kept', '1.0.0'))], $this->getGenerators());
+
+        $io = new NullIO();
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)->disableOriginalConstructor()->getMock();
+        $composer = $this->getComposer(function (): array {
+            return [];
+        }, $io, $dispatcher);
+        $dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(PostDiffEvent::NAME, $this->isInstanceOf(PostDiffEvent::class))
+            ->willReturnCallback(function (string $name, PostDiffEvent $event) use ($composer, $io, $keptEntries): int {
+                $this->assertSame($composer, $event->getComposer());
+                $this->assertSame($io, $event->getIO());
+                $this->assertCount(1, $event->getProdEntries());
+                $this->assertCount(1, $event->getDevEntries());
+                $event->setProdEntries($keptEntries);
+                $event->setDevEntries(new DiffEntries([]));
+                $event->setExitCode(34);
+
+                return 0;
+            });
+        $application = $this->getComposerApplication();
+        $application->setIO($io);
+        $command = new DiffCommand($diff, [], $composer);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+
+        $this->assertSame(34, $tester->execute(['--strict' => null, '--format' => 'mdlist']));
+        $this->assertSame(<<<OUTPUT
+Prod Packages
+=============
+
+ - Install a/kept (1.0.0)
+
+
+OUTPUT
+            , $tester->getDisplay());
+    }
+
+    /**
+     * @param callable(string, array<string, mixed>): array<mixed> $capabilities
+     *
+     * @return MockObject&Composer
+     */
+    private function getComposer(callable $capabilities, ?NullIO $io = null, ?EventDispatcher $dispatcher = null): Composer
+    {
+        $composer = $this->getMockBuilder(Composer::class)->getMock();
+        $pluginManager = $this->getMockBuilder(PluginManager::class)->disableOriginalConstructor()->getMock();
+        $pluginManager->method('getPluginCapabilities')
+            ->willReturnCallback(function (string $capability, array $args) use ($capabilities, $composer, $io): array {
+                if (null !== $io) {
+                    $this->assertSame(['composer' => $composer, 'io' => $io], $args);
+                }
+
+                return $capabilities($capability, $args);
+            });
+        $composer->method('getPluginManager')->willReturn($pluginManager);
+        $composer->method('getEventDispatcher')->willReturn($dispatcher ?? $this->getMockBuilder(EventDispatcher::class)->disableOriginalConstructor()->getMock());
+
+        return $composer;
+    }
+
+    /**
+     * @return MockObject&UrlGenerator
+     */
+    private function getUrlGenerator(PackageInterface $supportedPackage): UrlGenerator
+    {
+        $generator = $this->getMockBuilder(UrlGenerator::class)->getMock();
+        $generator->method('supportsPackage')->willReturnCallback(function (PackageInterface $package) use ($supportedPackage): bool {
+            return $package === $supportedPackage;
+        });
+
+        return $generator;
     }
 }

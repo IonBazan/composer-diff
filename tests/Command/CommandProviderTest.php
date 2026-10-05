@@ -21,6 +21,6 @@ class CommandProviderTest extends TestCase
             ->willReturn([]);
         $composer->expects($this->once())->method('getConfig')->willReturn($config);
         $provider = new CommandProvider(['composer' => $composer]);
-        $this->assertEquals([new DiffCommand(new PackageDiff())], $provider->getCommands());
+        $this->assertEquals([new DiffCommand(new PackageDiff(), [], $composer)], $provider->getCommands());
     }
 }
