@@ -195,6 +195,15 @@ class PackageDiffTest extends TestCase
         $this->assertSame(array('update phpunit/phpunit from 9.2.5 to 8.5.8'), array_map(array($this, 'entryToString'), $operations->getArrayCopy()));
     }
 
+    public function testGetOperations()
+    {
+        $diff = new PackageDiff();
+        $operations = $diff->getOperations(new ArrayRepository(), new ArrayRepository(array(new Package('vendor/package-a', '1.0.0.0', '1.0.0'))));
+
+        $this->assertCount(1, $operations);
+        $this->assertInstanceOf('Composer\DependencyResolver\Operation\InstallOperation', $operations[0]);
+    }
+
     public function testLoadFromEmptyArray()
     {
         $diff = new PackageDiff();
