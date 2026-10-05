@@ -121,45 +121,12 @@ class PackageDiff
 
     public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false): DiffEntries
     {
-        $fromLock = $this->loadLock($from, $allowMissingFiles);
-        $toLock = $this->loadLock($to, $allowMissingFiles);
-        $directPackages = array_merge($this->getDirectPackages($from), $this->getDirectPackages($to));
-        $entries = $this->getDiff(
-            $this->loadPackagesFromArray($fromLock, $dev, $withPlatform),
-            $this->loadPackagesFromArray($toLock, $dev, $withPlatform),
-            $directPackages,
+        return $this->getDiff(
+            $this->loadPackages($from, $dev, $withPlatform, $allowMissingFiles),
+            $this->loadPackages($to, $dev, $withPlatform, $allowMissingFiles),
+            array_merge($this->getDirectPackages($from), $this->getDirectPackages($to)),
             $onlyDirect
         );
-
-        if (!$dev || !$withPlatform) {
-            return $entries;
-        }
-
-        $prodEntries = $this->getDiff(
-            $this->loadPackagesFromArray($fromLock, false, true),
-            $this->loadPackagesFromArray($toLock, false, true),
-            $directPackages,
-            $onlyDirect
-        );
-
-        return $this->withoutEntriesIn($entries, $prodEntries);
-    }
-
-    private function withoutEntriesIn(DiffEntries $entries, DiffEntries $excluded): DiffEntries
-    {
-        $excludedChanges = array_map([$this, 'getChange'], $excluded->getArrayCopy());
-
-        return new DiffEntries(array_values(array_filter($entries->getArrayCopy(), function (DiffEntry $entry) use ($excludedChanges): bool {
-            return !in_array($this->getChange($entry), $excludedChanges, true);
-        })));
-    }
-
-    /**
-     * @return array<string|bool|null>
-     */
-    private function getChange(DiffEntry $entry): array
-    {
-        return [$entry->getPackageName(), $entry->isEffective(), $entry->getBaseVersion(), $entry->getTargetVersion()];
     }
 
     /**
@@ -285,12 +252,9 @@ class PackageDiff
         return implode('.', $numbers).(isset($parts[1]) && 'dev' !== $parts[1] ? '-'.$parts[1] : '');
     }
 
-    /**
-     * @return mixed[]
-     */
-    private function loadLock(string $path, bool $allowMissingFiles): array
+    private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles): ArrayRepository
     {
-        return $this->decode($this->getFileContents($path, true, $allowMissingFiles), $path);
+        return $this->loadPackagesFromArray($this->decode($this->getFileContents($path, true, $allowMissingFiles), $path), $dev, $withPlatform);
     }
 
     /**

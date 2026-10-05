@@ -319,6 +319,44 @@ OUTPUT
                     '-p' => null,
                 ],
             ],
+            'effective platform requirements' => [
+                <<<OUTPUT
+| Prod Packages        | Operation | Base  | Target |
+|----------------------|-----------|-------|--------|
+| php (effective)      | Changed   | >=7.2 | >=8.0  |
+| ext-intl (effective) | New       | -     | *      |
+
+| Dev Packages           | Operation | Base | Target |
+|------------------------|-----------|------|--------|
+| ext-xdebug (effective) | New       | -    | *      |
+
+
+OUTPUT
+                ,
+                [
+                    '--base' => __DIR__.'/../fixtures/platform-base/composer.lock',
+                    '--target' => __DIR__.'/../fixtures/platform-target/composer.lock',
+                    '-p' => null,
+                ],
+            ],
+            'effective platform requirements without prod' => [
+                <<<OUTPUT
+| Dev Packages           | Operation | Base  | Target |
+|------------------------|-----------|-------|--------|
+| php (effective)        | Changed   | >=7.2 | >=8.0  |
+| ext-intl (effective)   | New       | -     | *      |
+| ext-xdebug (effective) | New       | -     | *      |
+
+
+OUTPUT
+                ,
+                [
+                    '--base' => __DIR__.'/../fixtures/platform-base/composer.lock',
+                    '--target' => __DIR__.'/../fixtures/platform-target/composer.lock',
+                    '-p' => null,
+                    '--no-prod' => null,
+                ],
+            ],
         ];
     }
 

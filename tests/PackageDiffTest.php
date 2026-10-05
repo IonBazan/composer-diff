@@ -151,7 +151,7 @@ class PackageDiffTest extends TestCase
         $this->assertSame(['a/package-d 1.0.0'], $this->getPrettyVersions($diff->loadPackagesFromArray($lock, true, false)));
     }
 
-    public function testDevDiffHidesPlatformChangesAlreadyListedInProd(): void
+    public function testDevDiffCombinesProdAndDevPlatformRequirements(): void
     {
         $diff = new PackageDiff();
 
@@ -160,6 +160,8 @@ class PackageDiffTest extends TestCase
             'install ext-intl (effective) *',
         ], array_map([$this, 'entryToString'], $diff->getPackageDiff(__DIR__.'/fixtures/platform-base/composer.lock', __DIR__.'/fixtures/platform-target/composer.lock', false, true)->getArrayCopy()));
         $this->assertSame([
+            'update php (effective) from >=7.2 to >=8.0',
+            'install ext-intl (effective) *',
             'install ext-xdebug (effective) *',
         ], array_map([$this, 'entryToString'], $diff->getPackageDiff(__DIR__.'/fixtures/platform-base/composer.lock', __DIR__.'/fixtures/platform-target/composer.lock', true, true)->getArrayCopy()));
     }

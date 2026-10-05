@@ -111,7 +111,7 @@ With `--with-platform` (`-p`), the report includes two kinds of platform rows:
 
 - Rows like `php` show your project's own requirements from `composer.json`, exactly as written.
 - Rows like `php (effective)` show the version range required by your project and all locked packages together, for example `>=7.2.5 <8.0`.
-  They reveal changes that come from dependencies, such as a package raising its minimum PHP version.
+  They are listed for every platform package that at least one locked package requires, and reveal changes that come from dependencies, such as a package raising its minimum PHP version.
 
 | Prod Packages   | Operation | Base       | Target       |
 |-----------------|-----------|------------|--------------|
@@ -120,12 +120,13 @@ With `--with-platform` (`-p`), the report includes two kinds of platform rows:
 
 A few details:
 
-- The dev effective range covers both prod and dev packages, as both are installed in development. A dev row is only listed when its change differs from the prod row.
-- Requirements satisfied by a locked package through `provide` or `replace` (for example `symfony/polyfill-mbstring` providing `ext-mbstring`) are not listed as effective rows.
+- The dev effective range covers both prod and dev packages, as both are installed in development. When both tables are shown, a dev row is hidden if the prod table already lists the same change.
+- Requirements satisfied by a locked package through `provide` or `replace` (for example `symfony/polyfill-mbstring` providing `ext-mbstring`) are not listed as effective rows. The provided version is not checked against the requirement.
 - Requirements on Composer itself (`composer-plugin-api`, `composer-runtime-api`, and `composer` when running Composer 2.2 or newer), usually coming from Composer plugins, are listed like any other platform package.
 - If the requirements have no common version range, which can happen in lock files created with `--ignore-platform-reqs`, the row shows `conflicting (N constraints)`.
 - Effective rows are never marked as direct dependencies, so `--direct` hides them.
-- In JSON and CSV output, effective rows keep the plain platform name (for example `php`) and are marked with `"effective": true` (an `effective` column in CSV). Formatters show them as `php (effective)`, and JSON uses that label as the row key.
+- Effective rows are always shown as `Changed`, never as upgrades or downgrades. With `--strict`, a change in a dependency's platform requirements sets the change flags (`2` or `4`) even when your own requirements did not change.
+- In JSON and CSV output, effective rows keep the plain platform name (for example `php`) and are marked with `"effective": true` (the last `effective` column in CSV). Formatters show them as `php (effective)`, and JSON uses that label as the row key.
 
 ### Strict mode
 
@@ -141,6 +142,8 @@ Exit code of the command is built using following bit flags:
 * `16` - There were downgrades in dev packages.
 
 You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
+
+With `--with-platform`, changes in the [effective platform requirements](#platform-requirements) of your dependencies also count as changes.
 
 ## Extensions
 

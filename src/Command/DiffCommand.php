@@ -202,6 +202,8 @@ EOF
             $devOperations = $devOperations->matching($filters);
         }
 
+        $devOperations = $this->withoutEffectiveChangesIn($devOperations, $prodOperations);
+
         if (false !== $sort) {
             $prodOperations = $prodOperations->sorted($sortBy);
             $devOperations = $devOperations->sorted($sortBy);
@@ -250,6 +252,25 @@ EOF
         }
 
         return $this->composerInstance->getPluginManager()->getPluginCapabilities($capability, ['composer' => $this->composerInstance, 'io' => $this->getIO()]);
+    }
+
+    private function withoutEffectiveChangesIn(DiffEntries $devEntries, DiffEntries $prodEntries): DiffEntries
+    {
+        $prodChanges = array_flip(array_map([$this, 'getChange'], $prodEntries->getArrayCopy()));
+        $entries = [];
+
+        foreach ($devEntries as $entry) {
+            if (!$entry->isEffective() || !isset($prodChanges[$this->getChange($entry)])) {
+                $entries[] = $entry;
+            }
+        }
+
+        return new DiffEntries($entries);
+    }
+
+    private function getChange(DiffEntry $entry): string
+    {
+        return sprintf('%s %s %s', $entry->getDisplayName(), $entry->getBaseVersion(), $entry->getTargetVersion());
     }
 
     /**

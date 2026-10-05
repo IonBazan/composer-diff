@@ -400,11 +400,11 @@ and the `section` column tells prod (`prod`) and dev (`dev`) packages apart. The
 
 - `name` - package name
 - `direct` - `true` if the package is a direct dependency of the project, `false` otherwise
-- `effective` - `true` for effective platform requirements listed with `--with-platform` (see [Platform requirements](../README.md#platform-requirements)), `false` otherwise
 - `operation` - `install`, `upgrade`, `downgrade`, `change` or `remove`
 - `version_base` and `version_target` - versions before and after the change, empty when the package was installed or removed
 - `licenses` - comma-separated licenses, only with `--with-licenses`
 - `compare` and `link` - compare/release URL and project URL, only with `--with-links`
+- `effective` - `true` for effective platform requirements listed with `--with-platform` (see [Platform requirements](../README.md#platform-requirements)), `false` otherwise. It is always the last column, so the position of the other columns does not change.
 
 Fields containing spaces, commas, quotes or line breaks are enclosed in double quotes, and quotes inside them are doubled.
 The header row is printed even when there are no changes.
@@ -412,33 +412,33 @@ The header row is printed even when there are no changes.
 Example output:
 
 ```csv
-section,name,direct,effective,operation,version_base,version_target
-prod,psr/event-dispatcher,false,false,install,,1.0.0
-prod,roave/security-advisories,true,false,change,"dev-master 3c97c13","dev-master ac36586"
-prod,symfony/deprecation-contracts,false,false,install,,v2.1.2
-prod,symfony/event-dispatcher,true,false,upgrade,v2.8.52,v5.1.2
-prod,symfony/event-dispatcher-contracts,false,false,install,,v2.1.2
-prod,symfony/polyfill-php80,false,false,install,,v1.17.1
-dev,phpunit/php-code-coverage,false,false,downgrade,8.0.2,7.0.10
-dev,phpunit/php-file-iterator,false,false,downgrade,3.0.2,2.0.2
-dev,phpunit/php-text-template,false,false,downgrade,2.0.1,1.2.1
-dev,phpunit/php-timer,false,false,downgrade,5.0.0,2.1.2
-dev,phpunit/php-token-stream,false,false,downgrade,4.0.2,3.1.1
-dev,phpunit/phpunit,true,false,downgrade,9.2.5,8.5.8
-dev,sebastian/code-unit-reverse-lookup,false,false,downgrade,2.0.1,1.0.1
-dev,sebastian/comparator,false,false,downgrade,4.0.2,3.0.2
-dev,sebastian/diff,false,false,downgrade,4.0.1,3.0.2
-dev,sebastian/environment,false,false,downgrade,5.1.1,4.2.3
-dev,sebastian/exporter,false,false,downgrade,4.0.1,3.1.2
-dev,sebastian/global-state,false,false,downgrade,4.0.0,3.0.0
-dev,sebastian/object-enumerator,false,false,downgrade,4.0.1,3.0.3
-dev,sebastian/object-reflector,false,false,downgrade,2.0.1,1.1.1
-dev,sebastian/recursion-context,false,false,downgrade,4.0.1,3.0.0
-dev,sebastian/resource-operations,false,false,downgrade,3.0.1,2.0.1
-dev,sebastian/type,false,false,downgrade,2.1.0,1.1.3
-dev,sebastian/version,false,false,downgrade,3.0.0,2.0.1
-dev,phpunit/php-invoker,false,false,remove,3.0.1,
-dev,sebastian/code-unit,false,false,remove,1.0.3,
+section,name,direct,operation,version_base,version_target,effective
+prod,psr/event-dispatcher,false,install,,1.0.0,false
+prod,roave/security-advisories,true,change,"dev-master 3c97c13","dev-master ac36586",false
+prod,symfony/deprecation-contracts,false,install,,v2.1.2,false
+prod,symfony/event-dispatcher,true,upgrade,v2.8.52,v5.1.2,false
+prod,symfony/event-dispatcher-contracts,false,install,,v2.1.2,false
+prod,symfony/polyfill-php80,false,install,,v1.17.1,false
+dev,phpunit/php-code-coverage,false,downgrade,8.0.2,7.0.10,false
+dev,phpunit/php-file-iterator,false,downgrade,3.0.2,2.0.2,false
+dev,phpunit/php-text-template,false,downgrade,2.0.1,1.2.1,false
+dev,phpunit/php-timer,false,downgrade,5.0.0,2.1.2,false
+dev,phpunit/php-token-stream,false,downgrade,4.0.2,3.1.1,false
+dev,phpunit/phpunit,true,downgrade,9.2.5,8.5.8,false
+dev,sebastian/code-unit-reverse-lookup,false,downgrade,2.0.1,1.0.1,false
+dev,sebastian/comparator,false,downgrade,4.0.2,3.0.2,false
+dev,sebastian/diff,false,downgrade,4.0.1,3.0.2,false
+dev,sebastian/environment,false,downgrade,5.1.1,4.2.3,false
+dev,sebastian/exporter,false,downgrade,4.0.1,3.1.2,false
+dev,sebastian/global-state,false,downgrade,4.0.0,3.0.0,false
+dev,sebastian/object-enumerator,false,downgrade,4.0.1,3.0.3,false
+dev,sebastian/object-reflector,false,downgrade,2.0.1,1.1.1,false
+dev,sebastian/recursion-context,false,downgrade,4.0.1,3.0.0,false
+dev,sebastian/resource-operations,false,downgrade,3.0.1,2.0.1,false
+dev,sebastian/type,false,downgrade,2.1.0,1.1.3,false
+dev,sebastian/version,false,downgrade,3.0.0,2.0.1,false
+dev,phpunit/php-invoker,false,remove,3.0.1,,false
+dev,sebastian/code-unit,false,remove,1.0.3,,false
 ```
 
 ## Collapsible GitHub PR description (pr)
