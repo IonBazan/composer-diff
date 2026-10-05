@@ -9,7 +9,12 @@ use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Repository\ArrayRepository;
+use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
+use Composer\Semver\Constraint\MultiConstraint;
+use Composer\Semver\Interval;
+use Composer\Semver\Intervals;
+use Composer\Semver\VersionParser;
 use Composer\Util\ProcessExecutor;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
@@ -104,12 +109,45 @@ class PackageDiff
 
     public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false): DiffEntries
     {
-        return $this->getDiff(
-            $this->loadPackages($from, $dev, $withPlatform, $allowMissingFiles),
-            $this->loadPackages($to, $dev, $withPlatform, $allowMissingFiles),
-            array_merge($this->getDirectPackages($from), $this->getDirectPackages($to)),
+        $fromLock = $this->loadLock($from, $allowMissingFiles);
+        $toLock = $this->loadLock($to, $allowMissingFiles);
+        $directPackages = array_merge($this->getDirectPackages($from), $this->getDirectPackages($to));
+        $entries = $this->getDiff(
+            $this->loadPackagesFromArray($fromLock, $dev, $withPlatform),
+            $this->loadPackagesFromArray($toLock, $dev, $withPlatform),
+            $directPackages,
             $onlyDirect
         );
+
+        if (!$dev || !$withPlatform) {
+            return $entries;
+        }
+
+        $prodEntries = $this->getDiff(
+            $this->loadPackagesFromArray($fromLock, false, true),
+            $this->loadPackagesFromArray($toLock, false, true),
+            $directPackages,
+            $onlyDirect
+        );
+
+        return $this->withoutEntriesIn($entries, $prodEntries);
+    }
+
+    private function withoutEntriesIn(DiffEntries $entries, DiffEntries $excluded): DiffEntries
+    {
+        $excludedChanges = array_map([$this, 'getChange'], $excluded->getArrayCopy());
+
+        return new DiffEntries(array_values(array_filter($entries->getArrayCopy(), function (DiffEntry $entry) use ($excludedChanges): bool {
+            return !in_array($this->getChange($entry), $excludedChanges, true);
+        })));
+    }
+
+    /**
+     * @return array<string|null>
+     */
+    private function getChange(DiffEntry $entry): array
+    {
+        return [$entry->getPackageName(), $entry->getBaseVersion(), $entry->getTargetVersion()];
     }
 
     /**
@@ -120,7 +158,6 @@ class PackageDiff
         $loader = new ArrayLoader();
         $packages = [];
         $packagesKey = 'packages'.($dev ? '-dev' : '');
-        $platformKey = 'platform'.($dev ? '-dev' : '');
 
         if (isset($composerLock[$packagesKey])) {
             foreach ($composerLock[$packagesKey] as $packageInfo) {
@@ -128,18 +165,120 @@ class PackageDiff
             }
         }
 
-        if ($withPlatform && isset($composerLock[$platformKey])) {
-            foreach ($composerLock[$platformKey] as $name => $version) {
+        if ($withPlatform) {
+            foreach ($composerLock['platform'.($dev ? '-dev' : '')] ?? [] as $name => $version) {
                 $packages[] = new CompletePackage($name, $version, $version);
+            }
+
+            foreach ($this->getEffectiveRequirements($composerLock, $dev) as $name => $version) {
+                $packages[] = new CompletePackage($name.' (effective)', $version, $version);
             }
         }
 
         return new ArrayRepository($packages);
     }
 
-    private function loadPackages(string $path, bool $dev, bool $withPlatform, bool $allowMissingFiles): ArrayRepository
+    /**
+     * @param mixed[] $composerLock
+     *
+     * @return array<string, string>
+     */
+    private function getEffectiveRequirements(array $composerLock, bool $dev): array
     {
-        return $this->loadPackagesFromArray($this->decode($this->getFileContents($path, true, $allowMissingFiles), $path), $dev, $withPlatform);
+        if (!$dev) {
+            return $this->getEffectiveRanges($composerLock, ['platform'], ['packages']);
+        }
+
+        return $this->getEffectiveRanges($composerLock, ['platform', 'platform-dev'], ['packages', 'packages-dev']);
+    }
+
+    /**
+     * @param mixed[]  $composerLock
+     * @param string[] $rootKeys
+     * @param string[] $packageKeys
+     *
+     * @return array<string, string>
+     */
+    private function getEffectiveRanges(array $composerLock, array $rootKeys, array $packageKeys): array
+    {
+        $requirements = [];
+        $provided = [];
+
+        foreach ($packageKeys as $packageKey) {
+            foreach ($composerLock[$packageKey] ?? [] as $packageInfo) {
+                foreach (array_merge($packageInfo['provide'] ?? [], $packageInfo['replace'] ?? []) as $name => $constraint) {
+                    $provided[strtolower($name)] = $constraint;
+                }
+
+                foreach ($packageInfo['require'] ?? [] as $name => $constraint) {
+                    if (PlatformRepository::isPlatformPackage($name)) {
+                        $requirements[strtolower($name)][] = $constraint;
+                    }
+                }
+            }
+        }
+
+        $requirements = array_diff_key($requirements, $provided);
+
+        foreach ($rootKeys as $rootKey) {
+            foreach ($composerLock[$rootKey] ?? [] as $name => $constraint) {
+                if (isset($requirements[strtolower($name)])) {
+                    $requirements[strtolower($name)][] = $constraint;
+                }
+            }
+        }
+
+        return array_map([$this, 'getEffectiveConstraint'], $requirements);
+    }
+
+    /**
+     * @param string[] $constraints
+     */
+    private function getEffectiveConstraint(array $constraints): string
+    {
+        $parser = new VersionParser();
+        $intervals = Intervals::get(MultiConstraint::create(array_map([$parser, 'parseConstraints'], $constraints)));
+        $ranges = [];
+
+        foreach ($intervals['numeric'] as $interval) {
+            $range = [];
+
+            if ($interval->getStart()->getVersion() !== Interval::fromZero()->getVersion()) {
+                $range[] = $interval->getStart()->getOperator().$this->getPrettyVersion($interval->getStart()->getVersion());
+            }
+
+            if ($interval->getEnd()->getVersion() !== Interval::untilPositiveInfinity()->getVersion()) {
+                $range[] = $interval->getEnd()->getOperator().$this->getPrettyVersion($interval->getEnd()->getVersion());
+            }
+
+            $ranges[] = $range ? implode(' ', $range) : '*';
+        }
+
+        if (!$ranges) {
+            $ranges = $intervals['branches']['names'];
+        }
+
+        return $ranges ? implode(' || ', $ranges) : sprintf('conflicting (%d constraints)', count(array_unique($constraints)));
+    }
+
+    private function getPrettyVersion(string $version): string
+    {
+        $parts = explode('-', $version, 2);
+        $numbers = explode('.', $parts[0]);
+
+        while (count($numbers) > 2 && '0' === end($numbers)) {
+            array_pop($numbers);
+        }
+
+        return implode('.', $numbers).(isset($parts[1]) && 'dev' !== $parts[1] ? '-'.$parts[1] : '');
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function loadLock(string $path, bool $allowMissingFiles): array
+    {
+        return $this->decode($this->getFileContents($path, true, $allowMissingFiles), $path);
     }
 
     /**

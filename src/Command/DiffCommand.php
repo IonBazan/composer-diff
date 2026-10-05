@@ -96,7 +96,8 @@ To compare files in specific path, use following syntax:
 
     <info>%command.full_name% master:subdirectory/composer.lock /path/to/another/composer.lock</info>
     
-By default, <info>platform</info> dependencies are hidden. Add <info>--with-platform</info> option to include them in the report:
+By default, <info>platform</info> dependencies are hidden. Add <info>--with-platform</info> option to include them in the report.
+Your own platform requirements are listed as they are, and <comment>(effective)</comment> rows show the range required by all locked packages together:
  
     <info>%command.full_name% --with-platform</info>
     

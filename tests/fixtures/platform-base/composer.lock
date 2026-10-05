@@ -1,0 +1,10 @@
+{
+    "packages": [
+        {"name": "a/package", "version": "1.0.0", "require": {"php": ">=7.2"}}
+    ],
+    "packages-dev": [
+        {"name": "a/dev-package", "version": "1.0.0", "require": {"php": ">=7.0"}}
+    ],
+    "platform": [],
+    "platform-dev": []
+}
