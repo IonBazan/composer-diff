@@ -60,7 +60,7 @@ jobs:
       - name: Run Tests
         run: vendor/bin/simple-phpunit --coverage-clover coverage.xml --coverage-text
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run mutation tests
