@@ -40,7 +40,7 @@ jobs:
             operating-system: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
@@ -49,7 +49,7 @@ jobs:
           coverage: xdebug
           tools: composer:${{ matrix.composer }}
       - name: Install Composer dependencies (${{ matrix.dependencies }})
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - name: Check PSR-4 mapping
