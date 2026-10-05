@@ -147,7 +147,7 @@ class PackageDiff
      */
     private function getDirectPackages(string $path): array
     {
-        $data = $this->decode($this->getFileContents($path, false), $path);
+        $data = $this->decode($this->getFileContents($path, false, true), $path);
 
         $packages = [];
 
@@ -174,7 +174,7 @@ class PackageDiff
         return $data;
     }
 
-    private function getFileContents(string $path, bool $lockFile = true, bool $allowMissingFiles = false): string
+    private function getFileContents(string $path, bool $lockFile, bool $allowMissingFiles): string
     {
         $originalPath = $path;
 
@@ -210,7 +210,7 @@ class PackageDiff
         $output = '';
 
         if (0 !== $process->execute(sprintf('git show %s', ProcessExecutor::escape($path)), $output)) {
-            if ($lockFile && !$allowMissingFiles) {
+            if (!$allowMissingFiles) {
                 throw new \RuntimeException(sprintf('Could not open file %s or find it in git as %s: %s', $originalPath, $path, trim($process->getErrorOutput())));
             }
 
