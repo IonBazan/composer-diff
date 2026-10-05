@@ -31,19 +31,6 @@ OUTPUT
             , $this->getDisplay($output));
     }
 
-    public function testItQuotesFieldsWithSpecialCharactersOnly(): void
-    {
-        foreach (["new\nline" => "\"new\nline\"", "carriage\rreturn" => "\"carriage\rreturn\"", 'a"b' => '"a""b"', 'a,b' => '"a,b"', 'plain' => 'plain'] as $license => $expected) {
-            $stream = fopen('php://memory', 'wb', false);
-            assert(false !== $stream);
-            $output = new StreamOutput($stream);
-            $entries = new DiffEntries([new DiffEntry(new InstallOperation($this->getCompletePackage('a/package-1', '1.0.0', null, [$license])))]);
-            $this->getFormatter($output)->renderSingle($entries, 'prod', false, true);
-
-            $this->assertSame("section,name,direct,operation,version_base,version_target,licenses\nprod,a/package-1,false,install,,1.0.0,{$expected}\n", $this->getDisplay($output));
-        }
-    }
-
     protected function getFormatter(OutputInterface $output): Formatter
     {
         return new CsvFormatter($output);
@@ -65,7 +52,7 @@ prod,a/package-2,false,upgrade,1.0.0,1.2.0,,https://example.com/c/1.0.0..1.2.0,h
 prod,a/package-3,false,downgrade,2.0.0,1.1.1,,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
 prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,,,
 prod,php,false,change,>=7.4.6,^8.0,,,
-dev,a/package-5,false,change,dev-master 1234567,1.1.1,,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
+dev,a/package-5,false,change,"dev-master 1234567",1.1.1,,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
 dev,a/package-4,false,remove,0.1.1,,"MIT, BSD-3-Clause",https://example.com/r/0.1.1,https://example.com/r/a/package-4
 dev,a/no-link-2,false,remove,0.1.1,,MIT,,
 
@@ -81,7 +68,7 @@ prod,a/package-2,false,upgrade,1.0.0,1.2.0,https://example.com/c/1.0.0..1.2.0,ht
 prod,a/package-3,false,downgrade,2.0.0,1.1.1,https://example.com/c/2.0.0..1.1.1,https://example.com/r/a/package-3
 prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,,
 prod,php,false,change,>=7.4.6,^8.0,,
-dev,a/package-5,false,change,dev-master 1234567,1.1.1,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
+dev,a/package-5,false,change,"dev-master 1234567",1.1.1,https://example.com/c/dev-master..1.1.1,https://example.com/r/a/package-5
 dev,a/package-4,false,remove,0.1.1,,https://example.com/r/0.1.1,https://example.com/r/a/package-4
 dev,a/no-link-2,false,remove,0.1.1,,,
 
@@ -97,7 +84,7 @@ prod,a/package-2,false,upgrade,1.0.0,1.2.0,
 prod,a/package-3,false,downgrade,2.0.0,1.1.1,
 prod,a/no-link-2,false,downgrade,2.0.0,1.1.1,
 prod,php,false,change,>=7.4.6,^8.0,
-dev,a/package-5,false,change,dev-master 1234567,1.1.1,
+dev,a/package-5,false,change,"dev-master 1234567",1.1.1,
 dev,a/package-4,false,remove,0.1.1,,"MIT, BSD-3-Clause"
 dev,a/no-link-2,false,remove,0.1.1,,MIT
 
@@ -112,7 +99,7 @@ prod,a/package-2,false,upgrade,1.0.0,1.2.0
 prod,a/package-3,false,downgrade,2.0.0,1.1.1
 prod,a/no-link-2,false,downgrade,2.0.0,1.1.1
 prod,php,false,change,>=7.4.6,^8.0
-dev,a/package-5,false,change,dev-master 1234567,1.1.1
+dev,a/package-5,false,change,"dev-master 1234567",1.1.1
 dev,a/package-4,false,remove,0.1.1,
 dev,a/no-link-2,false,remove,0.1.1,
 

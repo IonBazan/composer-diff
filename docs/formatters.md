@@ -353,7 +353,7 @@ and the `section` column tells prod (`prod`) and dev (`dev`) packages apart. The
 - `licenses` - comma-separated licenses, only with `--with-licenses`
 - `compare` and `link` - compare/release URL and project URL, only with `--with-links`
 
-Fields containing commas, quotes or line breaks are quoted as described in [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180).
+Fields containing spaces, commas, quotes or line breaks are enclosed in double quotes, and quotes inside them are doubled.
 The header row is printed even when there are no changes.
 
 Example output:
@@ -361,7 +361,7 @@ Example output:
 ```csv
 section,name,direct,operation,version_base,version_target
 prod,psr/event-dispatcher,false,install,,1.0.0
-prod,roave/security-advisories,true,change,dev-master 3c97c13,dev-master ac36586
+prod,roave/security-advisories,true,change,"dev-master 3c97c13","dev-master ac36586"
 prod,symfony/deprecation-contracts,false,install,,v2.1.2
 prod,symfony/event-dispatcher,true,upgrade,v2.8.52,v5.1.2
 prod,symfony/event-dispatcher-contracts,false,install,,v2.1.2

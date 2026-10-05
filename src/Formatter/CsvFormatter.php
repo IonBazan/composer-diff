@@ -46,8 +46,8 @@ class CsvFormatter extends AbstractFormatter
                 $entry->getPackageName(),
                 $entry->isDirect() ? 'true' : 'false',
                 $entry->getType(),
-                (string) $entry->getBaseVersion(),
-                (string) $entry->getTargetVersion(),
+                $entry->getBaseVersion(),
+                $entry->getTargetVersion(),
             ];
 
             if ($withLicenses) {
@@ -55,8 +55,8 @@ class CsvFormatter extends AbstractFormatter
             }
 
             if ($withUrls) {
-                $row[] = (string) $entry->getUrl();
-                $row[] = (string) $entry->getProjectUrl();
+                $row[] = $entry->getUrl();
+                $row[] = $entry->getProjectUrl();
             }
 
             $this->writeRow($row);
@@ -64,22 +64,15 @@ class CsvFormatter extends AbstractFormatter
     }
 
     /**
-     * @param string[] $fields
+     * @param array<string|null> $fields
      */
     private function writeRow(array $fields): void
     {
-        $this->output->writeln(implode(',', array_map([$this, 'escape'], $fields)), OutputInterface::OUTPUT_RAW);
-    }
-
-    /**
-     * Quotes fields as described in RFC 4180. fputcsv() is not used because it cannot disable its non-standard escape character before PHP 7.4.
-     */
-    private function escape(string $field): string
-    {
-        if (!preg_match('/[",\r\n]/', $field)) {
-            return $field;
-        }
-
-        return '"'.str_replace('"', '""', $field).'"';
+        $stream = fopen('php://memory', 'w+');
+        assert(false !== $stream);
+        // PHP 8.4 deprecates relying on the default escape character
+        fputcsv($stream, $fields, ',', '"', '\\');
+        rewind($stream);
+        $this->output->write(stream_get_contents($stream), false, OutputInterface::OUTPUT_RAW);
     }
 }
