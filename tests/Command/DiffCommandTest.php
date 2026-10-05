@@ -551,6 +551,7 @@ OUTPUT
             ->willReturnCallback(function (string $name, PostDiffEvent $event) use ($composer, $io, $keptEntries): int {
                 $this->assertSame($composer, $event->getComposer());
                 $this->assertSame($io, $event->getIO());
+                $this->assertTrue($event->isDevMode());
                 $this->assertCount(1, $event->getProdEntries());
                 $this->assertCount(1, $event->getDevEntries());
                 $event->setProdEntries($keptEntries);

@@ -28,7 +28,8 @@ class PostDiffEvent extends Event
 
     public function __construct(Composer $composer, IOInterface $io, DiffEntries $prodEntries, DiffEntries $devEntries)
     {
-        parent::__construct(self::NAME, $composer, $io);
+        // Dev mode lets Composer autoload root listeners from autoload-dev
+        parent::__construct(self::NAME, $composer, $io, true);
 
         $this->prodEntries = $prodEntries;
         $this->devEntries = $devEntries;
