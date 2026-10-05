@@ -128,7 +128,7 @@ class DiffEntry
         $operation = $this->getOperation();
 
         if ($operation instanceof UpdateOperation) {
-            return $operation->getInitialPackage();
+            return $operation->getTargetPackage();
         }
 
         if ($operation instanceof InstallOperation || $operation instanceof UninstallOperation) {

@@ -25,8 +25,18 @@ class GitHubFormatter extends AbstractFormatter
             return;
         }
 
-        $message = str_replace("\n", '%0A', implode("\n", $this->transformEntries($entries, $withUrls, $withLicenses)));
-        $this->output->writeln(sprintf('::notice title=%s::%s', $title, $message));
+        $message = $this->escapeData(implode("\n", $this->transformEntries($entries, $withUrls, $withLicenses)));
+        $this->output->writeln(sprintf('::notice title=%s::%s', str_replace(array(':', ','), array('%3A', '%2C'), $this->escapeData($title)), $message));
+    }
+
+    /**
+     * @param string $data
+     *
+     * @return string
+     */
+    private function escapeData($data)
+    {
+        return str_replace(array('%', "\r", "\n"), array('%25', '%0D', '%0A'), $data);
     }
 
     /**

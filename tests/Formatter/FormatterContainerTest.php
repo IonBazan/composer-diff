@@ -19,6 +19,14 @@ class FormatterContainerTest extends TestCase
         $this->assertInstanceOf($expectedFormatter, $container->getFormatter($code));
     }
 
+    public function testInvalidFormatter()
+    {
+        $container = new FormatterContainer($this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock());
+
+        $this->setExpectedException('InvalidArgumentException', 'Invalid format "anything-else". Supported formats: mdtable, mdlist, github, json');
+        $container->getFormatter('anything-else');
+    }
+
     public static function formatterProvider()
     {
         return array(
@@ -26,7 +34,6 @@ class FormatterContainerTest extends TestCase
             array('IonBazan\ComposerDiff\Formatter\MarkdownListFormatter', 'mdlist'),
             array('IonBazan\ComposerDiff\Formatter\JsonFormatter', 'json'),
             array('IonBazan\ComposerDiff\Formatter\GitHubFormatter', 'github'),
-            array('IonBazan\ComposerDiff\Formatter\MarkdownTableFormatter', 'anything-else'),
         );
     }
 }

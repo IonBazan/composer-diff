@@ -49,6 +49,19 @@ class DiffEntryTest extends TestCase
         $this->assertFalse($entry->isDirect());
     }
 
+    public function testUpdateUsesTargetPackage()
+    {
+        $target = $this->getCompletePackage('a/package-1', '2.0.0', null, array('GPL-3.0'));
+        $operation = new UpdateOperation($this->getCompletePackage('a/package-1', '1.0.0', null, array('MIT')), $target);
+        $urlGenerator = $this->getMockBuilder('IonBazan\ComposerDiff\Url\UrlGenerator')->getMock();
+        $urlGenerator->method('getProjectUrl')->with($target)->willReturn('project');
+        $entry = new DiffEntry($operation, $urlGenerator);
+
+        $this->assertSame($target, $entry->getPackage());
+        $this->assertSame(array('GPL-3.0'), $entry->getLicenses());
+        $this->assertSame('project', $entry->getProjectUrl());
+    }
+
     public function testGetPackage()
     {
         $package = $this->getPackage('a/package-1', '1.0.0');

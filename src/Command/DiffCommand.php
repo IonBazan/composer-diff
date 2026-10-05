@@ -59,7 +59,7 @@ class DiffCommand extends BaseCommand
             ->setDescription('Compares composer.lock files and shows package changes')
             ->addArgument('base', InputArgument::OPTIONAL, 'Base (original) composer.lock file path or git ref')
             ->addArgument('target', InputArgument::OPTIONAL, 'Target (modified) composer.lock file path or git ref')
-            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base (original) composer.lock file path or git ref', 'HEAD:composer.lock')
+            ->addOption('base', 'b', InputOption::VALUE_REQUIRED, 'Base (original) composer.lock file path or git ref', 'HEAD:./composer.lock')
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'Target (modified) composer.lock file path or git ref', 'composer.lock')
             ->addOption('no-dev', null, InputOption::VALUE_NONE, 'Ignore dev dependencies')
             ->addOption('no-prod', null, InputOption::VALUE_NONE, 'Ignore prod dependencies')
@@ -144,9 +144,11 @@ EOF
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $withLicenses = $input->getOption('with-licenses');
-        $this->gitlabDomains = array_merge($this->gitlabDomains, $input->getOption('gitlab-domains'));
+        if ($input->getOption('no-dev') && $input->getOption('no-prod')) {
+            throw new \InvalidArgumentException('The --no-dev and --no-prod options cannot be used together');
+        }
 
-        $urlGenerators = new GeneratorContainer($this->gitlabDomains);
+        $urlGenerators = new GeneratorContainer(array_merge($this->gitlabDomains, $input->getOption('gitlab-domains')));
         $formatters = new FormatterContainer($output);
         $formatter = $formatters->getFormatter($input->getOption('format'));
 

@@ -55,7 +55,7 @@ class Table
         $this->rows = array();
 
         foreach ($rows as $row) {
-            $this->rows[] = $row;
+            $this->rows[] = str_replace('|', '\\|', $row);
         }
 
         return $this;

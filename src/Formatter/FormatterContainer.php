@@ -31,7 +31,7 @@ class FormatterContainer
     public function getFormatter($name)
     {
         if (!isset($this->formatters[$name])) {
-            return $this->formatters[self::DEFAULT_FORMATTER];
+            throw new \InvalidArgumentException(sprintf('Invalid format "%s". Supported formats: %s', $name, implode(', ', array_keys($this->formatters))));
         }
 
         return $this->formatters[$name];

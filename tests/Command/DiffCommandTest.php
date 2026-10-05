@@ -32,7 +32,7 @@ class DiffCommandTest extends TestCase
                 new InstallOperation($this->getPackageWithSource('a/package-1', '1.0.0', 'github.com')),
                 new UpdateOperation($this->getPackageWithSource('a/package-2', '1.0.0', 'github.com'), $this->getPackageWithSource('a/package-2', '1.2.0', 'github.com')),
                 new UninstallOperation($this->getPackageWithSource('a/package-3', '0.1.1', 'github.com')),
-                new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org')),
+                new UninstallOperation($this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.com')),
                 new UninstallOperation($this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org')),
                 new UninstallOperation($this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org')),
                 new UpdateOperation($this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'), $this->getPackageWithSource('a/package-7', '1.0.0', 'github.com')),
@@ -45,6 +45,51 @@ class DiffCommandTest extends TestCase
         $this->assertSame($expectedOutput, $tester->getDisplay());
     }
 
+    /**
+     * @param string $message
+     *
+     * @dataProvider invalidOptionsProvider
+     */
+    public function testInvalidOptions(array $options, $message)
+    {
+        $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
+        $command = new DiffCommand($diff);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+        $diff->expects($this->never())->method('getPackageDiff');
+
+        $this->setExpectedException('InvalidArgumentException', $message);
+        $tester->execute($options);
+    }
+
+    public function invalidOptionsProvider()
+    {
+        return array(
+            array(array('--format' => 'xml'), 'Invalid format "xml". Supported formats: mdtable, mdlist, github, json'),
+            array(array('--no-dev' => true, '--no-prod' => true), 'The --no-dev and --no-prod options cannot be used together'),
+        );
+    }
+
+    public function testGitlabDomainsDoNotAccumulateBetweenRuns()
+    {
+        $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
+        $command = new DiffCommand($diff, array('gitlab2.org'));
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+        $package = $this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org');
+        $generators = new \ArrayObject();
+        $diff->method('getPackageDiff')->willReturn($this->getEntries(array(), $this->getGenerators()));
+        $diff->method('setUrlGenerator')->willReturnCallback(function (GeneratorContainer $generator) use ($generators) {
+            $generators[] = $generator;
+        });
+
+        $tester->execute(array('--gitlab-domains' => array('gitlab3.org')));
+        $tester->execute(array());
+
+        $this->assertTrue($generators[0]->supportsPackage($package));
+        $this->assertFalse($generators[1]->supportsPackage($package));
+    }
+
     public function testExtraGitlabDomains()
     {
         $diff = $this->getMockBuilder('IonBazan\ComposerDiff\PackageDiff')->getMock();
@@ -55,7 +100,7 @@ class DiffCommandTest extends TestCase
 
         $packages = array(
             $this->getPackageWithSource('a/package-1', '1.0.0', 'github.com'),
-            $this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.org'),
+            $this->getPackageWithSource('a/package-4', '0.1.1', 'gitlab.com'),
             $this->getPackageWithSource('a/package-5', '0.1.1', 'gitlab2.org'),
             $this->getPackageWithSource('a/package-6', '0.1.1', 'gitlab3.org'),
             $this->getPackageWithSource('a/package-7', '1.2.0', 'github.com'),
@@ -186,7 +231,7 @@ OUTPUT
 | [a/package-1](github.com)  | New        | -     | 1.0.0  | [Compare](github.com/releases/tag/1.0.0)    |
 | [a/package-2](github.com)  | Upgraded   | 1.0.0 | 1.2.0  | [Compare](github.com/compare/1.0.0...1.2.0) |
 | [a/package-3](github.com)  | Removed    | 0.1.1 | -      | [Compare](github.com/releases/tag/0.1.1)    |
-| [a/package-4](gitlab.org)  | Removed    | 0.1.1 | -      | [Compare](gitlab.org/tags/0.1.1)            |
+| [a/package-4](gitlab.com)  | Removed    | 0.1.1 | -      | [Compare](gitlab.com/tags/0.1.1)            |
 | [a/package-5](gitlab2.org) | Removed    | 0.1.1 | -      | [Compare](gitlab2.org/tags/0.1.1)           |
 | a/package-6                | Removed    | 0.1.1 | -      |                                             |
 | [a/package-7](github.com)  | Downgraded | 1.2.0 | 1.0.0  | [Compare](github.com/compare/1.2.0...1.0.0) |
@@ -197,7 +242,7 @@ OUTPUT
                 array(
                     '--no-dev' => null,
                     '-l' => null,
-                    '-f' => 'anything',
+                    '-f' => 'mdtable',
                 ),
             ),
             'Markdown list' => array(

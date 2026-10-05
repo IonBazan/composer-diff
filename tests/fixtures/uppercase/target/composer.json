@@ -1,0 +1,17 @@
+{
+    "name": "test/test",
+    "require": {
+        "symfony/event-dispatcher": "^2.8",
+        "doctrine/dbal": "^2.10",
+        "roave/security-advisories": "dev-master#3c97c13"
+    },
+    "require-dev": {
+        "PHPUnit/PHPUnit": "^9.2"
+    },
+    "authors": [
+        {
+            "name": "Ion Bazan",
+            "email": "ion.bazan@gmail.com"
+        }
+    ]
+}

@@ -2,8 +2,12 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use Composer\DependencyResolver\Operation\InstallOperation;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\GitHubFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class GitHubFormatterTest extends FormatterTest
 {
@@ -35,6 +39,20 @@ OUTPUT;
     /**
      * {@inheritdoc}
      */
+    public function testItEscapesWorkflowCommandValues()
+    {
+        $output = new StreamOutput(fopen('php://memory', 'wb', false));
+        $this->getFormatter($output)->renderSingle(new DiffEntries(array(
+            new DiffEntry(new InstallOperation($this->getPackage('a/package-1', "1.0%0D\r2"))),
+            new DiffEntry(new InstallOperation($this->getPackage('a/package-2', '1.0'))),
+        )), 'Title: a, b%', false, false);
+
+        $this->assertSame(
+            '::notice title=Title%3A a%2C b%25:: - Install a/package-1 (1.0%250D%0D2)%0A - Install a/package-2 (1.0)'.PHP_EOL,
+            $this->getDisplay($output)
+        );
+    }
+
     protected function getFormatter(OutputInterface $output)
     {
         return new GitHubFormatter($output);
