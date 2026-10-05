@@ -18,17 +18,15 @@ class CsvFormatterTest extends FormatterTest
         assert(false !== $stream);
         $output = new StreamOutput($stream);
         $entries = new DiffEntries([
-            new DiffEntry(new InstallOperation($this->getCompletePackage('a/package-1', '1.0.0', null, ["Quoted \"license\"", "Multi\nline", "Carriage\rreturn", '<info>Tagged</info>'])), null, true),
+            new DiffEntry(new InstallOperation($this->getCompletePackage('a/package-1', '1.0.0', null, ['Quoted "license"', "Multi\nline", "Carriage\rreturn", '<info>Tagged</info>'])), null, true),
         ]);
         $this->getFormatter($output)->renderSingle($entries, 'test', false, true);
 
-        $this->assertSame(<<<OUTPUT
-section,name,direct,operation,version_base,version_target,licenses
-test,a/package-1,true,install,,1.0.0,"Quoted ""license"", Multi
-line, Carriage\rreturn, <info>Tagged</info>"
-
-OUTPUT
-            , $this->getDisplay($output));
+        $this->assertSame(
+            'section,name,direct,operation,version_base,version_target,licenses'.PHP_EOL.
+            "test,a/package-1,true,install,,1.0.0,\"Quoted \"\"license\"\", Multi\nline, Carriage\rreturn, <info>Tagged</info>\"".PHP_EOL,
+            $this->getDisplay($output)
+        );
     }
 
     protected function getFormatter(OutputInterface $output): Formatter
@@ -38,7 +36,7 @@ OUTPUT
 
     protected static function getEmptyOutput(): string
     {
-        return "section,name,direct,operation,version_base,version_target,compare,link\n";
+        return 'section,name,direct,operation,version_base,version_target,compare,link'.PHP_EOL;
     }
 
     protected function getSampleOutput(bool $withUrls, bool $withLicenses, bool $decorated): string

@@ -73,6 +73,7 @@ class CsvFormatter extends AbstractFormatter
         // PHP 8.4 deprecates relying on the default escape character
         fputcsv($stream, $fields, ',', '"', '\\');
         rewind($stream);
-        $this->output->write(stream_get_contents($stream), false, OutputInterface::OUTPUT_RAW);
+        // Drop the "\n" added by fputcsv() so rows end with PHP_EOL like other formatters
+        $this->output->writeln(substr(stream_get_contents($stream), 0, -1), OutputInterface::OUTPUT_RAW);
     }
 }
