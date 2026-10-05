@@ -15,12 +15,12 @@ use IonBazan\ComposerDiff\PackageDiff;
 use Symfony\Component\Console\Application;
 
 if (!class_exists('Symfony\Component\Console\Application')) {
-    echo 'Please install symfony/console >= 2.3 to use this binary or use composer diff instead.'.PHP_EOL;
+    echo 'Please install symfony/console >= 5.4 to use this binary or use composer diff instead.'.PHP_EOL;
     exit(1);
 }
 
 if (!class_exists('Composer\Package\CompletePackage')) {
-    echo 'Please install composer/composer >= 1.1 to use this binary or use composer diff instead.'.PHP_EOL;
+    echo 'Please install composer/composer >= 2.0 to use this binary or use composer diff instead.'.PHP_EOL;
     exit(1);
 }
 
