@@ -144,6 +144,7 @@ class PackageDiffTest extends TestCase
         $diff = new PackageDiff();
         $this->prepareGit();
         $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('{^Could not open file invalid-ref or find it in git as invalid-ref:\./composer\.lock: \S.*\S\z}s');
         $diff->getPackageDiff('invalid-ref', '', true, true);
     }
 
