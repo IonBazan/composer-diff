@@ -34,6 +34,7 @@ class CsvFormatter extends AbstractFormatter
             $header[] = 'link';
         }
 
+        $header[] = 'effective';
         $this->writeRow($header);
     }
 
@@ -59,6 +60,7 @@ class CsvFormatter extends AbstractFormatter
                 $row[] = $entry->getProjectUrl();
             }
 
+            $row[] = $entry->isEffective() ? 'true' : 'false';
             $this->writeRow($row);
         }
     }

@@ -181,36 +181,48 @@ Example output:
     "packages": {
         "psr\/event-dispatcher": {
             "name": "psr\/event-dispatcher",
+            "direct": false,
+            "effective": false,
             "operation": "install",
             "version_base": null,
             "version_target": "1.0.0"
         },
         "roave\/security-advisories": {
             "name": "roave\/security-advisories",
+            "direct": true,
+            "effective": false,
             "operation": "change",
             "version_base": "dev-master 3c97c13",
             "version_target": "dev-master ac36586"
         },
         "symfony\/deprecation-contracts": {
             "name": "symfony\/deprecation-contracts",
+            "direct": false,
+            "effective": false,
             "operation": "install",
             "version_base": null,
             "version_target": "v2.1.2"
         },
         "symfony\/event-dispatcher": {
             "name": "symfony\/event-dispatcher",
+            "direct": true,
+            "effective": false,
             "operation": "upgrade",
             "version_base": "v2.8.52",
             "version_target": "v5.1.2"
         },
         "symfony\/event-dispatcher-contracts": {
             "name": "symfony\/event-dispatcher-contracts",
+            "direct": false,
+            "effective": false,
             "operation": "install",
             "version_base": null,
             "version_target": "v2.1.2"
         },
         "symfony\/polyfill-php80": {
             "name": "symfony\/polyfill-php80",
+            "direct": false,
+            "effective": false,
             "operation": "install",
             "version_base": null,
             "version_target": "v1.17.1"
@@ -219,120 +231,160 @@ Example output:
     "packages-dev": {
         "phpunit\/php-code-coverage": {
             "name": "phpunit\/php-code-coverage",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "8.0.2",
             "version_target": "7.0.10"
         },
         "phpunit\/php-file-iterator": {
             "name": "phpunit\/php-file-iterator",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "3.0.2",
             "version_target": "2.0.2"
         },
         "phpunit\/php-text-template": {
             "name": "phpunit\/php-text-template",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "2.0.1",
             "version_target": "1.2.1"
         },
         "phpunit\/php-timer": {
             "name": "phpunit\/php-timer",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "5.0.0",
             "version_target": "2.1.2"
         },
         "phpunit\/php-token-stream": {
             "name": "phpunit\/php-token-stream",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.2",
             "version_target": "3.1.1"
         },
         "phpunit\/phpunit": {
             "name": "phpunit\/phpunit",
+            "direct": true,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "9.2.5",
             "version_target": "8.5.8"
         },
         "sebastian\/code-unit-reverse-lookup": {
             "name": "sebastian\/code-unit-reverse-lookup",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "2.0.1",
             "version_target": "1.0.1"
         },
         "sebastian\/comparator": {
             "name": "sebastian\/comparator",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.2",
             "version_target": "3.0.2"
         },
         "sebastian\/diff": {
             "name": "sebastian\/diff",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.1",
             "version_target": "3.0.2"
         },
         "sebastian\/environment": {
             "name": "sebastian\/environment",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "5.1.1",
             "version_target": "4.2.3"
         },
         "sebastian\/exporter": {
             "name": "sebastian\/exporter",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.1",
             "version_target": "3.1.2"
         },
         "sebastian\/global-state": {
             "name": "sebastian\/global-state",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.0",
             "version_target": "3.0.0"
         },
         "sebastian\/object-enumerator": {
             "name": "sebastian\/object-enumerator",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.1",
             "version_target": "3.0.3"
         },
         "sebastian\/object-reflector": {
             "name": "sebastian\/object-reflector",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "2.0.1",
             "version_target": "1.1.1"
         },
         "sebastian\/recursion-context": {
             "name": "sebastian\/recursion-context",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "4.0.1",
             "version_target": "3.0.0"
         },
         "sebastian\/resource-operations": {
             "name": "sebastian\/resource-operations",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "3.0.1",
             "version_target": "2.0.1"
         },
         "sebastian\/type": {
             "name": "sebastian\/type",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "2.1.0",
             "version_target": "1.1.3"
         },
         "sebastian\/version": {
             "name": "sebastian\/version",
+            "direct": false,
+            "effective": false,
             "operation": "downgrade",
             "version_base": "3.0.0",
             "version_target": "2.0.1"
         },
         "phpunit\/php-invoker": {
             "name": "phpunit\/php-invoker",
+            "direct": false,
+            "effective": false,
             "operation": "remove",
             "version_base": "3.0.1",
             "version_target": null
         },
         "sebastian\/code-unit": {
             "name": "sebastian\/code-unit",
+            "direct": false,
+            "effective": false,
             "operation": "remove",
             "version_base": "1.0.3",
             "version_target": null
@@ -352,6 +404,7 @@ and the `section` column tells prod (`prod`) and dev (`dev`) packages apart. The
 - `version_base` and `version_target` - versions before and after the change, empty when the package was installed or removed
 - `licenses` - comma-separated licenses, only with `--with-licenses`
 - `compare` and `link` - compare/release URL and project URL, only with `--with-links`
+- `effective` - `true` for effective platform requirements listed with `--with-platform` (see [Platform requirements](../README.md#platform-requirements)), `false` otherwise. It is always the last column, so the position of the other columns does not change.
 
 Fields containing spaces, commas, quotes or line breaks are enclosed in double quotes, and quotes inside them are doubled.
 The header row is printed even when there are no changes.
@@ -359,33 +412,33 @@ The header row is printed even when there are no changes.
 Example output:
 
 ```csv
-section,name,direct,operation,version_base,version_target
-prod,psr/event-dispatcher,false,install,,1.0.0
-prod,roave/security-advisories,true,change,"dev-master 3c97c13","dev-master ac36586"
-prod,symfony/deprecation-contracts,false,install,,v2.1.2
-prod,symfony/event-dispatcher,true,upgrade,v2.8.52,v5.1.2
-prod,symfony/event-dispatcher-contracts,false,install,,v2.1.2
-prod,symfony/polyfill-php80,false,install,,v1.17.1
-dev,phpunit/php-code-coverage,false,downgrade,8.0.2,7.0.10
-dev,phpunit/php-file-iterator,false,downgrade,3.0.2,2.0.2
-dev,phpunit/php-text-template,false,downgrade,2.0.1,1.2.1
-dev,phpunit/php-timer,false,downgrade,5.0.0,2.1.2
-dev,phpunit/php-token-stream,false,downgrade,4.0.2,3.1.1
-dev,phpunit/phpunit,true,downgrade,9.2.5,8.5.8
-dev,sebastian/code-unit-reverse-lookup,false,downgrade,2.0.1,1.0.1
-dev,sebastian/comparator,false,downgrade,4.0.2,3.0.2
-dev,sebastian/diff,false,downgrade,4.0.1,3.0.2
-dev,sebastian/environment,false,downgrade,5.1.1,4.2.3
-dev,sebastian/exporter,false,downgrade,4.0.1,3.1.2
-dev,sebastian/global-state,false,downgrade,4.0.0,3.0.0
-dev,sebastian/object-enumerator,false,downgrade,4.0.1,3.0.3
-dev,sebastian/object-reflector,false,downgrade,2.0.1,1.1.1
-dev,sebastian/recursion-context,false,downgrade,4.0.1,3.0.0
-dev,sebastian/resource-operations,false,downgrade,3.0.1,2.0.1
-dev,sebastian/type,false,downgrade,2.1.0,1.1.3
-dev,sebastian/version,false,downgrade,3.0.0,2.0.1
-dev,phpunit/php-invoker,false,remove,3.0.1,
-dev,sebastian/code-unit,false,remove,1.0.3,
+section,name,direct,operation,version_base,version_target,effective
+prod,psr/event-dispatcher,false,install,,1.0.0,false
+prod,roave/security-advisories,true,change,"dev-master 3c97c13","dev-master ac36586",false
+prod,symfony/deprecation-contracts,false,install,,v2.1.2,false
+prod,symfony/event-dispatcher,true,upgrade,v2.8.52,v5.1.2,false
+prod,symfony/event-dispatcher-contracts,false,install,,v2.1.2,false
+prod,symfony/polyfill-php80,false,install,,v1.17.1,false
+dev,phpunit/php-code-coverage,false,downgrade,8.0.2,7.0.10,false
+dev,phpunit/php-file-iterator,false,downgrade,3.0.2,2.0.2,false
+dev,phpunit/php-text-template,false,downgrade,2.0.1,1.2.1,false
+dev,phpunit/php-timer,false,downgrade,5.0.0,2.1.2,false
+dev,phpunit/php-token-stream,false,downgrade,4.0.2,3.1.1,false
+dev,phpunit/phpunit,true,downgrade,9.2.5,8.5.8,false
+dev,sebastian/code-unit-reverse-lookup,false,downgrade,2.0.1,1.0.1,false
+dev,sebastian/comparator,false,downgrade,4.0.2,3.0.2,false
+dev,sebastian/diff,false,downgrade,4.0.1,3.0.2,false
+dev,sebastian/environment,false,downgrade,5.1.1,4.2.3,false
+dev,sebastian/exporter,false,downgrade,4.0.1,3.1.2,false
+dev,sebastian/global-state,false,downgrade,4.0.0,3.0.0,false
+dev,sebastian/object-enumerator,false,downgrade,4.0.1,3.0.3,false
+dev,sebastian/object-reflector,false,downgrade,2.0.1,1.1.1,false
+dev,sebastian/recursion-context,false,downgrade,4.0.1,3.0.0,false
+dev,sebastian/resource-operations,false,downgrade,3.0.1,2.0.1,false
+dev,sebastian/type,false,downgrade,2.1.0,1.1.3,false
+dev,sebastian/version,false,downgrade,3.0.0,2.0.1,false
+dev,phpunit/php-invoker,false,remove,3.0.1,,false
+dev,sebastian/code-unit,false,remove,1.0.3,,false
 ```
 
 ## Collapsible GitHub PR description (pr)

@@ -8,9 +8,11 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\AliasPackage;
 use Composer\Package\Package;
+use Composer\Package\PackageInterface;
 use Composer\Repository\ArrayRepository;
 use Composer\Repository\RepositoryInterface;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\PackageDiff;
 
 class PackageDiffTest extends TestCase
@@ -52,6 +54,7 @@ class PackageDiffTest extends TestCase
             'install symfony/event-dispatcher-contracts v2.1.2',
             'install symfony/polyfill-php80 v1.17.1',
             'install php >=5.3',
+            'update php (effective) from >=7.2 <8.0 to >=7.2.5 <8.0',
         ], array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
@@ -105,6 +108,102 @@ class PackageDiffTest extends TestCase
         $this->assertCount(1, $diff->loadPackagesFromArray(['platform' => ['php' => '>=5.3']], false, true)->getPackages());
         $this->assertCount(0, $diff->loadPackagesFromArray(['platform' => ['php' => '>=5.3']], true, true)->getPackages());
         $this->assertCount(0, $diff->loadPackagesFromArray(['platform-dev' => ['php' => '>=5.3']], false, true)->getPackages());
+    }
+
+    public function testLoadFromArrayAddsEffectivePlatformRequirements(): void
+    {
+        $lock = [
+            'platform' => ['PHP' => '>=7.4.3', 'ext-json' => '*'],
+            'packages' => [
+                ['name' => 'a/package-a', 'version' => '1.0.0', 'require' => ['php' => '^7.2 || ^8.0', 'EXT-JSON' => '^1.5', 'a/package-b' => '^1.0']],
+                ['name' => 'a/package-b', 'version' => '1.0.0', 'require' => ['ext-json' => '<1.9', 'ext-pdo' => '*', 'lib-icu' => '<60 || >=64', 'composer-plugin-api' => '^2.0']],
+                ['name' => 'a/package-c', 'version' => '1.0.0'],
+            ],
+            'platform-dev' => ['php' => '~7.4.1'],
+            'packages-dev' => [
+                ['name' => 'a/package-d', 'version' => '1.0.0', 'require' => ['php' => '>7.0 <=8.1.2.3', 'ext-xdebug' => '>=3.0.0-beta1-dev']],
+            ],
+        ];
+        $diff = new PackageDiff();
+
+        $this->assertSame([
+            'a/package-a 1.0.0',
+            'a/package-b 1.0.0',
+            'a/package-c 1.0.0',
+            'php >=7.4.3',
+            'ext-json *',
+            'php (effective) >=7.4.3 <9.0',
+            'ext-json (effective) >=1.5 <1.9',
+            'ext-pdo (effective) *',
+            'lib-icu (effective) <60.0 || >=64.0',
+            'composer-plugin-api (effective) >=2.0 <3.0',
+        ], $this->getPrettyVersions($diff->loadPackagesFromArray($lock, false, true)));
+        $this->assertSame([
+            'a/package-d 1.0.0',
+            'php ~7.4.1',
+            'php (effective) >=7.4.3 <7.5',
+            'ext-json (effective) >=1.5 <1.9',
+            'ext-pdo (effective) *',
+            'lib-icu (effective) <60.0 || >=64.0',
+            'composer-plugin-api (effective) >=2.0 <3.0',
+            'ext-xdebug (effective) >=3.0-beta1-dev',
+        ], $this->getPrettyVersions($diff->loadPackagesFromArray($lock, true, true)));
+        $this->assertSame(['a/package-d 1.0.0'], $this->getPrettyVersions($diff->loadPackagesFromArray($lock, true, false)));
+    }
+
+    public function testDevDiffCombinesProdAndDevPlatformRequirements(): void
+    {
+        $diff = new PackageDiff();
+
+        $this->assertSame([
+            'update php (effective) from >=7.2 to >=8.0',
+            'install ext-intl (effective) *',
+        ], array_map([$this, 'entryToString'], $diff->getPackageDiff(__DIR__.'/fixtures/platform-base/composer.lock', __DIR__.'/fixtures/platform-target/composer.lock', false, true)->getArrayCopy()));
+        $this->assertSame([
+            'update php (effective) from >=7.2 to >=8.0',
+            'install ext-intl (effective) *',
+            'install ext-xdebug (effective) *',
+        ], array_map([$this, 'entryToString'], $diff->getPackageDiff(__DIR__.'/fixtures/platform-base/composer.lock', __DIR__.'/fixtures/platform-target/composer.lock', true, true)->getArrayCopy()));
+    }
+
+    public function testLoadFromArraySkipsProvidedPlatformRequirements(): void
+    {
+        $lock = [
+            'platform' => ['ext-mbstring' => '*'],
+            'packages' => [
+                ['name' => 'symfony/polyfill-mbstring', 'version' => '1.0.0', 'provide' => ['EXT-MBSTRING' => '*']],
+                ['name' => 'a/replacement', 'version' => '1.0.0', 'replace' => ['ext-foo' => '*']],
+                ['name' => 'a/package', 'version' => '1.0.0', 'require' => ['ext-mbstring' => '*', 'ext-foo' => '*', 'ext-bar' => '*']],
+            ],
+        ];
+
+        $this->assertSame([
+            'symfony/polyfill-mbstring 1.0.0',
+            'a/replacement 1.0.0',
+            'a/package 1.0.0',
+            'ext-mbstring *',
+            'ext-bar (effective) *',
+        ], $this->getPrettyVersions((new PackageDiff())->loadPackagesFromArray($lock, false, true)));
+    }
+
+    public function testLoadFromArrayShowsUnresolvablePlatformRequirements(): void
+    {
+        $lock = [
+            'platform' => ['php' => '^7.0'],
+            'packages' => [
+                ['name' => 'a/package-a', 'version' => '1.0.0', 'require' => ['php' => '^8.0', 'ext-foo' => 'dev-main']],
+                ['name' => 'a/package-b', 'version' => '1.0.0', 'require' => ['php' => '^8.0', 'lib-foo' => '>1.0 <=2.0.1']],
+            ],
+        ];
+
+        $this->assertSame([
+            'a/package-a 1.0.0',
+            'a/package-b 1.0.0',
+            'php ^7.0',
+            'php (effective) conflicting (2 constraints)',
+            'ext-foo (effective) dev-main',
+            'lib-foo (effective) >1.0 <=2.0.1',
+        ], $this->getPrettyVersions((new PackageDiff())->loadPackagesFromArray($lock, false, true)));
     }
 
     /**
@@ -305,6 +404,7 @@ class PackageDiffTest extends TestCase
                     'install symfony/event-dispatcher-contracts v2.1.2',
                     'install symfony/polyfill-php80 v1.17.1',
                     'install php >=5.3',
+                    'update php (effective) from >=7.2 <8.0 to >=7.2.5 <8.0',
                 ],
                 'dev' => false,
                 'withPlatform' => true,
@@ -403,6 +503,21 @@ class PackageDiffTest extends TestCase
         rmdir($dir);
     }
 
+    /**
+     * @return string[]
+     */
+    private function getPrettyVersions(RepositoryInterface $repository): array
+    {
+        return array_map(function (PackageInterface $package): string {
+            return $this->getLabel($package).' '.$package->getPrettyVersion();
+        }, $repository->getPackages());
+    }
+
+    private function getLabel(PackageInterface $package): string
+    {
+        return $package->getName().($package instanceof EffectivePlatformPackage ? ' (effective)' : '');
+    }
+
     private function entryToString(DiffEntry $entry): string
     {
         return $this->operationToString($entry->getOperation());
@@ -411,15 +526,15 @@ class PackageDiffTest extends TestCase
     private function operationToString(OperationInterface $operation): string
     {
         if ($operation instanceof InstallOperation) {
-            return sprintf('install %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
+            return sprintf('install %s %s', $this->getLabel($operation->getPackage()), $operation->getPackage()->getPrettyVersion());
         }
 
         if ($operation instanceof UpdateOperation) {
-            return sprintf('update %s from %s to %s', $operation->getInitialPackage()->getName(), $operation->getInitialPackage()->getPrettyVersion(), $operation->getTargetPackage()->getPrettyVersion());
+            return sprintf('update %s from %s to %s', $this->getLabel($operation->getInitialPackage()), $operation->getInitialPackage()->getPrettyVersion(), $operation->getTargetPackage()->getPrettyVersion());
         }
 
         if ($operation instanceof UninstallOperation) {
-            return sprintf('uninstall %s %s', $operation->getPackage()->getName(), $operation->getPackage()->getPrettyVersion());
+            return sprintf('uninstall %s %s', $this->getLabel($operation->getPackage()), $operation->getPackage()->getPrettyVersion());
         }
 
         throw new \InvalidArgumentException('Invalid operation provided');

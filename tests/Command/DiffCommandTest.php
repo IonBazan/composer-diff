@@ -14,6 +14,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use IonBazan\ComposerDiff\Command\DiffCommand;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
+use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Event\PostDiffEvent;
 use IonBazan\ComposerDiff\Formatter\Formatter;
 use IonBazan\ComposerDiff\Formatter\FormatterProvider;
@@ -79,6 +80,89 @@ class DiffCommandTest extends TestCase
         $this->assertStringContainsString('symfony/console', $output);
         $this->assertStringContainsString('symfony/http-kernel', $output);
         $this->assertStringNotContainsString('doctrine/orm', $output);
+    }
+
+    /**
+     * @dataProvider effectivePlatformDataProvider
+     *
+     * @param array<string, mixed> $options
+     */
+    public function testDevTableSkipsEffectivePlatformChangesShownInProd(array $options, string $expectedOutput): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $application = $this->getComposerApplication();
+        $command = new DiffCommand($diff);
+        $command->setApplication($application);
+        $tester = new CommandTester($command);
+        $phpUpdate = function (): UpdateOperation {
+            return new UpdateOperation(new EffectivePlatformPackage('php', '>=7.2', '>=7.2'), new EffectivePlatformPackage('php', '>=8.0', '>=8.0'));
+        };
+        $prodEntries = $this->getEntries([$phpUpdate(), new InstallOperation($this->getPackage('a/package', '1.0.0'))], $this->getGenerators());
+        $devEntries = $this->getEntries([
+            $phpUpdate(),
+            new InstallOperation(new EffectivePlatformPackage('php', '>=8.0', '>=8.0')),
+            new InstallOperation(new EffectivePlatformPackage('ext-xdebug', '*', '*')),
+            new InstallOperation($this->getPackage('a/package', '1.0.0')),
+        ], $this->getGenerators());
+        $diff->method('getPackageDiff')->willReturnCallback(function (string $from, string $to, bool $dev) use ($prodEntries, $devEntries): DiffEntries {
+            return $dev ? $devEntries : $prodEntries;
+        });
+
+        $tester->execute(array_merge(['--format' => 'mdlist'], $options));
+        $this->assertSame($expectedOutput, $tester->getDisplay());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public function effectivePlatformDataProvider(): iterable
+    {
+        yield 'both tables' => [[], <<<OUTPUT
+Prod Packages
+=============
+
+ - Change php (effective) (>=7.2 => >=8.0)
+ - Install a/package (1.0.0)
+
+Dev Packages
+============
+
+ - Install php (effective) (>=8.0)
+ - Install ext-xdebug (effective) (*)
+ - Install a/package (1.0.0)
+
+
+OUTPUT
+        ];
+
+        yield 'without prod' => [['--no-prod' => null], <<<OUTPUT
+Dev Packages
+============
+
+ - Change php (effective) (>=7.2 => >=8.0)
+ - Install php (effective) (>=8.0)
+ - Install ext-xdebug (effective) (*)
+ - Install a/package (1.0.0)
+
+
+OUTPUT
+        ];
+
+        yield 'prod change hidden by filter' => [['--filter' => ['a/*', 'ext-*']], <<<OUTPUT
+Prod Packages
+=============
+
+ - Install a/package (1.0.0)
+
+Dev Packages
+============
+
+ - Install ext-xdebug (effective) (*)
+ - Install a/package (1.0.0)
+
+
+OUTPUT
+        ];
     }
 
     public function testSortByName(): void
@@ -396,6 +480,7 @@ OUTPUT
                             'a/package-1' => [
                                     'name' => 'a/package-1',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'install',
                                     'version_base' => null,
                                     'version_target' => '1.0.0',
@@ -403,6 +488,7 @@ OUTPUT
                             'a/package-2' => [
                                     'name' => 'a/package-2',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'upgrade',
                                     'version_base' => '1.0.0',
                                     'version_target' => '1.2.0',
@@ -410,6 +496,7 @@ OUTPUT
                             'a/package-3' => [
                                     'name' => 'a/package-3',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -417,6 +504,7 @@ OUTPUT
                             'a/package-4' => [
                                     'name' => 'a/package-4',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -424,6 +512,7 @@ OUTPUT
                             'a/package-5' => [
                                     'name' => 'a/package-5',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -431,6 +520,7 @@ OUTPUT
                             'a/package-6' => [
                                     'name' => 'a/package-6',
                                     'direct' => false,
+                                    'effective' => false,
                                     'operation' => 'remove',
                                     'version_base' => '0.1.1',
                                     'version_target' => null,
@@ -438,6 +528,7 @@ OUTPUT
                             'a/package-7' => [
                                 'name' => 'a/package-7',
                                 'direct' => false,
+                                'effective' => false,
                                 'operation' => 'downgrade',
                                 'version_base' => '1.2.0',
                                 'version_target' => '1.0.0',

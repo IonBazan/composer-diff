@@ -183,7 +183,7 @@ class TsvFormatter extends AbstractFormatter
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
-            $this->output->writeln(implode("\t", [$title, $entry->getPackageName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
+            $this->output->writeln(implode("\t", [$title, $entry->getDisplayName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
         }
     }
 }

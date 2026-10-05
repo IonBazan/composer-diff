@@ -43,7 +43,7 @@ class MarkdownListFormatter extends MarkdownFormatter
         $licenses = $withLicenses ? implode(', ', $entry->getLicenses()) : '';
         $licenses = ('' !== $licenses) ? ' (License: '.$licenses.')' : '';
 
-        $packageName = $entry->getPackageName();
+        $packageName = $entry->getDisplayName();
         $packageUrl = $withUrls ? $this->formatUrl($entry->getProjectUrl(), $packageName) : $packageName;
 
         if ($entry->isInstall()) {

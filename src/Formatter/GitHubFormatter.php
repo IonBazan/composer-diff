@@ -58,7 +58,7 @@ class GitHubFormatter extends AbstractFormatter
         if ($entry->isInstall()) {
             return sprintf(
                 ' - Install %s (%s)%s%s',
-                $entry->getPackageName(),
+                $entry->getDisplayName(),
                 $entry->getTargetVersion(),
                 $url,
                 $licenses
@@ -68,7 +68,7 @@ class GitHubFormatter extends AbstractFormatter
         if ($entry->isRemove()) {
             return sprintf(
                 ' - Uninstall %s (%s)%s%s',
-                $entry->getPackageName(),
+                $entry->getDisplayName(),
                 $entry->getBaseVersion(),
                 $url,
                 $licenses
@@ -78,7 +78,7 @@ class GitHubFormatter extends AbstractFormatter
         return sprintf(
             ' - %s %s (%s => %s)%s%s',
             ucfirst($entry->getType()),
-            $entry->getPackageName(),
+            $entry->getDisplayName(),
             $entry->getBaseVersion(),
             $entry->getTargetVersion(),
             $url,

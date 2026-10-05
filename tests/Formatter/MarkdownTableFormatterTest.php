@@ -177,6 +177,19 @@ OUTPUT
             , $output->fetch());
     }
 
+    protected function getEffectivePlatformOutput(): string
+    {
+        return <<<OUTPUT
+| Prod Packages          | Operation | Base  | Target |
+|------------------------|-----------|-------|--------|
+| ext-intl (effective)   | New       | -     | *      |
+| php (effective)        | Changed   | >=7.2 | >=8.0  |
+| ext-xdebug (effective) | Removed   | *     | -      |
+
+
+OUTPUT;
+    }
+
     protected function getFormatter(OutputInterface $output): Formatter
     {
         return new MarkdownTableFormatter($output);

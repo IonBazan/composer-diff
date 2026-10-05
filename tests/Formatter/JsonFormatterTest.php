@@ -34,6 +34,7 @@ class JsonFormatterTest extends FormatterTest
             'a/package-1' => [
                 'name' => 'a/package-1',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'install',
                 'version_base' => null,
                 'version_target' => '1.0.0',
@@ -43,6 +44,7 @@ class JsonFormatterTest extends FormatterTest
             'a/no-link-1' => [
                 'name' => 'a/no-link-1',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'install',
                 'version_base' => null,
                 'version_target' => '1.0.0',
@@ -52,6 +54,7 @@ class JsonFormatterTest extends FormatterTest
             'a/package-2' => [
                 'name' => 'a/package-2',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'upgrade',
                 'version_base' => '1.0.0',
                 'version_target' => '1.2.0',
@@ -61,6 +64,7 @@ class JsonFormatterTest extends FormatterTest
             'a/package-3' => [
                 'name' => 'a/package-3',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'downgrade',
                 'version_base' => '2.0.0',
                 'version_target' => '1.1.1',
@@ -70,6 +74,7 @@ class JsonFormatterTest extends FormatterTest
             'a/no-link-2' => [
                 'name' => 'a/no-link-2',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'remove',
                 'version_base' => '0.1.1',
                 'version_target' => null,
@@ -79,6 +84,7 @@ class JsonFormatterTest extends FormatterTest
             'a/package-5' => [
                 'name' => 'a/package-5',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'change',
                 'version_base' => 'dev-master 1234567',
                 'version_target' => '1.1.1',
@@ -88,6 +94,7 @@ class JsonFormatterTest extends FormatterTest
             'a/package-4' => [
                 'name' => 'a/package-4',
                 'direct' => false,
+                'effective' => false,
                 'operation' => 'remove',
                 'version_base' => '0.1.1',
                 'version_target' => null,
@@ -104,6 +111,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/package-1' => [
                     'name' => 'a/package-1',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
@@ -114,6 +122,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/no-link-1' => [
                     'name' => 'a/no-link-1',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'install',
                     'version_base' => null,
                     'version_target' => '1.0.0',
@@ -124,6 +133,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/package-2' => [
                     'name' => 'a/package-2',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'upgrade',
                     'version_base' => '1.0.0',
                     'version_target' => '1.2.0',
@@ -134,6 +144,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/package-3' => [
                     'name' => 'a/package-3',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
@@ -144,6 +155,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/no-link-2' => [
                     'name' => 'a/no-link-2',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'downgrade',
                     'version_base' => '2.0.0',
                     'version_target' => '1.1.1',
@@ -154,6 +166,7 @@ class JsonFormatterTest extends FormatterTest
                 'php' => [
                     'name' => 'php',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'change',
                     'version_base' => '>=7.4.6',
                     'version_target' => '^8.0',
@@ -166,6 +179,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/package-5' => [
                     'name' => 'a/package-5',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'change',
                     'version_base' => 'dev-master 1234567',
                     'version_target' => '1.1.1',
@@ -176,6 +190,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/package-4' => [
                     'name' => 'a/package-4',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
@@ -186,6 +201,7 @@ class JsonFormatterTest extends FormatterTest
                 'a/no-link-2' => [
                     'name' => 'a/no-link-2',
                     'direct' => false,
+                    'effective' => false,
                     'operation' => 'remove',
                     'version_base' => '0.1.1',
                     'version_target' => null,
@@ -215,6 +231,18 @@ class JsonFormatterTest extends FormatterTest
         }
 
         return self::formatOutput($packages);
+    }
+
+    protected function getEffectivePlatformOutput(): string
+    {
+        return self::formatOutput([
+            'packages' => [
+                'ext-intl (effective)' => ['name' => 'ext-intl', 'direct' => false, 'effective' => true, 'operation' => 'install', 'version_base' => null, 'version_target' => '*'],
+                'php (effective)' => ['name' => 'php', 'direct' => false, 'effective' => true, 'operation' => 'change', 'version_base' => '>=7.2', 'version_target' => '>=8.0'],
+                'ext-xdebug (effective)' => ['name' => 'ext-xdebug', 'direct' => false, 'effective' => true, 'operation' => 'remove', 'version_base' => '*', 'version_target' => null],
+            ],
+            'packages-dev' => [],
+        ]);
     }
 
     protected function getFormatter(OutputInterface $output): Formatter

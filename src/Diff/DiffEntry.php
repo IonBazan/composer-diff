@@ -59,6 +59,11 @@ class DiffEntry
         return $this->direct;
     }
 
+    public function isEffective(): bool
+    {
+        return $this->getPackage() instanceof EffectivePlatformPackage;
+    }
+
     public function isInstall(): bool
     {
         return self::TYPE_INSTALL === $this->type;
@@ -87,6 +92,11 @@ class DiffEntry
     public function getPackageName(): string
     {
         return $this->getPackage()->getName();
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->getPackageName().($this->isEffective() ? ' (effective)' : '');
     }
 
     public function getPackage(): PackageInterface
@@ -122,6 +132,7 @@ class DiffEntry
      * @return array{
      *     name: string,
      *     direct: bool,
+     *     effective: bool,
      *     operation: string,
      *     version_base: string|null,
      *     version_target: string|null,
@@ -135,6 +146,7 @@ class DiffEntry
         return [
             'name' => $this->getPackageName(),
             'direct' => $this->isDirect(),
+            'effective' => $this->isEffective(),
             'operation' => $this->getType(),
             'version_base' => $this->getBaseVersion(),
             'version_target' => $this->getTargetVersion(),

@@ -36,37 +36,39 @@ composer diff --help # Display detailed usage instructions
 
 ## Example output
 
-| Prod Packages                      | Operation | Base    | Target  |
-|------------------------------------|-----------|---------|---------|
-| psr/event-dispatcher               | New       | -       | 1.0.0   |
-| symfony/deprecation-contracts      | New       | -       | v2.1.2  |
-| symfony/event-dispatcher           | Upgraded  | v2.8.52 | v5.1.2  |
-| symfony/event-dispatcher-contracts | New       | -       | v2.1.2  |
-| symfony/polyfill-php80             | New       | -       | v1.17.1 |
-| php                                | New       | -       | >=5.3   |
+| Prod Packages                      | Operation | Base       | Target       |
+|------------------------------------|-----------|------------|--------------|
+| psr/event-dispatcher               | New       | -          | 1.0.0        |
+| symfony/deprecation-contracts      | New       | -          | v2.1.2       |
+| symfony/event-dispatcher           | Upgraded  | v2.8.52    | v5.1.2       |
+| symfony/event-dispatcher-contracts | New       | -          | v2.1.2       |
+| symfony/polyfill-php80             | New       | -          | v1.17.1      |
+| php                                | New       | -          | >=5.3        |
+| php (effective)                    | Changed   | >=7.2 <8.0 | >=7.2.5 <8.0 |
 
-| Dev Packages                       | Operation  | Base  | Target |
-|------------------------------------|------------|-------|--------|
-| phpunit/php-code-coverage          | Downgraded | 8.0.2 | 7.0.10 |
-| phpunit/php-file-iterator          | Downgraded | 3.0.2 | 2.0.2  |
-| phpunit/php-text-template          | Downgraded | 2.0.1 | 1.2.1  |
-| phpunit/php-timer                  | Downgraded | 5.0.0 | 2.1.2  |
-| phpunit/php-token-stream           | Downgraded | 4.0.2 | 3.1.1  |
-| phpunit/phpunit                    | Downgraded | 9.2.5 | 8.5.8  |
-| sebastian/code-unit-reverse-lookup | Downgraded | 2.0.1 | 1.0.1  |
-| sebastian/comparator               | Downgraded | 4.0.2 | 3.0.2  |
-| sebastian/diff                     | Downgraded | 4.0.1 | 3.0.2  |
-| sebastian/environment              | Downgraded | 5.1.1 | 4.2.3  |
-| sebastian/exporter                 | Downgraded | 4.0.1 | 3.1.2  |
-| sebastian/global-state             | Downgraded | 4.0.0 | 3.0.0  |
-| sebastian/object-enumerator        | Downgraded | 4.0.1 | 3.0.3  |
-| sebastian/object-reflector         | Downgraded | 2.0.1 | 1.1.1  |
-| sebastian/recursion-context        | Downgraded | 4.0.1 | 3.0.0  |
-| sebastian/resource-operations      | Downgraded | 3.0.1 | 2.0.1  |
-| sebastian/type                     | Downgraded | 2.1.0 | 1.1.3  |
-| sebastian/version                  | Downgraded | 3.0.0 | 2.0.1  |
-| phpunit/php-invoker                | Removed    | 3.0.1 | -      |
-| sebastian/code-unit                | Removed    | 1.0.3 | -      |
+| Dev Packages                       | Operation  | Base       | Target       |
+|------------------------------------|------------|------------|--------------|
+| phpunit/php-code-coverage          | Downgraded | 8.0.2      | 7.0.10       |
+| phpunit/php-file-iterator          | Downgraded | 3.0.2      | 2.0.2        |
+| phpunit/php-text-template          | Downgraded | 2.0.1      | 1.2.1        |
+| phpunit/php-timer                  | Downgraded | 5.0.0      | 2.1.2        |
+| phpunit/php-token-stream           | Downgraded | 4.0.2      | 3.1.1        |
+| phpunit/phpunit                    | Downgraded | 9.2.5      | 8.5.8        |
+| sebastian/code-unit-reverse-lookup | Downgraded | 2.0.1      | 1.0.1        |
+| sebastian/comparator               | Downgraded | 4.0.2      | 3.0.2        |
+| sebastian/diff                     | Downgraded | 4.0.1      | 3.0.2        |
+| sebastian/environment              | Downgraded | 5.1.1      | 4.2.3        |
+| sebastian/exporter                 | Downgraded | 4.0.1      | 3.1.2        |
+| sebastian/global-state             | Downgraded | 4.0.0      | 3.0.0        |
+| sebastian/object-enumerator        | Downgraded | 4.0.1      | 3.0.3        |
+| sebastian/object-reflector         | Downgraded | 2.0.1      | 1.1.1        |
+| sebastian/recursion-context        | Downgraded | 4.0.1      | 3.0.0        |
+| sebastian/resource-operations      | Downgraded | 3.0.1      | 2.0.1        |
+| sebastian/type                     | Downgraded | 2.1.0      | 1.1.3        |
+| sebastian/version                  | Downgraded | 3.0.0      | 2.0.1        |
+| php (effective)                    | Changed    | >=7.3 <8.0 | >=7.2.5 <8.0 |
+| phpunit/php-invoker                | Removed    | 3.0.1      | -            |
+| sebastian/code-unit                | Removed    | 1.0.3      | -            |
 
 ## Options
 
@@ -75,7 +77,7 @@ composer diff --help # Display detailed usage instructions
  - `--no-dev` - ignore dev dependencies (`require-dev`)
  - `--no-prod` - ignore prod dependencies (`require`)
  - `--direct` (`-D`) - only show direct dependencies
- - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.)
+ - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.), see [Platform requirements](#platform-requirements)
  - `--with-links` (`-l`) - include compare/release URLs
  - `--with-licenses` (`-c`) - include license information
  - `--format` (`-f`) - output format (mdtable, mdlist, json, csv, github, pr or one added by an [extension](docs/extensions.md)) - default: `mdtable`
@@ -103,6 +105,29 @@ composer diff HEAD:new-dir/composer.lock composer.lock --allow-missing # Compare
 
 You can find more documentation in the [docs](docs) directory.
 
+### Platform requirements
+
+With `--with-platform` (`-p`), the report includes two kinds of platform rows:
+
+- Rows like `php` show your project's own requirements from `composer.json`, exactly as written.
+- Rows like `php (effective)` show the version range required by your project and all locked packages together, for example `>=7.2.5 <8.0`.
+  They are listed for every platform package that at least one locked package requires, and reveal changes that come from dependencies, such as a package raising its minimum PHP version.
+
+| Prod Packages   | Operation | Base       | Target       |
+|-----------------|-----------|------------|--------------|
+| php             | Changed   | >=7.4      | >=8.0        |
+| php (effective) | Changed   | >=8.0 <9.0 | >=8.1 <9.0   |
+
+A few details:
+
+- The dev effective range covers both prod and dev packages, as both are installed in development. When both tables are shown, a dev row is hidden if the prod table already lists the same change.
+- Requirements satisfied by a locked package through `provide` or `replace` (for example `symfony/polyfill-mbstring` providing `ext-mbstring`) are not listed as effective rows. The provided version is not checked against the requirement.
+- Requirements on Composer itself (`composer-plugin-api`, `composer-runtime-api`, and `composer` when running Composer 2.2 or newer), usually coming from Composer plugins, are listed like any other platform package.
+- If the requirements have no common version range, which can happen in lock files created with `--ignore-platform-reqs`, the row shows `conflicting (N constraints)`.
+- Effective rows are never marked as direct dependencies, so `--direct` hides them.
+- Effective rows are always shown as `Changed`, never as upgrades or downgrades. With `--strict`, a change in a dependency's platform requirements sets the change flags (`2` or `4`) even when your own requirements did not change.
+- In JSON and CSV output, effective rows keep the plain platform name (for example `php`) and are marked with `"effective": true` (the last `effective` column in CSV). Formatters show them as `php (effective)`, and JSON uses that label as the row key.
+
 ### Strict mode
 
 To help you control your dependencies, you may pass `--strict` option when running in CI. If there are any changes detected, a non-zero exit code will be returned.
@@ -117,6 +142,8 @@ Exit code of the command is built using following bit flags:
 * `16` - There were downgrades in dev packages.
 
 You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
+
+With `--with-platform`, changes in the [effective platform requirements](#platform-requirements) of your dependencies also count as changes.
 
 ## Extensions
 

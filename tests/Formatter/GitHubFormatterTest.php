@@ -51,6 +51,14 @@ OUTPUT;
         );
     }
 
+    protected function getEffectivePlatformOutput(): string
+    {
+        return <<<OUTPUT
+::notice title=Prod Packages:: - Install ext-intl (effective) (*)%0A - Change php (effective) (>=7.2 => >=8.0)%0A - Uninstall ext-xdebug (effective) (*)
+
+OUTPUT;
+    }
+
     protected function getFormatter(OutputInterface $output): Formatter
     {
         return new GitHubFormatter($output);
