@@ -80,8 +80,59 @@ composer config allow-plugins.acme/composer-diff-extras true
 composer require --dev acme/composer-diff-extras
 ```
 
-To keep an extension inside a project without publishing it, put it in a subdirectory and install it from a
-[path repository](https://getcomposer.org/doc/05-repositories.md#path).
+To keep an extension inside your project instead of publishing it, see [Extensions in your own project](#extensions-in-your-own-project).
+
+## Extensions in your own project
+
+An extension does not have to be published on Packagist. You can keep it in your project's repository and install it
+from a [path repository](https://getcomposer.org/doc/05-repositories.md#path).
+
+Put the plugin in a subdirectory, for example `tools/composer-diff-extras`:
+
+```
+my-project/
+├── composer.json
+└── tools/
+    └── composer-diff-extras/
+        ├── composer.json
+        └── src/
+            ├── Plugin.php
+            ├── AcmeFormatterProvider.php
+            └── TsvFormatter.php
+```
+
+`tools/composer-diff-extras/composer.json` is the same as for a published plugin (see [above](#creating-an-extension-plugin)).
+Then point your project's `composer.json` at the directory, require the package and allow it to run:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "tools/composer-diff-extras"
+        }
+    ],
+    "require-dev": {
+        "ion-bazan/composer-diff": "^2.3",
+        "acme/composer-diff-extras": "*@dev"
+    },
+    "config": {
+        "allow-plugins": {
+            "ion-bazan/composer-diff": true,
+            "acme/composer-diff-extras": true
+        }
+    }
+}
+```
+
+Run `composer update acme/composer-diff-extras` to install it. Composer symlinks the directory into `vendor/`, so changes to the
+plugin code apply on the next `composer diff` run without reinstalling. Run the update again if you change the plugin's
+own `composer.json`, for example its autoload section or capabilities.
+
+The `*@dev` constraint is needed because a path package without a version tag is treated as a development version.
+
+If you only need the [`post-composer-diff` event](#post-composer-diff-event), you don't need a plugin at all. A script
+entry in your project's `composer.json` is enough.
 
 ## Custom formatters
 
@@ -105,7 +156,7 @@ class AcmeFormatterProvider implements FormatterProvider
     public function getFormatters(OutputInterface $output): array
     {
         return [
-            'csv' => new CsvFormatter($output),
+            'tsv' => new TsvFormatter($output),
         ];
     }
 }
@@ -120,7 +171,7 @@ use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Formatter\AbstractFormatter;
 
-class CsvFormatter extends AbstractFormatter
+class TsvFormatter extends AbstractFormatter
 {
     public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
     {
@@ -132,7 +183,7 @@ class CsvFormatter extends AbstractFormatter
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
-            $this->output->writeln(implode(',', [$title, $entry->getPackageName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
+            $this->output->writeln(implode("\t", [$title, $entry->getPackageName(), $entry->getType(), $entry->getBaseVersion(), $entry->getTargetVersion()]));
         }
     }
 }
@@ -141,7 +192,7 @@ class CsvFormatter extends AbstractFormatter
 The format is then available like any built-in one:
 
 ```shell script
-composer diff --format=csv
+composer diff --format=tsv
 ```
 
 A format name can only be registered once. Registering a name that is already taken, either by a built-in formatter
@@ -235,7 +286,7 @@ If you set your own exit code, use `1` or values from `32` upwards so it does no
 
 ### Listening from the project's composer.json
 
-A project can listen to the event without writing a plugin, using a static method from its own autoloaded code:
+A project can listen to the event without writing a plugin, using a static method from a class in its `autoload` or `autoload-dev` section:
 
 ```json
 {
