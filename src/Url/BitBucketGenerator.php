@@ -23,6 +23,12 @@ class BitBucketGenerator extends GitGenerator
             return null;
         }
 
+        $refs = $this->getCompareRefs($initialPackage, $targetPackage);
+
+        if (null === $refs) {
+            return null;
+        }
+
         $baseUrl = $this->getRepositoryUrl($targetPackage);
         $baseUser = $this->getUser($initialPackage);
         $targetUser = $this->getUser($targetPackage);
@@ -31,8 +37,8 @@ class BitBucketGenerator extends GitGenerator
             return sprintf(
                 '%s/branches/compare/%s%%0D%s',
                 $baseUrl,
-                $this->getCompareRef($targetPackage),
-                $this->getCompareRef($initialPackage)
+                $refs[1],
+                $refs[0]
             );
         }
 
@@ -41,10 +47,10 @@ class BitBucketGenerator extends GitGenerator
             $baseUrl,
             $targetUser,
             $this->getRepo($targetPackage),
-            $this->getCompareRef($targetPackage),
+            $refs[1],
             $baseUser,
             $this->getRepo($initialPackage),
-            $this->getCompareRef($initialPackage)
+            $refs[0]
         );
     }
 

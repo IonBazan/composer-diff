@@ -41,7 +41,13 @@ class GitlabGenerator extends GitGenerator
             return $this->getReleaseUrl($targetPackage); // Could not get a compare URL, using release URL instead
         }
 
-        return sprintf('%s/compare/%s...%s', $baseUrl, $this->getCompareRef($initialPackage), $this->getCompareRef($targetPackage));
+        $refs = $this->getCompareRefs($initialPackage, $targetPackage);
+
+        if (null === $refs) {
+            return null;
+        }
+
+        return sprintf('%s/compare/%s...%s', $baseUrl, $refs[0], $refs[1]);
     }
 
     /**
