@@ -8,6 +8,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Url\GitGenerator;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class DiffEntry
@@ -159,7 +160,7 @@ class DiffEntry
     public function getBaseVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->describeUpdatedVersion($this->operation, true);
+            return $this->describeVersion($this->operation->getInitialPackage(), $this->operation->getTargetPackage());
         }
 
         if ($this->operation instanceof UninstallOperation) {
@@ -172,7 +173,7 @@ class DiffEntry
     public function getTargetVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->describeUpdatedVersion($this->operation, false);
+            return $this->describeVersion($this->operation->getTargetPackage(), $this->operation->getInitialPackage());
         }
 
         if ($this->operation instanceof InstallOperation) {
@@ -208,25 +209,18 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
-    /**
-     * Adds the changed reference and/or package type to the version, so that changes which would
-     * otherwise look identical (e.g. a tag moved to another commit) are visible.
-     */
-    private function describeUpdatedVersion(UpdateOperation $operation, bool $base): string
+    private function describeVersion(PackageInterface $package, PackageInterface $other): string
     {
-        $initial = $operation->getInitialPackage();
-        $target = $operation->getTargetPackage();
-        $package = $base ? $initial : $target;
-        $other = $base ? $target : $initial;
         $version = $package->getFullPrettyVersion();
-        $difference = VersionComparator::getReferenceDifference($initial, $target);
+        $difference = VersionComparator::getReferenceDifference($package, $other);
 
         if (null !== $difference && $version === $other->getFullPrettyVersion()) {
-            $reference = $difference[$base ? 1 : 2];
-            if (substr($difference[1], 0, 7) !== substr($difference[2], 0, 7)) {
-                $reference = substr($reference, 0, 7);
+            $reference = $difference['value'];
+            $shortReference = substr($reference, 0, GitGenerator::SHORT_REFERENCE_LENGTH);
+            if ($shortReference !== substr($difference['otherValue'], 0, GitGenerator::SHORT_REFERENCE_LENGTH)) {
+                $reference = $shortReference;
             }
-            $version .= sprintf(' (%s: %s)', $difference[0], $reference);
+            $version .= sprintf(' (%s: %s)', $difference['field'], $reference);
         }
 
         if ($package->getType() !== $other->getType()) {

@@ -37,8 +37,8 @@ class BitBucketGenerator extends GitGenerator
             return sprintf(
                 '%s/branches/compare/%s%%0D%s',
                 $baseUrl,
-                $refs[1],
-                $refs[0]
+                $refs['target'],
+                $refs['base']
             );
         }
 
@@ -47,10 +47,10 @@ class BitBucketGenerator extends GitGenerator
             $baseUrl,
             $targetUser,
             $this->getRepo($targetPackage),
-            $refs[1],
+            $refs['target'],
             $baseUser,
             $this->getRepo($initialPackage),
-            $refs[0]
+            $refs['base']
         );
     }
 

@@ -47,7 +47,7 @@ class GitlabGenerator extends GitGenerator
             return null;
         }
 
-        return sprintf('%s/compare/%s...%s', $baseUrl, $refs[0], $refs[1]);
+        return sprintf('%s/compare/%s...%s', $baseUrl, $refs['base'], $refs['target']);
     }
 
     /**

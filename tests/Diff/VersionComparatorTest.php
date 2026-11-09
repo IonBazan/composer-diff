@@ -10,13 +10,22 @@ use IonBazan\ComposerDiff\Tests\TestCase;
 class VersionComparatorTest extends TestCase
 {
     /**
-     * @param array{string, string, string}|null $expected
+     * @param array{field: string, value: string, otherValue: string}|null $expected
      *
      * @dataProvider referenceDifferenceProvider
      */
     public function testGetReferenceDifference(?array $expected, PackageInterface $base, PackageInterface $target): void
     {
         $this->assertSame($expected, VersionComparator::getReferenceDifference($base, $target));
+    }
+
+    public function testGetReferenceDifferenceIsRelativeToFirstPackage(): void
+    {
+        $package = $this->createPackage('abc', null, null);
+        $other = $this->createPackage('xyz', null, null);
+
+        $this->assertSame(['field' => 'ref', 'value' => 'abc', 'otherValue' => 'xyz'], VersionComparator::getReferenceDifference($package, $other));
+        $this->assertSame(['field' => 'ref', 'value' => 'xyz', 'otherValue' => 'abc'], VersionComparator::getReferenceDifference($other, $package));
     }
 
     /**
@@ -36,27 +45,27 @@ class VersionComparatorTest extends TestCase
                 $this->createPackage('abc', 'def', 'ghi'),
             ],
             'source reference changed' => [
-                ['ref', 'abc', 'xyz'],
+                ['field' => 'ref', 'value' => 'abc', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('xyz', 'def', 'ghi'),
             ],
             'dist reference changed' => [
-                ['dist-ref', 'def', 'xyz'],
+                ['field' => 'dist-ref', 'value' => 'def', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'xyz', 'ghi'),
             ],
             'dist checksum changed' => [
-                ['sha1', 'ghi', 'xyz'],
+                ['field' => 'sha1', 'value' => 'ghi', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'def', 'xyz'),
             ],
             'source reference takes precedence' => [
-                ['ref', 'abc', 'xyz'],
+                ['field' => 'ref', 'value' => 'abc', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('xyz', 'xyz', 'xyz'),
             ],
             'dist reference takes precedence over checksum' => [
-                ['dist-ref', 'def', 'xyz'],
+                ['field' => 'dist-ref', 'value' => 'def', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'xyz', 'xyz'),
             ],
@@ -76,7 +85,7 @@ class VersionComparatorTest extends TestCase
                 $this->createPackage('abc', 'def', 'ghi'),
             ],
             'falls through to next comparable reference' => [
-                ['sha1', 'ghi', 'xyz'],
+                ['field' => 'sha1', 'value' => 'ghi', 'otherValue' => 'xyz'],
                 $this->createPackage(null, 'def', 'ghi'),
                 $this->createPackage('abc', 'def', 'xyz'),
             ],

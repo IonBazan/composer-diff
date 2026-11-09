@@ -8,9 +8,6 @@ use Composer\Package\Version\VersionParser;
 
 class VersionComparator
 {
-    /**
-     * Package metadata which identifies the actual contents of a package, in order of precedence.
-     */
     const REFERENCE_FIELDS = [
         'ref' => 'getSourceReference',
         'dist-ref' => 'getDistReference',
@@ -44,22 +41,22 @@ class VersionComparator
     }
 
     /**
-     * Finds the first reference which differs between two packages.
-     * Fields missing on either side are ignored, as they cannot be compared.
+     * References missing on either side are ignored, as they cannot be compared.
      *
-     * @return array{string, string, string}|null label, base value and target value, or null if nothing differs
+     * @return array{field: string, value: string, otherValue: string}|null the differing field, with its value
+     *                                                                       for $package and for $other, or null if nothing differs
      */
-    public static function getReferenceDifference(PackageInterface $base, PackageInterface $target): ?array
+    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other): ?array
     {
-        foreach (self::REFERENCE_FIELDS as $label => $getter) {
-            $baseValue = $base->{$getter}();
-            $targetValue = $target->{$getter}();
+        foreach (self::REFERENCE_FIELDS as $field => $getter) {
+            $value = $package->{$getter}();
+            $otherValue = $other->{$getter}();
 
-            if (!$baseValue || !$targetValue || $baseValue === $targetValue) {
+            if (!$value || !$otherValue || $value === $otherValue) {
                 continue;
             }
 
-            return [$label, $baseValue, $targetValue];
+            return ['field' => $field, 'value' => $value, 'otherValue' => $otherValue];
         }
 
         return null;

@@ -33,13 +33,10 @@ abstract class GitGenerator implements UrlGenerator
     }
 
     /**
-     * Finds the references to compare between two packages.
+     * When both packages resolve to the same reference, their source references are used instead.
+     * If there is nothing to tell them apart, no comparison can be made, as it would be empty.
      *
-     * When both packages resolve to the same reference (e.g. a tag which has been moved to another commit),
-     * their immutable source references are used instead. If there is nothing to tell them apart, no
-     * comparison can be made, as it would be empty.
-     *
-     * @return array{string, string}|null base and target references, or null if they cannot be compared
+     * @return array{base: string, target: string}|null base and target references, or null if they cannot be compared
      */
     protected function getCompareRefs(PackageInterface $initialPackage, PackageInterface $targetPackage): ?array
     {
@@ -47,7 +44,7 @@ abstract class GitGenerator implements UrlGenerator
         $targetRef = $this->getCompareRef($targetPackage);
 
         if ($baseRef !== $targetRef) {
-            return [$baseRef, $targetRef];
+            return ['base' => $baseRef, 'target' => $targetRef];
         }
 
         $baseSource = $initialPackage->getSourceReference();
@@ -57,7 +54,7 @@ abstract class GitGenerator implements UrlGenerator
             return null;
         }
 
-        return [$baseSource, $targetSource];
+        return ['base' => $baseSource, 'target' => $targetSource];
     }
 
     protected function getUser(PackageInterface $package): string

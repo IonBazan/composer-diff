@@ -24,9 +24,9 @@ class GithubGenerator extends GitGenerator
         $baseUrl = $this->getRepositoryUrl($initialPackage);
         $baseMaintainer = $this->getUser($initialPackage);
         $targetMaintainer = $this->getUser($targetPackage);
-        $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$refs[1];
+        $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$refs['target'];
 
-        return sprintf('%s/compare/%s...%s', $baseUrl, $refs[0], $targetVersion);
+        return sprintf('%s/compare/%s...%s', $baseUrl, $refs['base'], $targetVersion);
     }
 
     /**
