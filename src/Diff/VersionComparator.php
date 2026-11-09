@@ -3,10 +3,20 @@
 namespace IonBazan\ComposerDiff\Diff;
 
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\PackageInterface;
 use Composer\Package\Version\VersionParser;
 
 class VersionComparator
 {
+    /**
+     * Package metadata which identifies the actual contents of a package, in order of precedence.
+     */
+    const REFERENCE_FIELDS = [
+        'ref' => 'getSourceReference',
+        'dist-ref' => 'getDistReference',
+        'sha1' => 'getDistSha1Checksum',
+    ];
+
     /**
      * @return bool|null true if it's upgrade, false if it's downgrade, null if it is a change
      */
@@ -31,5 +41,27 @@ class VersionComparator
         }
 
         return VersionParser::isUpgrade($normalizedFrom, $normalizedTo);
+    }
+
+    /**
+     * Finds the first reference which differs between two packages.
+     * Fields missing on either side are ignored, as they cannot be compared.
+     *
+     * @return array{string, string, string}|null label, base value and target value, or null if nothing differs
+     */
+    public static function getReferenceDifference(PackageInterface $base, PackageInterface $target): ?array
+    {
+        foreach (self::REFERENCE_FIELDS as $label => $getter) {
+            $baseValue = $base->{$getter}();
+            $targetValue = $target->{$getter}();
+
+            if (!$baseValue || !$targetValue || $baseValue === $targetValue) {
+                continue;
+            }
+
+            return [$label, $baseValue, $targetValue];
+        }
+
+        return null;
     }
 }

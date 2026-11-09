@@ -20,6 +20,7 @@ use Composer\Util\ProcessExecutor;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
+use IonBazan\ComposerDiff\Diff\VersionComparator;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
@@ -90,7 +91,11 @@ class PackageDiff
                     continue;
                 }
 
-                if ($oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()) {
+                if (
+                    $oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()
+                    || $oldPackage->getType() !== $newPackage->getType()
+                    || null !== VersionComparator::getReferenceDifference($oldPackage, $newPackage)
+                ) {
                     $operations[] = new UpdateOperation($oldPackage, $newPackage);
                 }
             }

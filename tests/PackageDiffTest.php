@@ -367,6 +367,37 @@ class PackageDiffTest extends TestCase
                     new AliasPackage(new Package('vendor/package-a', '2.0', '2.0'), '1.0', '1.0'),
                 ]),
             ],
+            'same version, moved source reference' => [
+                [
+                    'update vendor/package-a from 1.0 to 1.0',
+                ],
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'def')]),
+            ],
+            'same version, changed dist checksum' => [
+                [
+                    'update vendor/package-a from 1.0 to 1.0',
+                ],
+                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def')]),
+            ],
+            'same version, changed type' => [
+                [
+                    'update vendor/package-a from 1.0 to 1.0',
+                ],
+                new ArrayRepository([$this->createPackage('1.0', 'library')]),
+                new ArrayRepository([$this->createPackage('1.0', 'metapackage')]),
+            ],
+            'same version, same type and references' => [
+                [],
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+            ],
+            'same version, reference missing on one side' => [
+                [],
+                new ArrayRepository([$this->createPackage('1.0', 'library')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+            ],
             'uninstall aliased package' => [
                 [
                     'uninstall vendor/package-a 1.0',
@@ -465,6 +496,17 @@ class PackageDiffTest extends TestCase
                 'onlyDirect' => true,
             ],
         ];
+    }
+
+    private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package
+    {
+        $package = new Package('vendor/package-a', $version, $version);
+        $package->setType($type);
+        $package->setSourceReference($sourceReference);
+        $package->setDistReference($distReference);
+        $package->setDistSha1Checksum($checksum);
+
+        return $package;
     }
 
     private function prepareGit(bool $onlyLock = false, string $subdirectory = ''): void

@@ -159,7 +159,7 @@ class DiffEntry
     public function getBaseVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->operation->getInitialPackage()->getFullPrettyVersion();
+            return $this->describeUpdatedVersion($this->operation, true);
         }
 
         if ($this->operation instanceof UninstallOperation) {
@@ -172,7 +172,7 @@ class DiffEntry
     public function getTargetVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->operation->getTargetPackage()->getFullPrettyVersion();
+            return $this->describeUpdatedVersion($this->operation, false);
         }
 
         if ($this->operation instanceof InstallOperation) {
@@ -208,6 +208,30 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
+    /**
+     * Adds the changed reference and/or package type to the version, so that changes which would
+     * otherwise look identical (e.g. a tag moved to another commit) are visible.
+     */
+    private function describeUpdatedVersion(UpdateOperation $operation, bool $base): string
+    {
+        $initial = $operation->getInitialPackage();
+        $target = $operation->getTargetPackage();
+        $package = $base ? $initial : $target;
+        $other = $base ? $target : $initial;
+        $version = $package->getFullPrettyVersion();
+        $difference = VersionComparator::getReferenceDifference($initial, $target);
+
+        if (null !== $difference && $version === $other->getFullPrettyVersion()) {
+            $version .= sprintf(' (%s: %s)', $difference[0], substr($difference[$base ? 1 : 2], 0, 7));
+        }
+
+        if ($package->getType() !== $other->getType()) {
+            $version .= sprintf(' [type: %s]', $package->getType());
+        }
+
+        return $version;
+    }
+
     private function determineType(): string
     {
         if ($this->operation instanceof InstallOperation) {
@@ -219,6 +243,10 @@ class DiffEntry
         }
 
         if ($this->operation instanceof UpdateOperation) {
+            if ($this->operation->getInitialPackage()->getVersion() === $this->operation->getTargetPackage()->getVersion()) {
+                return self::TYPE_CHANGE;
+            }
+
             $upgrade = VersionComparator::isUpgrade($this->operation);
 
             if (null === $upgrade) {
