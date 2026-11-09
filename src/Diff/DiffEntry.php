@@ -222,7 +222,11 @@ class DiffEntry
         $difference = VersionComparator::getReferenceDifference($initial, $target);
 
         if (null !== $difference && $version === $other->getFullPrettyVersion()) {
-            $version .= sprintf(' (%s: %s)', $difference[0], substr($difference[$base ? 1 : 2], 0, 7));
+            $reference = $difference[$base ? 1 : 2];
+            if (substr($difference[1], 0, 7) !== substr($difference[2], 0, 7)) {
+                $reference = substr($reference, 0, 7);
+            }
+            $version .= sprintf(' (%s: %s)', $difference[0], $reference);
         }
 
         if ($package->getType() !== $other->getType()) {
