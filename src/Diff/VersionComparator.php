@@ -44,7 +44,7 @@ class VersionComparator
      * References missing on either side are ignored, as they cannot be compared.
      *
      * @return array{field: string, value: string, otherValue: string}|null the differing field, with its value
-     *                                                                       for $package and for $other, or null if nothing differs
+     *                                                                      for $package and for $other, or null if nothing differs
      */
     public static function getReferenceDifference(PackageInterface $package, PackageInterface $other): ?array
     {
