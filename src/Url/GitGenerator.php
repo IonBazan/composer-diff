@@ -32,31 +32,6 @@ abstract class GitGenerator implements UrlGenerator
         return $reference;
     }
 
-    /**
-     * When both packages resolve to the same reference, their source references are used instead.
-     * If there is nothing to tell them apart, no comparison can be made, as it would be empty.
-     *
-     * @return array{base: string, target: string}|null base and target references, or null if they cannot be compared
-     */
-    protected function getCompareRefs(PackageInterface $initialPackage, PackageInterface $targetPackage): ?array
-    {
-        $baseRef = $this->getCompareRef($initialPackage);
-        $targetRef = $this->getCompareRef($targetPackage);
-
-        if ($baseRef !== $targetRef) {
-            return ['base' => $baseRef, 'target' => $targetRef];
-        }
-
-        $baseSource = $initialPackage->getSourceReference();
-        $targetSource = $targetPackage->getSourceReference();
-
-        if (!$baseSource || !$targetSource || $baseSource === $targetSource) {
-            return null;
-        }
-
-        return ['base' => $baseSource, 'target' => $targetSource];
-    }
-
     protected function getUser(PackageInterface $package): string
     {
         return preg_replace(

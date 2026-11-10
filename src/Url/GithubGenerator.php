@@ -15,18 +15,25 @@ class GithubGenerator extends GitGenerator
             return null;
         }
 
-        $refs = $this->getCompareRefs($initialPackage, $targetPackage);
+        $baseRef = $this->getCompareRef($initialPackage);
+        $targetRef = $this->getCompareRef($targetPackage);
 
-        if (null === $refs) {
+        if ($baseRef === $targetRef) {
+            // Same version, so only the source references can tell the packages apart
+            $baseRef = $initialPackage->getSourceReference();
+            $targetRef = $targetPackage->getSourceReference();
+        }
+
+        if (!$baseRef || !$targetRef || $baseRef === $targetRef) {
             return null;
         }
 
         $baseUrl = $this->getRepositoryUrl($initialPackage);
         $baseMaintainer = $this->getUser($initialPackage);
         $targetMaintainer = $this->getUser($targetPackage);
-        $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$refs['target'];
+        $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$targetRef;
 
-        return sprintf('%s/compare/%s...%s', $baseUrl, $refs['base'], $targetVersion);
+        return sprintf('%s/compare/%s...%s', $baseUrl, $baseRef, $targetVersion);
     }
 
     /**
