@@ -215,11 +215,7 @@ class DiffEntry
         $difference = VersionComparator::getReferenceDifference($package, $other);
 
         if (null !== $difference && $version === $other->getFullPrettyVersion()) {
-            $reference = $difference['value'];
-            $shortReference = substr($reference, 0, GitGenerator::SHORT_REFERENCE_LENGTH);
-            if ($shortReference !== substr($difference['otherValue'], 0, GitGenerator::SHORT_REFERENCE_LENGTH)) {
-                $reference = $shortReference;
-            }
+            $reference = substr($difference['value'], 0, GitGenerator::SHORT_REFERENCE_LENGTH);
             $version .= sprintf(' (%s: %s)', $difference['field'], $reference);
         }
 
