@@ -17,48 +17,13 @@ class BitBucketGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
     {
-        if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
-            return null;
+        if ($sameUser) {
+            return '{target_url}/branches/compare/{target_ref}%0D{base_ref}';
         }
 
-        $baseRef = $this->getCompareRef($initialPackage);
-        $targetRef = $this->getCompareRef($targetPackage);
-
-        if ($baseRef === $targetRef) {
-            // Same version, so only the source references can tell the packages apart
-            $baseRef = $initialPackage->getSourceReference();
-            $targetRef = $targetPackage->getSourceReference();
-        }
-
-        if (!$baseRef || !$targetRef || $baseRef === $targetRef) {
-            return null;
-        }
-
-        $baseUrl = $this->getRepositoryUrl($targetPackage);
-        $baseUser = $this->getUser($initialPackage);
-        $targetUser = $this->getUser($targetPackage);
-
-        if ($baseUser === $targetUser) {
-            return sprintf(
-                '%s/branches/compare/%s%%0D%s',
-                $baseUrl,
-                $targetRef,
-                $baseRef
-            );
-        }
-
-        return sprintf(
-            '%s/branches/compare/%s/%s:%s%%0D%s/%s:%s',
-            $baseUrl,
-            $targetUser,
-            $this->getRepo($targetPackage),
-            $targetRef,
-            $baseUser,
-            $this->getRepo($initialPackage),
-            $baseRef
-        );
+        return '{target_url}/branches/compare/{target_user}/{target_repo}:{target_ref}%0D{base_user}/{base_repo}:{base_ref}';
     }
 
     /**

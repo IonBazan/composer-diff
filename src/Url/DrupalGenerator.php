@@ -3,10 +3,16 @@
 namespace IonBazan\ComposerDiff\Url;
 
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Diff\VersionComparator;
 
 class DrupalGenerator extends GitlabGenerator
 {
     const DRUPAL_CORE = 'drupal/core';
+
+    /**
+     * Drupal's packages also have a checksum for their dist, which changes along with their code.
+     */
+    const REFERENCE_FIELDS = VersionComparator::REFERENCE_FIELDS + ['sha1' => 'getDistSha1Checksum'];
 
     /**
      * {@inheritdoc}

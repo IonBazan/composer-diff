@@ -11,7 +11,6 @@ class VersionComparator
     const REFERENCE_FIELDS = [
         'ref' => 'getSourceReference',
         'dist-ref' => 'getDistReference',
-        'sha1' => 'getDistSha1Checksum',
     ];
 
     /**
@@ -43,12 +42,14 @@ class VersionComparator
     /**
      * References missing on either side are ignored, as they cannot be compared.
      *
+     * @param array<string, string> $fields package getter methods, keyed by the label for the field they get
+     *
      * @return array{field: string, value: string, otherValue: string}|null the differing field, with its value
      *                                                                      for $package and for $other, or null if nothing differs
      */
-    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other): ?array
+    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other, array $fields = self::REFERENCE_FIELDS): ?array
     {
-        foreach (self::REFERENCE_FIELDS as $field => $getter) {
+        foreach ($fields as $field => $getter) {
             $value = $package->{$getter}();
             $otherValue = $other->{$getter}();
 

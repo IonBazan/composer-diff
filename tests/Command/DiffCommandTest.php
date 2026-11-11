@@ -6,6 +6,7 @@ use IonBazan\ComposerDiff\PackageDiff;
 use Composer\Composer;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\IO\NullIO;
+use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginManager;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -328,6 +329,24 @@ OUTPUT
     }
 
     /**
+     * @testWith [[], false]
+     *           [{"--with-metadata": null}, true]
+     */
+    public function testWithMetadataOption(array $options, bool $expected): void
+    {
+        $diff = $this->getMockBuilder(PackageDiff::class)->getMock();
+        $command = new DiffCommand($diff);
+        $command->setApplication($this->getComposerApplication());
+        $tester = new CommandTester($command);
+        $diff->expects($this->exactly(2))
+            ->method('getPackageDiff')
+            ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false, false, false, $expected)
+            ->willReturn($this->getEntries([], $this->getGenerators()))
+        ;
+        $this->assertSame(0, $tester->execute($options));
+    }
+
+    /**
      * @param OperationInterface[] $prodOperations
      * @param OperationInterface[] $devOperations
      *
@@ -369,6 +388,15 @@ OUTPUT
                     new InstallOperation($this->getPackageWithSource('a/package-4', '1.0.0', 'github.com')),
                 ],
             ],
+            'Same version with a changed reference in prod and a changed type in dev' => [
+                6,
+                [
+                    new UpdateOperation($this->createPackage('a/package-1', 'library', 'abc'), $this->createPackage('a/package-1', 'library', 'def')),
+                ],
+                [
+                    new UpdateOperation($this->createPackage('a/package-2', 'library', 'abc'), $this->createPackage('a/package-2', 'metapackage', 'abc')),
+                ],
+            ],
             'Downgrades in prod and changes in dev' => [
                 14,
                 [
@@ -403,6 +431,15 @@ OUTPUT
                 ],
             ],
         ];
+    }
+
+    private function createPackage(string $name, string $type, string $sourceReference): Package
+    {
+        $package = new Package($name, '1.0.0.0', '1.0.0');
+        $package->setType($type);
+        $package->setSourceReference($sourceReference);
+
+        return $package;
     }
 
     /**

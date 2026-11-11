@@ -28,6 +28,17 @@ class VersionComparatorTest extends TestCase
         $this->assertSame(['field' => 'ref', 'value' => 'xyz', 'otherValue' => 'abc'], VersionComparator::getReferenceDifference($other, $package));
     }
 
+    public function testGetReferenceDifferenceWithCustomFields(): void
+    {
+        $fields = ['sha1' => 'getDistSha1Checksum'];
+
+        $this->assertSame(
+            ['field' => 'sha1', 'value' => 'ghi', 'otherValue' => 'xyz'],
+            VersionComparator::getReferenceDifference($this->createPackage('abc', 'def', 'ghi'), $this->createPackage('xyz', 'xyz', 'xyz'), $fields)
+        );
+        $this->assertNull(VersionComparator::getReferenceDifference($this->createPackage('abc', 'def', 'ghi'), $this->createPackage('xyz', 'xyz', 'ghi'), $fields));
+    }
+
     /**
      * @return iterable<array<mixed>>
      */
@@ -54,8 +65,8 @@ class VersionComparatorTest extends TestCase
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'xyz', 'ghi'),
             ],
-            'dist checksum changed' => [
-                ['field' => 'sha1', 'value' => 'ghi', 'otherValue' => 'xyz'],
+            'dist checksum changed is ignored by default' => [
+                null,
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'def', 'xyz'),
             ],
@@ -64,7 +75,7 @@ class VersionComparatorTest extends TestCase
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('xyz', 'xyz', 'xyz'),
             ],
-            'dist reference takes precedence over checksum' => [
+            'dist reference changed along with checksum' => [
                 ['field' => 'dist-ref', 'value' => 'def', 'otherValue' => 'xyz'],
                 $this->createPackage('abc', 'def', 'ghi'),
                 $this->createPackage('abc', 'xyz', 'xyz'),
@@ -85,9 +96,9 @@ class VersionComparatorTest extends TestCase
                 $this->createPackage('abc', 'def', 'ghi'),
             ],
             'falls through to next comparable reference' => [
-                ['field' => 'sha1', 'value' => 'ghi', 'otherValue' => 'xyz'],
+                ['field' => 'dist-ref', 'value' => 'def', 'otherValue' => 'xyz'],
                 $this->createPackage(null, 'def', 'ghi'),
-                $this->createPackage('abc', 'def', 'xyz'),
+                $this->createPackage('abc', 'xyz', 'ghi'),
             ],
         ];
     }

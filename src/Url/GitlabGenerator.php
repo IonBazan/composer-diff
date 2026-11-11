@@ -27,34 +27,9 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
     {
-        if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
-            return null;
-        }
-
-        $baseUrl = $this->getRepositoryUrl($initialPackage);
-        $baseMaintainer = $this->getUser($initialPackage);
-        $targetMaintainer = $this->getUser($targetPackage);
-
-        if ($baseMaintainer !== $targetMaintainer) {
-            return $this->getReleaseUrl($targetPackage); // Could not get a compare URL, using release URL instead
-        }
-
-        $baseRef = $this->getCompareRef($initialPackage);
-        $targetRef = $this->getCompareRef($targetPackage);
-
-        if ($baseRef === $targetRef) {
-            // Same version, so only the source references can tell the packages apart
-            $baseRef = $initialPackage->getSourceReference();
-            $targetRef = $targetPackage->getSourceReference();
-        }
-
-        if (!$baseRef || !$targetRef || $baseRef === $targetRef) {
-            return null;
-        }
-
-        return sprintf('%s/compare/%s...%s', $baseUrl, $baseRef, $targetRef);
+        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : null;
     }
 
     /**

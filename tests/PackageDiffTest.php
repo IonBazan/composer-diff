@@ -367,37 +367,6 @@ class PackageDiffTest extends TestCase
                     new AliasPackage(new Package('vendor/package-a', '2.0', '2.0'), '1.0', '1.0'),
                 ]),
             ],
-            'same version, moved source reference' => [
-                [
-                    'update vendor/package-a from 1.0 to 1.0',
-                ],
-                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc')]),
-                new ArrayRepository([$this->createPackage('1.0', 'library', 'def')]),
-            ],
-            'same version, changed dist checksum' => [
-                [
-                    'update vendor/package-a from 1.0 to 1.0',
-                ],
-                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc')]),
-                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def')]),
-            ],
-            'same version, changed type' => [
-                [
-                    'update vendor/package-a from 1.0 to 1.0',
-                ],
-                new ArrayRepository([$this->createPackage('1.0', 'library')]),
-                new ArrayRepository([$this->createPackage('1.0', 'metapackage')]),
-            ],
-            'same version, same type and references' => [
-                [],
-                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
-                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
-            ],
-            'same version, reference missing on one side' => [
-                [],
-                new ArrayRepository([$this->createPackage('1.0', 'library')]),
-                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
-            ],
             'uninstall aliased package' => [
                 [
                     'uninstall vendor/package-a 1.0',
@@ -498,9 +467,81 @@ class PackageDiffTest extends TestCase
         ];
     }
 
-    private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package
+    /**
+     * @param string[] $expected
+     *
+     * @dataProvider metadataOperationsProvider
+     */
+    public function testMetadataChangesAreOnlyReportedWhenRequested(array $expected, RepositoryInterface $oldRepository, RepositoryInterface $newRepository): void
+    {
+        $diff = new PackageDiff();
+
+        $this->assertSame([], $diff->getOperations($oldRepository, $newRepository));
+        $this->assertSame($expected, array_map([$this, 'operationToString'], $diff->getOperations($oldRepository, $newRepository, true)));
+        $this->assertSame($expected, array_map([$this, 'entryToString'], $diff->getDiff($oldRepository, $newRepository, [], false, true)->getArrayCopy()));
+    }
+
+    /**
+     * @return iterable<array<mixed>>
+     */
+    public function metadataOperationsProvider(): iterable
+    {
+        return [
+            'same version, moved source reference' => [
+                [
+                    'update vendor/package-a from 1.0 to 1.0',
+                ],
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'def')]),
+            ],
+            'same version, changed dist checksum is ignored by default' => [
+                [],
+                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def')]),
+            ],
+            'same version, changed type' => [
+                [
+                    'update vendor/package-a from 1.0 to 1.0',
+                ],
+                new ArrayRepository([$this->createPackage('1.0', 'library')]),
+                new ArrayRepository([$this->createPackage('1.0', 'metapackage')]),
+            ],
+            'same version, same type and references' => [
+                [],
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+            ],
+            'same version, reference missing on one side' => [
+                [],
+                new ArrayRepository([$this->createPackage('1.0', 'library')]),
+                new ArrayRepository([$this->createPackage('1.0', 'library', 'abc', 'abc', 'abc')]),
+            ],
+        ];
+    }
+
+    public function testDistChecksumChangesAreOnlyReportedForDrupalPackages(): void
+    {
+        $diff = new PackageDiff();
+
+        $drupal = $diff->getOperations(
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://git.drupalcode.org/project/package-a.git')]),
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def', 'https://git.drupalcode.org/project/package-a.git')]),
+            true
+        );
+        $this->assertSame(['update vendor/package-a from 1.0 to 1.0'], array_map([$this, 'operationToString'], $drupal));
+
+        $github = $diff->getOperations(
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://github.com/vendor/package-a.git')]),
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def', 'https://github.com/vendor/package-a.git')]),
+            true
+        );
+        $this->assertSame([], $github);
+    }
+
+    private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null, ?string $sourceUrl = null): Package
     {
         $package = new Package('vendor/package-a', $version, $version);
+        $package->setSourceUrl($sourceUrl);
         $package->setType($type);
         $package->setSourceReference($sourceReference);
         $package->setDistReference($distReference);

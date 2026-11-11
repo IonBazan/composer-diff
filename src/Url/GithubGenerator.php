@@ -9,36 +9,6 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
-    {
-        if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
-            return null;
-        }
-
-        $baseRef = $this->getCompareRef($initialPackage);
-        $targetRef = $this->getCompareRef($targetPackage);
-
-        if ($baseRef === $targetRef) {
-            // Same version, so only the source references can tell the packages apart
-            $baseRef = $initialPackage->getSourceReference();
-            $targetRef = $targetPackage->getSourceReference();
-        }
-
-        if (!$baseRef || !$targetRef || $baseRef === $targetRef) {
-            return null;
-        }
-
-        $baseUrl = $this->getRepositoryUrl($initialPackage);
-        $baseMaintainer = $this->getUser($initialPackage);
-        $targetMaintainer = $this->getUser($targetPackage);
-        $targetVersion = ($baseMaintainer !== $targetMaintainer ? $targetMaintainer.':' : '').$targetRef;
-
-        return sprintf('%s/compare/%s...%s', $baseUrl, $baseRef, $targetVersion);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
@@ -54,6 +24,14 @@ class GithubGenerator extends GitGenerator
     public function getProjectUrl(PackageInterface $package): ?string
     {
         return $this->getRepositoryUrl($package);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
+    {
+        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : '{base_url}/compare/{base_ref}...{target_user}:{target_ref}';
     }
 
     /**
