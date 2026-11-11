@@ -209,8 +209,8 @@ class DiffEntry
 
         $operation = $this->getOperation();
 
-        if ($operation instanceof UpdateOperation) {
-            $this->compareUrl = $generator->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
+        if ($operation instanceof UpdateOperation && !$this->isSameRevision($operation->getInitialPackage(), $package)) {
+            $this->compareUrl = $generator->getCompareUrl($operation->getInitialPackage(), $package);
 
             return;
         }
@@ -227,6 +227,15 @@ class DiffEntry
         if ($generator instanceof GitGenerator) {
             $this->referenceFields = $generator::REFERENCE_FIELDS;
         }
+    }
+
+    /**
+     * There is nothing to compare when only metadata changed, e.g. a moved Drupal release whose source reference is its tag.
+     */
+    private function isSameRevision(PackageInterface $initialPackage, PackageInterface $targetPackage): bool
+    {
+        return $initialPackage->getPrettyVersion() === $targetPackage->getPrettyVersion()
+            && $initialPackage->getSourceReference() === $targetPackage->getSourceReference();
     }
 
     private function describeVersion(PackageInterface $package, PackageInterface $other): string

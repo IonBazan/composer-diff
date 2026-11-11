@@ -223,6 +223,18 @@ class DiffEntryTest extends TestCase
                 'compare',
                 new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-1', '1.0.0')),
             ],
+            'Moved tag shows compare URL' => [
+                'compare',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', 'abc'), $this->createPackage('1.0.0', 'library', 'def')),
+            ],
+            'Same reference with different version shows compare URL' => [
+                'compare',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', 'abc'), $this->createPackage('1.0.1', 'library', 'abc')),
+            ],
+            'Same version and reference shows release URL' => [
+                'release',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', '1.0.0', '1.0.0', 'abc'), $this->createPackage('1.0.0', 'library', '1.0.0', '1.0.0', 'def')),
+            ],
         ];
     }
 
