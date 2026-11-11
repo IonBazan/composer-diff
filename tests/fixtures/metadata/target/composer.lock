@@ -1,0 +1,21 @@
+{
+    "packages": [
+        {
+            "name": "acme/package",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acme/package.git",
+                "reference": "9b860214d58c48b5cbe99bdb17914d0eb723c9cd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/acme/package/zipball/9b860214d58c48b5cbe99bdb17914d0eb723c9cd",
+                "reference": "9b860214d58c48b5cbe99bdb17914d0eb723c9cd",
+                "shasum": ""
+            },
+            "type": "library"
+        }
+    ],
+    "packages-dev": []
+}

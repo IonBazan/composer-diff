@@ -333,6 +333,19 @@ class PackageDiffTest extends TestCase
         $this->assertSame(['update phpunit/phpunit from 9.2.5 to 8.5.8'], array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
+    public function testPackageDiffReportsMetadataOnlyWhenRequested(): void
+    {
+        $diff = new PackageDiff();
+        $base = __DIR__.'/fixtures/metadata/base/composer.lock';
+        $target = __DIR__.'/fixtures/metadata/target/composer.lock';
+
+        $this->assertCount(0, $diff->getPackageDiff($base, $target, false, false));
+        $this->assertSame(
+            ['update acme/package from 1.0.0 to 1.0.0'],
+            array_map([$this, 'entryToString'], $diff->getPackageDiff($base, $target, false, false, false, false, true)->getArrayCopy())
+        );
+    }
+
     public function testLoadFromEmptyArray(): void
     {
         $diff = new PackageDiff();
@@ -477,6 +490,7 @@ class PackageDiffTest extends TestCase
         $diff = new PackageDiff();
 
         $this->assertSame([], $diff->getOperations($oldRepository, $newRepository));
+        $this->assertSame([], $diff->getDiff($oldRepository, $newRepository)->getArrayCopy());
         $this->assertSame($expected, array_map([$this, 'operationToString'], $diff->getOperations($oldRepository, $newRepository, true)));
         $this->assertSame($expected, array_map([$this, 'entryToString'], $diff->getDiff($oldRepository, $newRepository, [], false, true)->getArrayCopy()));
     }
