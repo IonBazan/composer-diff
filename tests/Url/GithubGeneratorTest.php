@@ -122,6 +122,11 @@ class GithubGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/IonBazan/package.git'),
                 'https://github.com/acme/package/compare/3.12.0...IonBazan:3.12.1',
             ],
+            'compare with fork under the same owner' => [
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/acme/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package-fork.git'),
+                'https://github.com/acme/package/compare/3.12.0...acme:3.12.1',
+            ],
             'compare with different repository provider' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git'),

@@ -106,6 +106,11 @@ class BitBucketGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/IonBazan/package.git'),
                 'https://bitbucket.org/IonBazan/package/branches/compare/IonBazan/package:3.12.1%0Dacme/package:3.12.0',
             ],
+            'compare with fork under the same owner' => [
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package-fork.git'),
+                'https://bitbucket.org/acme/package-fork/branches/compare/acme/package-fork:3.12.1%0Dacme/package:3.12.0',
+            ],
             'compare with different repository provider' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.org/acme/package.git'),
