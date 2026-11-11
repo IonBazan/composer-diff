@@ -22,7 +22,7 @@ class CsvFormatterTest extends FormatterTest
         $entries = new DiffEntries([
             new DiffEntry(new InstallOperation($this->getCompletePackage('a/package-1', '1.0.0', null, ['Quoted "license"', "Multi\nline", "Carriage\rreturn", '<info>Tagged</info>'])), null, true),
         ]);
-        $this->getFormatter($output)->renderSingle($entries, 'test', false, true);
+        $this->getFormatter($output)->renderSingle($entries, 'test', false, true, false);
 
         $this->assertSame(
             'section,name,direct,operation,version_base,version_target,licenses,effective'.PHP_EOL.
@@ -122,7 +122,7 @@ OUTPUT;
         $stream = fopen('php://memory', 'wb', false);
         assert(false !== $stream);
         $output = new StreamOutput($stream);
-        $this->getFormatter($output)->render(new DiffEntries([]), $this->getMetadataEntries(), false, false);
+        $this->getFormatter($output)->render(new DiffEntries([]), $this->getMetadataEntries(), false, false, true);
 
         $this->assertSame(
             'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL.
@@ -133,12 +133,25 @@ OUTPUT;
         );
     }
 
+    public function testRenderEmptyWithMetadata(): void
+    {
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->render(new DiffEntries([]), new DiffEntries([]), false, false, true);
+
+        $this->assertSame(
+            'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL,
+            $this->getDisplay($output)
+        );
+    }
+
     public function testRenderSingleWithMetadata(): void
     {
         $stream = fopen('php://memory', 'wb', false);
         assert(false !== $stream);
         $output = new StreamOutput($stream);
-        $this->getFormatter($output)->renderSingle($this->getMetadataEntries(), 'test', false, false);
+        $this->getFormatter($output)->renderSingle($this->getMetadataEntries(), 'test', false, false, true);
 
         $this->assertSame(
             'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL.

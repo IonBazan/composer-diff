@@ -182,11 +182,6 @@ class DiffEntry
         ];
     }
 
-    public function hasMetadata(): bool
-    {
-        return $this->withMetadata;
-    }
-
     /**
      * @return array{reference_field: string|null, reference_base: string|null, reference_target: string|null, type_base: string|null, type_target: string|null}
      */

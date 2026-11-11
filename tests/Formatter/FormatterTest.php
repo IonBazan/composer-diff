@@ -21,7 +21,7 @@ abstract class FormatterTest extends TestCase
         assert(false !== $stream);
         $output = new StreamOutput($stream);
         $formatter = $this->getFormatter($output);
-        $formatter->render(new DiffEntries([]), new DiffEntries([]), true, false);
+        $formatter->render(new DiffEntries([]), new DiffEntries([]), true, false, false);
         $this->assertSame(static::getEmptyOutput(), $this->getDisplay($output));
     }
 
@@ -44,7 +44,8 @@ abstract class FormatterTest extends TestCase
             $this->getEntries($this->getSampleProdOperations(), $this->getGenerators()),
             $this->getEntries($this->getSampleDevOperations(), $this->getGenerators()),
             $withUrls,
-            $withLicenses
+            $withLicenses,
+            false
         );
         $this->assertSame($this->getSampleOutput($withUrls, $withLicenses, $decorated), $this->getDisplay($output));
     }
@@ -56,7 +57,7 @@ abstract class FormatterTest extends TestCase
         $this->expectExceptionMessage('Invalid operation');
         $this->getFormatter($output)->render($this->getEntries([
             $this->getMockBuilder(OperationInterface::class)->getMock(),
-        ], $this->getGenerators()), $this->getEntries([], $this->getGenerators()), false, false);
+        ], $this->getGenerators()), $this->getEntries([], $this->getGenerators()), false, false, false);
     }
 
     abstract protected function getFormatter(OutputInterface $output): Formatter;
@@ -77,6 +78,7 @@ abstract class FormatterTest extends TestCase
                 new UninstallOperation(new EffectivePlatformPackage('ext-xdebug', '*', '*')),
             ], $this->getGenerators()),
             new DiffEntries([]),
+            false,
             false,
             false
         );

@@ -226,7 +226,7 @@ EOF
             $extensionExitCode = $event->getExitCode();
         }
 
-        $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);
+        $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses, $withMetadata);
 
         return ($input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0) | $extensionExitCode;
     }

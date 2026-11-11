@@ -173,13 +173,13 @@ use IonBazan\ComposerDiff\Formatter\AbstractFormatter;
 
 class TsvFormatter extends AbstractFormatter
 {
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
-        $this->renderSingle($prodEntries, 'prod', $withUrls, $withLicenses);
-        $this->renderSingle($devEntries, 'dev', $withUrls, $withLicenses);
+        $this->renderSingle($prodEntries, 'prod', $withUrls, $withLicenses, $withMetadata);
+        $this->renderSingle($devEntries, 'dev', $withUrls, $withLicenses, $withMetadata);
     }
 
-    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
         /** @var DiffEntry $entry */
         foreach ($entries as $entry) {
@@ -188,6 +188,10 @@ class TsvFormatter extends AbstractFormatter
     }
 }
 ```
+
+The boolean arguments tell whether `--with-links`, `--with-licenses` and `--with-metadata` were used.
+With `--with-metadata`, `getBaseVersion()` and `getTargetVersion()` already include reference and type changes next to
+the version. Use `toArray()` for plain versions and `getMetadata()` for those changes as separate values.
 
 The format is then available like any built-in one:
 

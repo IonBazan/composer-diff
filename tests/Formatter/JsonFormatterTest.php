@@ -31,7 +31,7 @@ class JsonFormatterTest extends FormatterTest
         assert(false !== $stream);
         $output = new StreamOutput($stream);
         $formatter = $this->getFormatter($output);
-        $formatter->renderSingle($this->getEntries($sampleData, $this->getGenerators()), 'test', true, false);
+        $formatter->renderSingle($this->getEntries($sampleData, $this->getGenerators()), 'test', true, false, false);
 
         $this->assertSame(self::formatOutput([
             'a/package-1' => [
@@ -277,7 +277,7 @@ class JsonFormatterTest extends FormatterTest
         $output = new StreamOutput($stream);
         $this->getFormatter($output)->renderSingle(new DiffEntries([
             new DiffEntry(new UpdateOperation($package, $movedPackage), null, false, true),
-        ]), 'test', false, false);
+        ]), 'test', false, false, true);
 
         $this->assertSame([
             'a/package-1' => [

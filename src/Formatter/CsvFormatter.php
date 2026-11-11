@@ -8,32 +8,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CsvFormatter extends AbstractFormatter
 {
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
-        $withMetadata = $this->hasMetadata($prodEntries) || $this->hasMetadata($devEntries);
         $this->writeHeader($withUrls, $withLicenses, $withMetadata);
         $this->writeEntries($prodEntries, 'prod', $withUrls, $withLicenses, $withMetadata);
         $this->writeEntries($devEntries, 'dev', $withUrls, $withLicenses, $withMetadata);
     }
 
-    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
-        $withMetadata = $this->hasMetadata($entries);
         $this->writeHeader($withUrls, $withLicenses, $withMetadata);
         $this->writeEntries($entries, $title, $withUrls, $withLicenses, $withMetadata);
-    }
-
-    /**
-     * All entries of one run share the --with-metadata option, so any entry tells whether it was used.
-     */
-    private function hasMetadata(DiffEntries $entries): bool
-    {
-        /** @var DiffEntry $entry */
-        foreach ($entries as $entry) {
-            return $entry->hasMetadata();
-        }
-
-        return false;
     }
 
     private function writeHeader(bool $withUrls, bool $withLicenses, bool $withMetadata): void

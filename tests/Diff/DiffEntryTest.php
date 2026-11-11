@@ -352,7 +352,6 @@ class DiffEntryTest extends TestCase
             $this->createPackage('1.0.0', 'metapackage', 'def7654321')
         ), null, false, true);
 
-        $this->assertTrue($entry->hasMetadata());
         $this->assertSame('1.0.0 (ref: abc1234) [type: library]', $entry->getBaseVersion());
         $this->assertSame([
             'name' => 'a/package-1',
@@ -384,7 +383,6 @@ class DiffEntryTest extends TestCase
 
         $this->assertSame($empty, (new DiffEntry(new InstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
         $this->assertSame($empty, (new DiffEntry(new UninstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
-        $this->assertFalse((new DiffEntry(new InstallOperation($this->createPackage('1.0.0', 'library'))))->hasMetadata());
     }
 
     private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package
