@@ -8,7 +8,6 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
-use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use IonBazan\ComposerDiff\Url\GitGenerator;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
@@ -39,18 +38,21 @@ class DiffEntry
     private $withMetadata;
 
     /** @var array<string, string> */
-    private $referenceFields = VersionComparator::REFERENCE_FIELDS;
+    private $referenceFields;
 
-    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false, bool $withMetadata = false)
+    /**
+     * @param array<string, string> $referenceFields package getter methods to compare, keyed by label
+     */
+    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false, bool $withMetadata = false, array $referenceFields = VersionComparator::REFERENCE_FIELDS)
     {
         $this->operation = $operation;
         $this->direct = $direct;
         $this->withMetadata = $withMetadata;
+        $this->referenceFields = $referenceFields;
         $this->type = $this->determineType();
 
         if ($urlGenerator instanceof UrlGenerator) {
             $this->setUrls($urlGenerator);
-            $this->setReferenceFields($urlGenerator);
         }
     }
 
@@ -218,17 +220,6 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
-    private function setReferenceFields(UrlGenerator $generator): void
-    {
-        if ($generator instanceof GeneratorContainer) {
-            $generator = $generator->get($this->getPackage());
-        }
-
-        if ($generator instanceof GitGenerator) {
-            $this->referenceFields = $generator::REFERENCE_FIELDS;
-        }
-    }
-
     /**
      * There is nothing to compare when only metadata changed, e.g. a moved Drupal release whose source reference is its tag.
      */
@@ -243,11 +234,11 @@ class DiffEntry
         $version = $package->getFullPrettyVersion();
 
         if ($this->withMetadata) {
-            $difference = VersionComparator::getReferenceDifference($package, $other, $this->referenceFields);
+            $field = VersionComparator::getReferenceDifference($package, $other, $this->referenceFields);
 
-            if (null !== $difference && $version === $other->getFullPrettyVersion()) {
-                $reference = substr($difference['value'], 0, GitGenerator::SHORT_REFERENCE_LENGTH);
-                $version .= sprintf(' (%s: %s)', $difference['field'], $reference);
+            if (null !== $field && $version === $other->getFullPrettyVersion()) {
+                $reference = substr($package->{$this->referenceFields[$field]}(), 0, GitGenerator::SHORT_REFERENCE_LENGTH);
+                $version .= sprintf(' (%s: %s)', $field, $reference);
             }
 
             if ($package->getType() !== $other->getType()) {

@@ -11,8 +11,6 @@ use Composer\Package\Package;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
-use IonBazan\ComposerDiff\Url\DrupalGenerator;
-use IonBazan\ComposerDiff\Url\GithubGenerator;
 
 class DiffEntryTest extends TestCase
 {
@@ -37,23 +35,20 @@ class DiffEntryTest extends TestCase
         $this->assertSame($expectedTarget, $entry->getTargetVersion());
     }
 
-    public function testDistChecksumIsOnlyShownForDrupalPackages(): void
+    public function testUsesGivenReferenceFields(): void
     {
         $operation = new UpdateOperation(
             $this->createPackage('1.0.0', 'library', null, null, 'abc1234567'),
             $this->createPackage('1.0.0', 'library', null, null, 'def7654321')
         );
 
-        $entry = new DiffEntry($operation, new DrupalGenerator(), false, true);
+        $entry = new DiffEntry($operation, null, false, true, ['sha1' => 'getDistSha1Checksum']);
         $this->assertSame('1.0.0 (sha1: abc1234)', $entry->getBaseVersion());
         $this->assertSame('1.0.0 (sha1: def7654)', $entry->getTargetVersion());
 
-        $entry = new DiffEntry($operation, new GithubGenerator(), false, true);
-        $this->assertSame('1.0.0', $entry->getBaseVersion());
-        $this->assertSame('1.0.0', $entry->getTargetVersion());
-
         $entry = new DiffEntry($operation, null, false, true);
         $this->assertSame('1.0.0', $entry->getBaseVersion());
+        $this->assertSame('1.0.0', $entry->getTargetVersion());
     }
 
     public function testReferencesAreNotShownWhenVersionsDiffer(): void

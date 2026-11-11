@@ -44,10 +44,9 @@ class VersionComparator
      *
      * @param array<string, string> $fields package getter methods, keyed by the label for the field they get
      *
-     * @return array{field: string, value: string, otherValue: string}|null the differing field, with its value
-     *                                                                      for $package and for $other, or null if nothing differs
+     * @return string|null the label of the first differing field, or null if nothing differs
      */
-    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other, array $fields = self::REFERENCE_FIELDS): ?array
+    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other, array $fields = self::REFERENCE_FIELDS): ?string
     {
         foreach ($fields as $field => $getter) {
             $value = $package->{$getter}();
@@ -57,7 +56,7 @@ class VersionComparator
                 continue;
             }
 
-            return ['field' => $field, 'value' => $value, 'otherValue' => $otherValue];
+            return $field;
         }
 
         return null;

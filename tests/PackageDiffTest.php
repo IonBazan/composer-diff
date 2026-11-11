@@ -530,6 +530,15 @@ class PackageDiffTest extends TestCase
         );
         $this->assertSame(['update vendor/package-a from 1.0 to 1.0'], array_map([$this, 'operationToString'], $drupal));
 
+        $entries = $diff->getDiff(
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://git.drupalcode.org/project/package-a.git')]),
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def', 'https://git.drupalcode.org/project/package-a.git')]),
+            [],
+            false,
+            true
+        );
+        $this->assertSame('1.0 (sha1: abc)', $entries[0]->getBaseVersion());
+
         $github = $diff->getOperations(
             new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://github.com/vendor/package-a.git')]),
             new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def', 'https://github.com/vendor/package-a.git')]),
