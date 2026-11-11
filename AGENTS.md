@@ -34,6 +34,8 @@ The code must run on **PHP 7.2 through 8.5 and newer** — see the CI matrix in
 ## Quality gates (all enforced in CI)
 
 - **Tests:** `vendor/bin/simple-phpunit` — add tests for every change.
+- **Docs:** when a change affects options, output or behaviour, update `README.md`, the command help in
+  `src/Command/DiffCommand.php` and the relevant files in `docs/` in the same change.
 - **Coverage:** 100% line coverage.
 - **Mutation testing:** 100% MSI and covered MSI (`vendor/bin/infection`).
 - **Static analysis:** PHPStan level 7 over `src/` and `tests/` (`vendor/bin/phpstan`).
