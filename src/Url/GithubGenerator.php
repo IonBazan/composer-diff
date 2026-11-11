@@ -29,16 +29,16 @@ class GithubGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    protected function getCompareUrlTemplate(bool $sameUser): ?string
+    protected function getDomain(): string
     {
-        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : '{base_url}/compare/{base_ref}...{target_user}:{target_ref}';
+        return 'github.com';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getDomain(): string
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
     {
-        return 'github.com';
+        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : '{base_url}/compare/{base_ref}...{target_user}:{target_ref}';
     }
 }

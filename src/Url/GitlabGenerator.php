@@ -27,14 +27,6 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    protected function getCompareUrlTemplate(bool $sameUser): ?string
-    {
-        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
@@ -50,5 +42,13 @@ class GitlabGenerator extends GitGenerator
     public function getProjectUrl(PackageInterface $package): ?string
     {
         return $this->getRepositoryUrl($package);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
+    {
+        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : null;
     }
 }
