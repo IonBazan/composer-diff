@@ -80,6 +80,7 @@ composer diff --help # Display detailed usage instructions
  - `--with-platform` (`-p`) - include platform dependencies (PHP, extensions, etc.), see [Platform requirements](#platform-requirements)
  - `--with-links` (`-l`) - include compare/release URLs
  - `--with-licenses` (`-c`) - include license information
+ - `--with-metadata` - also report changes to a package's type or references when its version is the same, such as a moved tag; see [Metadata changes](#metadata-changes)
  - `--format` (`-f`) - output format (mdtable, mdlist, json, csv, github, pr or one added by an [extension](docs/extensions.md)) - default: `mdtable`
  - `--gitlab-domains` - custom gitlab domains for compare/release URLs - default: use composer config
  - `--filter` - limit output to packages matching the given glob pattern (e.g. `symfony/*`); can be specified multiple times
@@ -144,6 +145,12 @@ Exit code of the command is built using following bit flags:
 You may check for individual flags or simply check if the status is greater or equal 8 if you don't want to downgrade any package.
 
 With `--with-platform`, changes in the [effective platform requirements](#platform-requirements) of your dependencies also count as changes.
+
+### Metadata changes
+
+By default, only packages whose version changed are reported. With `--with-metadata`, a package whose version is the same is also reported as `Changed` if its type, source reference or dist reference differs (and for Drupal packages, its dist checksum). The differing value is shown next to the version, for example `1.0.0 (ref: abc1234)` or `1.0.0 [type: metapackage]`. Without this option, none of these are shown, even next to packages with a different version.
+
+These changes count as changes with `--strict` too (flags `2` or `4`), but only when `--with-metadata` is used, so existing `--strict` runs are not affected.
 
 ## Extensions
 

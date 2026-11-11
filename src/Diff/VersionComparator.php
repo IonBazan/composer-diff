@@ -3,10 +3,16 @@
 namespace IonBazan\ComposerDiff\Diff;
 
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\PackageInterface;
 use Composer\Package\Version\VersionParser;
 
 class VersionComparator
 {
+    const REFERENCE_FIELDS = [
+        'ref' => 'getSourceReference',
+        'dist-ref' => 'getDistReference',
+    ];
+
     /**
      * @return bool|null true if it's upgrade, false if it's downgrade, null if it is a change
      */
@@ -31,5 +37,29 @@ class VersionComparator
         }
 
         return VersionParser::isUpgrade($normalizedFrom, $normalizedTo);
+    }
+
+    /**
+     * References missing on either side are ignored, as they cannot be compared.
+     *
+     * @param array<string, string> $fields package getter methods, keyed by the label for the field they get
+     *
+     * @return array{field: string, value: string, otherValue: string}|null the differing field, with its value
+     *                                                                      for $package and for $other, or null if nothing differs
+     */
+    public static function getReferenceDifference(PackageInterface $package, PackageInterface $other, array $fields = self::REFERENCE_FIELDS): ?array
+    {
+        foreach ($fields as $field => $getter) {
+            $value = $package->{$getter}();
+            $otherValue = $other->{$getter}();
+
+            if (!$value || !$otherValue || $value === $otherValue) {
+                continue;
+            }
+
+            return ['field' => $field, 'value' => $value, 'otherValue' => $otherValue];
+        }
+
+        return null;
     }
 }

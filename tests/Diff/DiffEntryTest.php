@@ -7,9 +7,12 @@ use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Package\Package;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
+use IonBazan\ComposerDiff\Url\DrupalGenerator;
+use IonBazan\ComposerDiff\Url\GithubGenerator;
 
 class DiffEntryTest extends TestCase
 {
@@ -21,6 +24,69 @@ class DiffEntryTest extends TestCase
         $entry = new DiffEntry($operation);
         $this->assertSame($expectedType, $entry->getType());
         $this->assertTrue($entry->{'is'.ucfirst($expectedType)}());
+    }
+
+    /**
+     * @dataProvider changedPackageProvider
+     */
+    public function testChangesWithIdenticalVersions(string $expectedBase, string $expectedTarget, Package $base, Package $target): void
+    {
+        $entry = new DiffEntry(new UpdateOperation($base, $target), null, false, true);
+        $this->assertSame('change', $entry->getType());
+        $this->assertSame($expectedBase, $entry->getBaseVersion());
+        $this->assertSame($expectedTarget, $entry->getTargetVersion());
+    }
+
+    public function testDistChecksumIsOnlyShownForDrupalPackages(): void
+    {
+        $operation = new UpdateOperation(
+            $this->createPackage('1.0.0', 'library', null, null, 'abc1234567'),
+            $this->createPackage('1.0.0', 'library', null, null, 'def7654321')
+        );
+
+        $entry = new DiffEntry($operation, new DrupalGenerator(), false, true);
+        $this->assertSame('1.0.0 (sha1: abc1234)', $entry->getBaseVersion());
+        $this->assertSame('1.0.0 (sha1: def7654)', $entry->getTargetVersion());
+
+        $entry = new DiffEntry($operation, new GithubGenerator(), false, true);
+        $this->assertSame('1.0.0', $entry->getBaseVersion());
+        $this->assertSame('1.0.0', $entry->getTargetVersion());
+
+        $entry = new DiffEntry($operation, null, false, true);
+        $this->assertSame('1.0.0', $entry->getBaseVersion());
+    }
+
+    public function testReferencesAreNotShownWhenVersionsDiffer(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(
+            $this->createPackage('1.0.0', 'library', 'abc1234567'),
+            $this->createPackage('1.1.0', 'library', 'def7654321')
+        ), null, false, true);
+        $this->assertSame('upgrade', $entry->getType());
+        $this->assertSame('1.0.0', $entry->getBaseVersion());
+        $this->assertSame('1.1.0', $entry->getTargetVersion());
+    }
+
+    public function testTypeIsShownWhenVersionsDiffer(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(
+            $this->createPackage('1.0.0', 'library'),
+            $this->createPackage('1.1.0', 'metapackage')
+        ), null, false, true);
+        $this->assertSame('upgrade', $entry->getType());
+        $this->assertSame('1.0.0 [type: library]', $entry->getBaseVersion());
+        $this->assertSame('1.1.0 [type: metapackage]', $entry->getTargetVersion());
+    }
+
+    public function testMetadataIsNotShownByDefault(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(
+            $this->createPackage('1.0.0', 'library', 'abc1234567'),
+            $this->createPackage('1.0.0', 'metapackage', 'def7654321')
+        ));
+        $this->assertSame('change', $entry->getType());
+        $this->assertSame('1.0.0', $entry->getBaseVersion());
+        $this->assertSame('1.0.0', $entry->getTargetVersion());
     }
 
     public function testToArray(): void
@@ -163,6 +229,45 @@ class DiffEntryTest extends TestCase
     /**
      * @return iterable<array<mixed>>
      */
+    public function changedPackageProvider(): iterable
+    {
+        return [
+            'source reference' => [
+                '1.0.0 (ref: abc1234)',
+                '1.0.0 (ref: def7654)',
+                $this->createPackage('1.0.0', 'library', 'abc1234567'),
+                $this->createPackage('1.0.0', 'library', 'def7654321'),
+            ],
+            'dist reference' => [
+                '1.0.0 (dist-ref: abc1234)',
+                '1.0.0 (dist-ref: def7654)',
+                $this->createPackage('1.0.0', 'library', null, 'abc1234567'),
+                $this->createPackage('1.0.0', 'library', null, 'def7654321'),
+            ],
+            'short reference' => [
+                '2.0.1 (ref: 2.0.1)',
+                '2.0.1 (ref: 2.0.2)',
+                $this->createPackage('2.0.1', 'library', '2.0.1'),
+                $this->createPackage('2.0.1', 'library', '2.0.2'),
+            ],
+            'type' => [
+                '1.0.0 [type: library]',
+                '1.0.0 [type: metapackage]',
+                $this->createPackage('1.0.0', 'library'),
+                $this->createPackage('1.0.0', 'metapackage'),
+            ],
+            'reference and type' => [
+                '1.0.0 (ref: abc1234) [type: library]',
+                '1.0.0 (ref: def7654) [type: metapackage]',
+                $this->createPackage('1.0.0', 'library', 'abc1234567'),
+                $this->createPackage('1.0.0', 'metapackage', 'def7654321'),
+            ],
+        ];
+    }
+
+    /**
+     * @return iterable<array<mixed>>
+     */
     public function operationTypeProvider(): iterable
     {
         return [
@@ -181,6 +286,14 @@ class DiffEntryTest extends TestCase
             'Downgrade operation' => [
                 'downgrade',
                 new UpdateOperation($this->getPackage('a/package-1', '2.0.0'), $this->getPackage('a/package-1', '1.0.0')),
+            ],
+            'Change operation (same version, different reference)' => [
+                'change',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', 'abc'), $this->createPackage('1.0.0', 'library', 'def')),
+            ],
+            'Change operation (same version, different type)' => [
+                'change',
+                new UpdateOperation($this->createPackage('1.0.0', 'library'), $this->createPackage('1.0.0', 'metapackage')),
             ],
             'Change operation (base branch)' => [
                 'change',
@@ -223,5 +336,16 @@ class DiffEntryTest extends TestCase
                 new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'master', 'master 1234567')),
             ],
         ];
+    }
+
+    private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package
+    {
+        $package = new Package('a/package-1', $version.'.0', $version);
+        $package->setType($type);
+        $package->setSourceReference($sourceReference);
+        $package->setDistReference($distReference);
+        $package->setDistSha1Checksum($checksum);
+
+        return $package;
     }
 }

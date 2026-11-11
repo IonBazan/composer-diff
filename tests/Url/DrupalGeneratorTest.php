@@ -91,6 +91,16 @@ class DrupalGeneratorTest extends GeneratorTest
                 $this->getPackageWithSourceAndDist('drupal/color_field', 'dev-2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 'https://git.drupalcode.org/project/color_field/compare/8.x-2.4...d462830',
             ],
+            'same version, release tag is the only reference' => [
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git', '6.0.0'),
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git', '6.0.0'),
+                null,
+            ],
+            'same version, moved tag' => [
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', '6.0.0', 'https://git.drupalcode.org/project/webform.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
+                'https://git.drupalcode.org/project/webform/compare/d46283075d76ed244f7825b378eeb1cee246af73...9b860214d58c48b5cbe99bdb17914d0eb723c9cd',
+            ],
         ];
     }
 

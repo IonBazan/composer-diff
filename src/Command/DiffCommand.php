@@ -67,6 +67,7 @@ class DiffCommand extends BaseCommand
             ->addOption('with-platform', 'p', InputOption::VALUE_NONE, 'Include platform dependencies (PHP version, extensions, etc.)')
             ->addOption('with-links', 'l', InputOption::VALUE_NONE, 'Include compare/release URLs')
             ->addOption('with-licenses', 'c', InputOption::VALUE_NONE, 'Include licenses')
+            ->addOption('with-metadata', null, InputOption::VALUE_NONE, 'Also report changes to package types and references, even if versions are the same')
             ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (mdtable, mdlist, json, csv, github, pr or one added by an extension)', 'mdtable')
             ->addOption('gitlab-domains', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Extra Gitlab domains (inherited from Composer config by default)', [])
             ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Limit output to packages matching given glob pattern(s)', [])
@@ -108,6 +109,11 @@ By default, <info>transient</info> dependencies are displayed. Add <info>--direc
 Use <info>--with-links</info> to include release and compare URLs in the report:
 
     <info>%command.full_name% --with-links</info>
+
+Packages with the same version are not reported by default. Use <info>--with-metadata</info> to also report changes to their type or references,
+such as a tag that has been moved to a different commit. Those differences are shown next to the versions:
+
+    <info>%command.full_name% --with-metadata</info>
     
 You can customize output format by specifying it with <info>--format</info> option. Choose between <comment>mdtable</comment>, <comment>mdlist</comment>, <comment>json</comment>, <comment>csv</comment>, <comment>github</comment> and <comment>pr</comment>.
 Plugins can register additional formats:
@@ -160,6 +166,7 @@ EOF
         $withPlatform = $input->getOption('with-platform');
         $withUrls = $input->getOption('with-links');
         $withLicenses = $input->getOption('with-licenses');
+        $withMetadata = $input->getOption('with-metadata');
         $sort = $input->getOption('sort');
         $sortBy = is_string($sort) ? $sort : 'name';
 
@@ -190,11 +197,11 @@ EOF
         $allowMissingFiles = $input->getOption('allow-missing');
 
         if (!$input->getOption('no-prod')) {
-            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect, $allowMissingFiles);
+            $prodOperations = $this->packageDiff->getPackageDiff($base, $target, false, $withPlatform, $onlyDirect, $allowMissingFiles, $withMetadata);
         }
 
         if (!$input->getOption('no-dev')) {
-            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect, $allowMissingFiles);
+            $devOperations = $this->packageDiff->getPackageDiff($base, $target, true, $withPlatform, $onlyDirect, $allowMissingFiles, $withMetadata);
         }
 
         if (!empty($filters)) {

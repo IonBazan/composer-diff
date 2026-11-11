@@ -8,6 +8,8 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
+use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\GitGenerator;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class DiffEntry
@@ -33,14 +35,22 @@ class DiffEntry
     /** @var string|null */
     private $projectUrl;
 
-    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false)
+    /** @var bool */
+    private $withMetadata;
+
+    /** @var array<string, string> */
+    private $referenceFields = VersionComparator::REFERENCE_FIELDS;
+
+    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false, bool $withMetadata = false)
     {
         $this->operation = $operation;
         $this->direct = $direct;
+        $this->withMetadata = $withMetadata;
         $this->type = $this->determineType();
 
         if ($urlGenerator instanceof UrlGenerator) {
             $this->setUrls($urlGenerator);
+            $this->setReferenceFields($urlGenerator);
         }
     }
 
@@ -159,7 +169,7 @@ class DiffEntry
     public function getBaseVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->operation->getInitialPackage()->getFullPrettyVersion();
+            return $this->describeVersion($this->operation->getInitialPackage(), $this->operation->getTargetPackage());
         }
 
         if ($this->operation instanceof UninstallOperation) {
@@ -172,7 +182,7 @@ class DiffEntry
     public function getTargetVersion(): ?string
     {
         if ($this->operation instanceof UpdateOperation) {
-            return $this->operation->getTargetPackage()->getFullPrettyVersion();
+            return $this->describeVersion($this->operation->getTargetPackage(), $this->operation->getInitialPackage());
         }
 
         if ($this->operation instanceof InstallOperation) {
@@ -208,6 +218,37 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
+    private function setReferenceFields(UrlGenerator $generator): void
+    {
+        if ($generator instanceof GeneratorContainer) {
+            $generator = $generator->get($this->getPackage());
+        }
+
+        if ($generator instanceof GitGenerator) {
+            $this->referenceFields = $generator::REFERENCE_FIELDS;
+        }
+    }
+
+    private function describeVersion(PackageInterface $package, PackageInterface $other): string
+    {
+        $version = $package->getFullPrettyVersion();
+
+        if ($this->withMetadata) {
+            $difference = VersionComparator::getReferenceDifference($package, $other, $this->referenceFields);
+
+            if (null !== $difference && $version === $other->getFullPrettyVersion()) {
+                $reference = substr($difference['value'], 0, GitGenerator::SHORT_REFERENCE_LENGTH);
+                $version .= sprintf(' (%s: %s)', $difference['field'], $reference);
+            }
+
+            if ($package->getType() !== $other->getType()) {
+                $version .= sprintf(' [type: %s]', $package->getType());
+            }
+        }
+
+        return $version;
+    }
+
     private function determineType(): string
     {
         if ($this->operation instanceof InstallOperation) {
@@ -219,6 +260,10 @@ class DiffEntry
         }
 
         if ($this->operation instanceof UpdateOperation) {
+            if ($this->operation->getInitialPackage()->getVersion() === $this->operation->getTargetPackage()->getVersion()) {
+                return self::TYPE_CHANGE;
+            }
+
             $upgrade = VersionComparator::isUpgrade($this->operation);
 
             if (null === $upgrade) {

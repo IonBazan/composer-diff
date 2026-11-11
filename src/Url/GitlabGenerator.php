@@ -27,26 +27,6 @@ class GitlabGenerator extends GitGenerator
     /**
      * {@inheritdoc}
      */
-    public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
-    {
-        if (!$this->supportsPackage($initialPackage) || !$this->supportsPackage($targetPackage)) {
-            return null;
-        }
-
-        $baseUrl = $this->getRepositoryUrl($initialPackage);
-        $baseMaintainer = $this->getUser($initialPackage);
-        $targetMaintainer = $this->getUser($targetPackage);
-
-        if ($baseMaintainer !== $targetMaintainer) {
-            return $this->getReleaseUrl($targetPackage); // Could not get a compare URL, using release URL instead
-        }
-
-        return sprintf('%s/compare/%s...%s', $baseUrl, $this->getCompareRef($initialPackage), $this->getCompareRef($targetPackage));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getReleaseUrl(PackageInterface $package): ?string
     {
         if ($package->isDev()) {
@@ -62,5 +42,13 @@ class GitlabGenerator extends GitGenerator
     public function getProjectUrl(PackageInterface $package): ?string
     {
         return $this->getRepositoryUrl($package);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCompareUrlTemplate(bool $sameUser): ?string
+    {
+        return $sameUser ? '{base_url}/compare/{base_ref}...{target_ref}' : null;
     }
 }

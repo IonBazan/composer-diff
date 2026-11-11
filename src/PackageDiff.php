@@ -20,7 +20,9 @@ use Composer\Util\ProcessExecutor;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
+use IonBazan\ComposerDiff\Diff\VersionComparator;
 use IonBazan\ComposerDiff\Url\GeneratorContainer;
+use IonBazan\ComposerDiff\Url\GitGenerator;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
 class PackageDiff
@@ -47,11 +49,11 @@ class PackageDiff
     /**
      * @param string[] $directPackages
      */
-    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = [], bool $onlyDirect = false): DiffEntries
+    public function getDiff(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, array $directPackages = [], bool $onlyDirect = false, bool $withMetadata = false): DiffEntries
     {
         $entries = [];
 
-        foreach ($this->getOperations($oldPackages, $targetPackages) as $operation) {
+        foreach ($this->getOperations($oldPackages, $targetPackages, $withMetadata) as $operation) {
             $package = $operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage();
             $direct = !$package instanceof EffectivePlatformPackage && in_array($package->getName(), $directPackages, true);
 
@@ -59,16 +61,18 @@ class PackageDiff
                 continue;
             }
 
-            $entries[] = new DiffEntry($operation, $this->urlGenerator, $direct);
+            $entries[] = new DiffEntry($operation, $this->urlGenerator, $direct, $withMetadata);
         }
 
         return new DiffEntries($entries);
     }
 
     /**
+     * @param bool $withMetadata Whether to also report packages whose version is the same, but with a different type or reference
+     *
      * @return array<InstallOperation|UpdateOperation|UninstallOperation>
      */
-    public function getOperations(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages): array
+    public function getOperations(RepositoryInterface $oldPackages, RepositoryInterface $targetPackages, bool $withMetadata = false): array
     {
         $operations = [];
 
@@ -90,7 +94,13 @@ class PackageDiff
                     continue;
                 }
 
-                if ($oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()) {
+                if (
+                    $oldPackage->getFullPrettyVersion() !== $newPackage->getFullPrettyVersion()
+                    || ($withMetadata && (
+                        $oldPackage->getType() !== $newPackage->getType()
+                        || null !== VersionComparator::getReferenceDifference($oldPackage, $newPackage, $this->getReferenceFields($newPackage))
+                    ))
+                ) {
                     $operations[] = new UpdateOperation($oldPackage, $newPackage);
                 }
             }
@@ -110,6 +120,16 @@ class PackageDiff
     }
 
     /**
+     * @return array<string, string>
+     */
+    private function getReferenceFields(PackageInterface $package): array
+    {
+        $generator = $this->urlGenerator instanceof GeneratorContainer ? $this->urlGenerator->get($package) : $this->urlGenerator;
+
+        return $generator instanceof GitGenerator ? $generator::REFERENCE_FIELDS : VersionComparator::REFERENCE_FIELDS;
+    }
+
+    /**
      * @return PackageInterface[]
      */
     private function findMatchingPackages(RepositoryInterface $repository, PackageInterface $package): array
@@ -119,13 +139,14 @@ class PackageDiff
         });
     }
 
-    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false): DiffEntries
+    public function getPackageDiff(string $from, string $to, bool $dev, bool $withPlatform, bool $onlyDirect = false, bool $allowMissingFiles = false, bool $withMetadata = false): DiffEntries
     {
         return $this->getDiff(
             $this->loadPackages($from, $dev, $withPlatform, $allowMissingFiles),
             $this->loadPackages($to, $dev, $withPlatform, $allowMissingFiles),
             array_merge($this->getDirectPackages($from), $this->getDirectPackages($to)),
-            $onlyDirect
+            $onlyDirect,
+            $withMetadata
         );
     }
 
