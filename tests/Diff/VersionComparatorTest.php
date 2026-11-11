@@ -10,8 +10,6 @@ use IonBazan\ComposerDiff\Tests\TestCase;
 class VersionComparatorTest extends TestCase
 {
     /**
-     * @param string|null $expected
-     *
      * @dataProvider referenceDifferenceProvider
      */
     public function testGetReferenceDifference(?string $expected, PackageInterface $base, PackageInterface $target): void
