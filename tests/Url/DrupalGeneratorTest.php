@@ -86,6 +86,11 @@ class DrupalGeneratorTest extends GeneratorTest
                 $this->getPackageWithSourceAndDist('drupal/color_field', '2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git'),
                 'https://git.drupalcode.org/project/color_field/compare/8.x-2.4...8.x-2.5',
             ],
+            'without dist' => [
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.0', null, 'https://git.drupalcode.org/project/webform.git'),
+                $this->getPackageWithSourceAndDist('drupal/webform', '6.0.1', null, 'https://git.drupalcode.org/project/webform.git'),
+                'https://git.drupalcode.org/project/webform/compare/6.0.0...6.0.1',
+            ],
             'dev-version' => [
                 $this->getPackageWithSourceAndDist('drupal/color_field', '2.4.0', '8.x-2.4', 'https://git.drupalcode.org/project/color_field.git'),
                 $this->getPackageWithSourceAndDist('drupal/color_field', 'dev-2.5.0', '8.x-2.5', 'https://git.drupalcode.org/project/color_field.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
