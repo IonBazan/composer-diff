@@ -329,6 +329,8 @@ OUTPUT
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @testWith [[], false]
      *           [{"--with-metadata": null}, true]
      */
