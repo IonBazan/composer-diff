@@ -345,6 +345,48 @@ class DiffEntryTest extends TestCase
         ];
     }
 
+    public function testToArrayWithMetadata(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(
+            $this->createPackage('1.0.0', 'library', 'abc1234567'),
+            $this->createPackage('1.0.0', 'metapackage', 'def7654321')
+        ), null, false, true);
+
+        $this->assertTrue($entry->hasMetadata());
+        $this->assertSame('1.0.0 (ref: abc1234) [type: library]', $entry->getBaseVersion());
+        $this->assertSame([
+            'name' => 'a/package-1',
+            'direct' => false,
+            'effective' => false,
+            'operation' => 'change',
+            'version_base' => '1.0.0',
+            'version_target' => '1.0.0',
+            'reference_field' => 'ref',
+            'reference_base' => 'abc1234',
+            'reference_target' => 'def7654',
+            'type_base' => 'library',
+            'type_target' => 'metapackage',
+            'licenses' => [],
+            'compare' => null,
+            'link' => null,
+        ], $entry->toArray());
+    }
+
+    public function testMetadataIsEmptyForInstallAndRemove(): void
+    {
+        $empty = [
+            'reference_field' => null,
+            'reference_base' => null,
+            'reference_target' => null,
+            'type_base' => null,
+            'type_target' => null,
+        ];
+
+        $this->assertSame($empty, (new DiffEntry(new InstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
+        $this->assertSame($empty, (new DiffEntry(new UninstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
+        $this->assertFalse((new DiffEntry(new InstallOperation($this->createPackage('1.0.0', 'library'))))->hasMetadata());
+    }
+
     private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package
     {
         $package = new Package('a/package-1', $version.'.0', $version);

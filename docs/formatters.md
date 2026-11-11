@@ -174,6 +174,29 @@ Dev Packages
 
 This format will display the changes in a JSON format for parsing by other tools.
 
+With `--with-metadata`, `version_base` and `version_target` stay plain versions, and each package gets these extra keys
+(`null` when there is nothing to report):
+
+- `reference_field` - which reference changed while the version stayed the same: `ref`, `dist-ref` or `sha1` (Drupal only)
+- `reference_base` and `reference_target` - that reference before and after the change, shortened to 7 characters
+- `type_base` and `type_target` - the package type before and after the change, when it changed
+
+```json
+"acme\/package": {
+    "name": "acme\/package",
+    "direct": true,
+    "effective": false,
+    "operation": "change",
+    "version_base": "1.2.0",
+    "version_target": "1.2.0",
+    "reference_field": "ref",
+    "reference_base": "aaaaaaa",
+    "reference_target": "bbbbbbb",
+    "type_base": null,
+    "type_target": null
+}
+```
+
 Example output:
 
 ```json
@@ -402,6 +425,7 @@ and the `section` column tells prod (`prod`) and dev (`dev`) packages apart. The
 - `direct` - `true` if the package is a direct dependency of the project, `false` otherwise
 - `operation` - `install`, `upgrade`, `downgrade`, `change` or `remove`
 - `version_base` and `version_target` - versions before and after the change, empty when the package was installed or removed
+- `reference_field`, `reference_base`, `reference_target`, `type_base` and `type_target` - reference and type changes, only with `--with-metadata` (see [JSON](#json-json) for their meaning)
 - `licenses` - comma-separated licenses, only with `--with-licenses`
 - `compare` and `link` - compare/release URL and project URL, only with `--with-links`
 - `effective` - `true` for effective platform requirements listed with `--with-platform` (see [Platform requirements](../README.md#platform-requirements)), `false` otherwise. It is always the last column, so the position of the other columns does not change.

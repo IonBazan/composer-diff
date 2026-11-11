@@ -2,6 +2,9 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use IonBazan\ComposerDiff\Diff\DiffEntry;
+use IonBazan\ComposerDiff\Diff\DiffEntries;
+use Composer\Package\Package;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
@@ -261,5 +264,35 @@ class JsonFormatterTest extends FormatterTest
     private static function formatOutput(array $result): string
     {
         return json_encode($result, JSON_PRETTY_PRINT).PHP_EOL;
+    }
+
+    public function testRenderWithMetadata(): void
+    {
+        $package = new Package('a/package-1', '1.0.0.0', '1.0.0');
+        $package->setSourceReference('abc1234567');
+        $movedPackage = new Package('a/package-1', '1.0.0.0', '1.0.0');
+        $movedPackage->setSourceReference('def7654321');
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->renderSingle(new DiffEntries([
+            new DiffEntry(new UpdateOperation($package, $movedPackage), null, false, true),
+        ]), 'test', false, false);
+
+        $this->assertSame([
+            'a/package-1' => [
+                'name' => 'a/package-1',
+                'direct' => false,
+                'effective' => false,
+                'operation' => 'change',
+                'version_base' => '1.0.0',
+                'version_target' => '1.0.0',
+                'reference_field' => 'ref',
+                'reference_base' => 'abc1234',
+                'reference_target' => 'def7654',
+                'type_base' => null,
+                'type_target' => null,
+            ],
+        ], json_decode($this->getDisplay($output), true));
     }
 }
