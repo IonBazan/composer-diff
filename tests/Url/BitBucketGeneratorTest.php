@@ -94,12 +94,7 @@ class BitBucketGeneratorTest extends GeneratorTest
             'same version, moved tag' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                'https://bitbucket.org/acme/package/branches/compare/9b860214d58c48b5cbe99bdb17914d0eb723c9cd%0Dd46283075d76ed244f7825b378eeb1cee246af73',
-            ],
-            'same version, same reference' => [
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                null,
+                'https://bitbucket.org/acme/package/branches/compare/9b86021%0Dd462830',
             ],
             'compare with base fork' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/IonBazan/package.git'),
@@ -110,6 +105,11 @@ class BitBucketGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/IonBazan/package.git'),
                 'https://bitbucket.org/IonBazan/package/branches/compare/IonBazan/package:3.12.1%0Dacme/package:3.12.0',
+            ],
+            'compare with fork under the same owner' => [
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://bitbucket.org/acme/package-fork.git'),
+                'https://bitbucket.org/acme/package-fork/branches/compare/acme/package-fork:3.12.1%0Dacme/package:3.12.0',
             ],
             'compare with different repository provider' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://bitbucket.org/acme/package.git'),

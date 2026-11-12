@@ -8,13 +8,13 @@ use IonBazan\ComposerDiff\Formatter\Helper\Table;
 
 class MarkdownTableFormatter extends MarkdownFormatter
 {
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
-        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses);
-        $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses);
+        $this->renderSingle($prodEntries, 'Prod Packages', $withUrls, $withLicenses, $withMetadata);
+        $this->renderSingle($devEntries, 'Dev Packages', $withUrls, $withLicenses, $withMetadata);
     }
 
-    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
         if (!\count($entries)) {
             return;

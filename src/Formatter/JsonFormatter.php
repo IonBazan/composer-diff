@@ -10,7 +10,7 @@ class JsonFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses): void
+    public function render(DiffEntries $prodEntries, DiffEntries $devEntries, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
         $this->format([
             'packages' => $this->transformEntries($prodEntries, $withUrls, $withLicenses),
@@ -21,7 +21,7 @@ class JsonFormatter extends AbstractFormatter
     /**
      * {@inheritdoc}
      */
-    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
         $this->format($this->transformEntries($entries, $withUrls, $withLicenses));
     }

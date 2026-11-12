@@ -329,6 +329,8 @@ OUTPUT
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @testWith [[], false]
      *           [{"--with-metadata": null}, true]
      */
@@ -343,7 +345,8 @@ OUTPUT
             ->with($this->isType('string'), $this->isType('string'), $this->isType('boolean'), false, false, false, $expected)
             ->willReturn($this->getEntries([], $this->getGenerators()))
         ;
-        $this->assertSame(0, $tester->execute($options));
+        $this->assertSame(0, $tester->execute($options + ['--format' => 'csv']));
+        $this->assertSame($expected, false !== strpos($tester->getDisplay(), 'reference_field'));
     }
 
     /**
@@ -605,7 +608,7 @@ OUTPUT
             ->willReturnOnConsecutiveCalls($prodEntries, $devEntries);
 
         $formatter = $this->getMockBuilder(Formatter::class)->getMock();
-        $formatter->expects($this->once())->method('render')->with($prodEntries, $devEntries, true, false);
+        $formatter->expects($this->once())->method('render')->with($prodEntries, $devEntries, true, false, false);
         $formatterProvider = $this->getMockBuilder(FormatterProvider::class)->getMock();
         $formatterProvider->expects($this->once())
             ->method('getFormatters')

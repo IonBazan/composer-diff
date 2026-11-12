@@ -110,17 +110,12 @@ class GitlabGeneratorTest extends GeneratorTest
             'same version, moved tag' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                'https://gitlab.acme.org/acme/package/compare/d46283075d76ed244f7825b378eeb1cee246af73...9b860214d58c48b5cbe99bdb17914d0eb723c9cd',
-            ],
-            'same version, same reference' => [
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                null,
+                'https://gitlab.acme.org/acme/package/compare/d462830...9b86021',
             ],
             'same version, missing reference' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                null,
+                'https://gitlab.acme.org/acme/package/compare/3.12.1...9b86021',
             ],
             'compare with base fork' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/IonBazan/package.git'),
@@ -131,6 +126,11 @@ class GitlabGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/IonBazan/package.git'),
                 'https://gitlab.acme.org/IonBazan/package/tags/3.12.1',
+            ],
+            'compare with fork under the same owner' => [
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://gitlab.acme.org/acme/package-fork.git'),
+                'https://gitlab.acme.org/acme/package-fork/tags/3.12.1',
             ],
             'compare with different repository provider' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://gitlab.acme.org/acme/package.git'),

@@ -11,8 +11,6 @@ use Composer\Package\Package;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
 use IonBazan\ComposerDiff\Diff\EffectivePlatformPackage;
 use IonBazan\ComposerDiff\Tests\TestCase;
-use IonBazan\ComposerDiff\Url\DrupalGenerator;
-use IonBazan\ComposerDiff\Url\GithubGenerator;
 
 class DiffEntryTest extends TestCase
 {
@@ -37,23 +35,20 @@ class DiffEntryTest extends TestCase
         $this->assertSame($expectedTarget, $entry->getTargetVersion());
     }
 
-    public function testDistChecksumIsOnlyShownForDrupalPackages(): void
+    public function testUsesGivenReferenceFields(): void
     {
         $operation = new UpdateOperation(
             $this->createPackage('1.0.0', 'library', null, null, 'abc1234567'),
             $this->createPackage('1.0.0', 'library', null, null, 'def7654321')
         );
 
-        $entry = new DiffEntry($operation, new DrupalGenerator(), false, true);
+        $entry = new DiffEntry($operation, null, false, true, ['sha1' => 'getDistSha1Checksum']);
         $this->assertSame('1.0.0 (sha1: abc1234)', $entry->getBaseVersion());
         $this->assertSame('1.0.0 (sha1: def7654)', $entry->getTargetVersion());
 
-        $entry = new DiffEntry($operation, new GithubGenerator(), false, true);
-        $this->assertSame('1.0.0', $entry->getBaseVersion());
-        $this->assertSame('1.0.0', $entry->getTargetVersion());
-
         $entry = new DiffEntry($operation, null, false, true);
         $this->assertSame('1.0.0', $entry->getBaseVersion());
+        $this->assertSame('1.0.0', $entry->getTargetVersion());
     }
 
     public function testReferencesAreNotShownWhenVersionsDiffer(): void
@@ -223,6 +218,18 @@ class DiffEntryTest extends TestCase
                 'compare',
                 new UpdateOperation($this->getPackage('a/package-1', 'dev-master', 'dev-master 1234567'), $this->getPackage('a/package-1', '1.0.0')),
             ],
+            'Moved tag shows compare URL' => [
+                'compare',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', 'abc'), $this->createPackage('1.0.0', 'library', 'def')),
+            ],
+            'Same reference with different version shows compare URL' => [
+                'compare',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', 'abc'), $this->createPackage('1.0.1', 'library', 'abc')),
+            ],
+            'Same version and reference shows release URL' => [
+                'release',
+                new UpdateOperation($this->createPackage('1.0.0', 'library', '1.0.0', '1.0.0', 'abc'), $this->createPackage('1.0.0', 'library', '1.0.0', '1.0.0', 'def')),
+            ],
         ];
     }
 
@@ -336,6 +343,46 @@ class DiffEntryTest extends TestCase
                 new UpdateOperation($this->getPackage('a/package-1', '1.0.0'), $this->getPackage('a/package-1', 'master', 'master 1234567')),
             ],
         ];
+    }
+
+    public function testToArrayWithMetadata(): void
+    {
+        $entry = new DiffEntry(new UpdateOperation(
+            $this->createPackage('1.0.0', 'library', 'abc1234567'),
+            $this->createPackage('1.0.0', 'metapackage', 'def7654321')
+        ), null, false, true);
+
+        $this->assertSame('1.0.0 (ref: abc1234) [type: library]', $entry->getBaseVersion());
+        $this->assertSame([
+            'name' => 'a/package-1',
+            'direct' => false,
+            'effective' => false,
+            'operation' => 'change',
+            'version_base' => '1.0.0',
+            'version_target' => '1.0.0',
+            'reference_field' => 'ref',
+            'reference_base' => 'abc1234',
+            'reference_target' => 'def7654',
+            'type_base' => 'library',
+            'type_target' => 'metapackage',
+            'licenses' => [],
+            'compare' => null,
+            'link' => null,
+        ], $entry->toArray());
+    }
+
+    public function testMetadataIsEmptyForInstallAndRemove(): void
+    {
+        $empty = [
+            'reference_field' => null,
+            'reference_base' => null,
+            'reference_target' => null,
+            'type_base' => null,
+            'type_target' => null,
+        ];
+
+        $this->assertSame($empty, (new DiffEntry(new InstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
+        $this->assertSame($empty, (new DiffEntry(new UninstallOperation($this->createPackage('1.0.0', 'library', 'abc')), null, false, true))->getMetadata());
     }
 
     private function createPackage(string $version, string $type, ?string $sourceReference = null, ?string $distReference = null, ?string $checksum = null): Package

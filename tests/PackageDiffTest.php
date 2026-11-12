@@ -333,6 +333,19 @@ class PackageDiffTest extends TestCase
         $this->assertSame(['update phpunit/phpunit from 9.2.5 to 8.5.8'], array_map([$this, 'entryToString'], $operations->getArrayCopy()));
     }
 
+    public function testPackageDiffReportsMetadataOnlyWhenRequested(): void
+    {
+        $diff = new PackageDiff();
+        $base = __DIR__.'/fixtures/metadata/base/composer.lock';
+        $target = __DIR__.'/fixtures/metadata/target/composer.lock';
+
+        $this->assertCount(0, $diff->getPackageDiff($base, $target, false, false));
+        $this->assertSame(
+            ['update acme/package from 1.0.0 to 1.0.0'],
+            array_map([$this, 'entryToString'], $diff->getPackageDiff($base, $target, false, false, false, false, true)->getArrayCopy())
+        );
+    }
+
     public function testLoadFromEmptyArray(): void
     {
         $diff = new PackageDiff();
@@ -477,6 +490,7 @@ class PackageDiffTest extends TestCase
         $diff = new PackageDiff();
 
         $this->assertSame([], $diff->getOperations($oldRepository, $newRepository));
+        $this->assertSame([], $diff->getDiff($oldRepository, $newRepository)->getArrayCopy());
         $this->assertSame($expected, array_map([$this, 'operationToString'], $diff->getOperations($oldRepository, $newRepository, true)));
         $this->assertSame($expected, array_map([$this, 'entryToString'], $diff->getDiff($oldRepository, $newRepository, [], false, true)->getArrayCopy()));
     }
@@ -529,6 +543,15 @@ class PackageDiffTest extends TestCase
             true
         );
         $this->assertSame(['update vendor/package-a from 1.0 to 1.0'], array_map([$this, 'operationToString'], $drupal));
+
+        $entries = $diff->getDiff(
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://git.drupalcode.org/project/package-a.git')]),
+            new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'def', 'https://git.drupalcode.org/project/package-a.git')]),
+            [],
+            false,
+            true
+        );
+        $this->assertSame('1.0 (sha1: abc)', $entries[0]->getBaseVersion());
 
         $github = $diff->getOperations(
             new ArrayRepository([$this->createPackage('1.0', 'library', '1.0', '1.0', 'abc', 'https://github.com/vendor/package-a.git')]),

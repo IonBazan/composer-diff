@@ -8,7 +8,6 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
-use IonBazan\ComposerDiff\Url\GeneratorContainer;
 use IonBazan\ComposerDiff\Url\GitGenerator;
 use IonBazan\ComposerDiff\Url\UrlGenerator;
 
@@ -39,18 +38,21 @@ class DiffEntry
     private $withMetadata;
 
     /** @var array<string, string> */
-    private $referenceFields = VersionComparator::REFERENCE_FIELDS;
+    private $referenceFields;
 
-    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false, bool $withMetadata = false)
+    /**
+     * @param array<string, string> $referenceFields package getter methods to compare, keyed by label
+     */
+    public function __construct(OperationInterface $operation, ?UrlGenerator $urlGenerator = null, bool $direct = false, bool $withMetadata = false, array $referenceFields = VersionComparator::REFERENCE_FIELDS)
     {
         $this->operation = $operation;
         $this->direct = $direct;
         $this->withMetadata = $withMetadata;
+        $this->referenceFields = $referenceFields;
         $this->type = $this->determineType();
 
         if ($urlGenerator instanceof UrlGenerator) {
             $this->setUrls($urlGenerator);
-            $this->setReferenceFields($urlGenerator);
         }
     }
 
@@ -146,6 +148,11 @@ class DiffEntry
      *     operation: string,
      *     version_base: string|null,
      *     version_target: string|null,
+     *     reference_field?: string|null,
+     *     reference_base?: string|null,
+     *     reference_target?: string|null,
+     *     type_base?: string|null,
+     *     type_target?: string|null,
      *     licenses: string[],
      *     compare: string|null,
      *     link: string|null,
@@ -153,43 +160,75 @@ class DiffEntry
      */
     public function toArray(): array
     {
-        return [
+        $basePackage = $this->getBasePackage();
+        $targetPackage = $this->getTargetPackage();
+        $data = [
             'name' => $this->getPackageName(),
             'direct' => $this->isDirect(),
             'effective' => $this->isEffective(),
             'operation' => $this->getType(),
-            'version_base' => $this->getBaseVersion(),
-            'version_target' => $this->getTargetVersion(),
+            'version_base' => null !== $basePackage ? $basePackage->getFullPrettyVersion() : null,
+            'version_target' => null !== $targetPackage ? $targetPackage->getFullPrettyVersion() : null,
+        ];
+
+        if ($this->withMetadata) {
+            $data += $this->getMetadata();
+        }
+
+        return $data + [
             'licenses' => $this->getLicenses(),
             'compare' => $this->getUrl(),
             'link' => $this->getProjectUrl(),
         ];
     }
 
+    /**
+     * @return array{reference_field: string|null, reference_base: string|null, reference_target: string|null, type_base: string|null, type_target: string|null}
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [
+            'reference_field' => null,
+            'reference_base' => null,
+            'reference_target' => null,
+            'type_base' => null,
+            'type_target' => null,
+        ];
+
+        if (!$this->operation instanceof UpdateOperation) {
+            return $metadata;
+        }
+
+        $initialPackage = $this->operation->getInitialPackage();
+        $targetPackage = $this->operation->getTargetPackage();
+        $field = $this->getReferenceField();
+
+        if (null !== $field) {
+            $metadata['reference_field'] = $field;
+            $metadata['reference_base'] = $this->getReference($initialPackage, $field);
+            $metadata['reference_target'] = $this->getReference($targetPackage, $field);
+        }
+
+        if ($this->hasTypeChange()) {
+            $metadata['type_base'] = $initialPackage->getType();
+            $metadata['type_target'] = $targetPackage->getType();
+        }
+
+        return $metadata;
+    }
+
     public function getBaseVersion(): ?string
     {
-        if ($this->operation instanceof UpdateOperation) {
-            return $this->describeVersion($this->operation->getInitialPackage(), $this->operation->getTargetPackage());
-        }
+        $package = $this->getBasePackage();
 
-        if ($this->operation instanceof UninstallOperation) {
-            return $this->operation->getPackage()->getFullPrettyVersion();
-        }
-
-        return null;
+        return null !== $package ? $this->describeVersion($package) : null;
     }
 
     public function getTargetVersion(): ?string
     {
-        if ($this->operation instanceof UpdateOperation) {
-            return $this->describeVersion($this->operation->getTargetPackage(), $this->operation->getInitialPackage());
-        }
+        $package = $this->getTargetPackage();
 
-        if ($this->operation instanceof InstallOperation) {
-            return $this->operation->getPackage()->getFullPrettyVersion();
-        }
-
-        return null;
+        return null !== $package ? $this->describeVersion($package) : null;
     }
 
     public function getUrl(): ?string
@@ -209,8 +248,8 @@ class DiffEntry
 
         $operation = $this->getOperation();
 
-        if ($operation instanceof UpdateOperation) {
-            $this->compareUrl = $generator->getCompareUrl($operation->getInitialPackage(), $operation->getTargetPackage());
+        if ($operation instanceof UpdateOperation && !$this->isSameRevision($operation->getInitialPackage(), $package)) {
+            $this->compareUrl = $generator->getCompareUrl($operation->getInitialPackage(), $package);
 
             return;
         }
@@ -218,35 +257,86 @@ class DiffEntry
         $this->compareUrl = $generator->getReleaseUrl($package);
     }
 
-    private function setReferenceFields(UrlGenerator $generator): void
+    /**
+     * There is nothing to compare when only metadata changed, e.g. a moved Drupal release whose source reference is its tag.
+     */
+    private function isSameRevision(PackageInterface $initialPackage, PackageInterface $targetPackage): bool
     {
-        if ($generator instanceof GeneratorContainer) {
-            $generator = $generator->get($this->getPackage());
-        }
-
-        if ($generator instanceof GitGenerator) {
-            $this->referenceFields = $generator::REFERENCE_FIELDS;
-        }
+        return $initialPackage->getPrettyVersion() === $targetPackage->getPrettyVersion()
+            && $initialPackage->getSourceReference() === $targetPackage->getSourceReference();
     }
 
-    private function describeVersion(PackageInterface $package, PackageInterface $other): string
+    private function getBasePackage(): ?PackageInterface
+    {
+        if ($this->operation instanceof UpdateOperation) {
+            return $this->operation->getInitialPackage();
+        }
+
+        if ($this->operation instanceof UninstallOperation) {
+            return $this->operation->getPackage();
+        }
+
+        return null;
+    }
+
+    private function getTargetPackage(): ?PackageInterface
+    {
+        if ($this->operation instanceof UpdateOperation) {
+            return $this->operation->getTargetPackage();
+        }
+
+        if ($this->operation instanceof InstallOperation) {
+            return $this->operation->getPackage();
+        }
+
+        return null;
+    }
+
+    private function describeVersion(PackageInterface $package): string
     {
         $version = $package->getFullPrettyVersion();
+        $field = $this->getReferenceField();
 
-        if ($this->withMetadata) {
-            $difference = VersionComparator::getReferenceDifference($package, $other, $this->referenceFields);
+        if (null !== $field) {
+            $version .= sprintf(' (%s: %s)', $field, $this->getReference($package, $field));
+        }
 
-            if (null !== $difference && $version === $other->getFullPrettyVersion()) {
-                $reference = substr($difference['value'], 0, GitGenerator::SHORT_REFERENCE_LENGTH);
-                $version .= sprintf(' (%s: %s)', $difference['field'], $reference);
-            }
-
-            if ($package->getType() !== $other->getType()) {
-                $version .= sprintf(' [type: %s]', $package->getType());
-            }
+        if ($this->hasTypeChange()) {
+            $version .= sprintf(' [type: %s]', $package->getType());
         }
 
         return $version;
+    }
+
+    /**
+     * References are only reported when the versions are the same, as otherwise the version change explains them.
+     */
+    private function getReferenceField(): ?string
+    {
+        if (!$this->withMetadata || !$this->operation instanceof UpdateOperation) {
+            return null;
+        }
+
+        $initialPackage = $this->operation->getInitialPackage();
+        $targetPackage = $this->operation->getTargetPackage();
+
+        if ($initialPackage->getFullPrettyVersion() !== $targetPackage->getFullPrettyVersion()) {
+            return null;
+        }
+
+        return VersionComparator::getReferenceDifference($initialPackage, $targetPackage, $this->referenceFields);
+    }
+
+    private function getReference(PackageInterface $package, string $field): string
+    {
+        return substr($package->{$this->referenceFields[$field]}(), 0, GitGenerator::SHORT_REFERENCE_LENGTH);
+    }
+
+    private function hasTypeChange(): bool
+    {
+        return $this->withMetadata
+            && $this->operation instanceof UpdateOperation
+            && $this->operation->getInitialPackage()->getType() !== $this->operation->getTargetPackage()->getType();
     }
 
     private function determineType(): string

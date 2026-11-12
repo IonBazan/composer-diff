@@ -2,6 +2,8 @@
 
 namespace IonBazan\ComposerDiff\Tests\Formatter;
 
+use Composer\Package\Package;
+use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use IonBazan\ComposerDiff\Diff\DiffEntries;
 use IonBazan\ComposerDiff\Diff\DiffEntry;
@@ -20,7 +22,7 @@ class CsvFormatterTest extends FormatterTest
         $entries = new DiffEntries([
             new DiffEntry(new InstallOperation($this->getCompletePackage('a/package-1', '1.0.0', null, ['Quoted "license"', "Multi\nline", "Carriage\rreturn", '<info>Tagged</info>'])), null, true),
         ]);
-        $this->getFormatter($output)->renderSingle($entries, 'test', false, true);
+        $this->getFormatter($output)->renderSingle($entries, 'test', false, true, false);
 
         $this->assertSame(
             'section,name,direct,operation,version_base,version_target,licenses,effective'.PHP_EOL.
@@ -113,5 +115,68 @@ dev,a/package-4,false,remove,0.1.1,,false
 dev,a/no-link-2,false,remove,0.1.1,,false
 
 OUTPUT;
+    }
+
+    public function testRenderWithMetadata(): void
+    {
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->render(new DiffEntries([]), $this->getMetadataEntries(), false, false, true);
+
+        $this->assertSame(
+            'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL.
+            'dev,a/package-1,false,change,1.0.0,1.0.0,ref,abc1234,def7654,,,false'.PHP_EOL.
+            'dev,a/package-2,false,upgrade,1.0.0,1.1.0,,,,library,metapackage,false'.PHP_EOL.
+            'dev,a/package-3,false,install,,1.0.0,,,,,,false'.PHP_EOL,
+            $this->getDisplay($output)
+        );
+    }
+
+    public function testRenderEmptyWithMetadata(): void
+    {
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->render(new DiffEntries([]), new DiffEntries([]), false, false, true);
+
+        $this->assertSame(
+            'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL,
+            $this->getDisplay($output)
+        );
+    }
+
+    public function testRenderSingleWithMetadata(): void
+    {
+        $stream = fopen('php://memory', 'wb', false);
+        assert(false !== $stream);
+        $output = new StreamOutput($stream);
+        $this->getFormatter($output)->renderSingle($this->getMetadataEntries(), 'test', false, false, true);
+
+        $this->assertSame(
+            'section,name,direct,operation,version_base,version_target,reference_field,reference_base,reference_target,type_base,type_target,effective'.PHP_EOL.
+            'test,a/package-1,false,change,1.0.0,1.0.0,ref,abc1234,def7654,,,false'.PHP_EOL.
+            'test,a/package-2,false,upgrade,1.0.0,1.1.0,,,,library,metapackage,false'.PHP_EOL.
+            'test,a/package-3,false,install,,1.0.0,,,,,,false'.PHP_EOL,
+            $this->getDisplay($output)
+        );
+    }
+
+    private function getMetadataEntries(): DiffEntries
+    {
+        return new DiffEntries([
+            new DiffEntry(new UpdateOperation($this->createPackage('a/package-1', '1.0.0', 'library', 'abc1234567'), $this->createPackage('a/package-1', '1.0.0', 'library', 'def7654321')), null, false, true),
+            new DiffEntry(new UpdateOperation($this->createPackage('a/package-2', '1.0.0', 'library'), $this->createPackage('a/package-2', '1.1.0', 'metapackage')), null, false, true),
+            new DiffEntry(new InstallOperation($this->createPackage('a/package-3', '1.0.0', 'library')), null, false, true),
+        ]);
+    }
+
+    private function createPackage(string $name, string $version, string $type, ?string $sourceReference = null): Package
+    {
+        $package = new Package($name, $version.'.0', $version);
+        $package->setType($type);
+        $package->setSourceReference($sourceReference);
+
+        return $package;
     }
 }

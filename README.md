@@ -148,7 +148,7 @@ With `--with-platform`, changes in the [effective platform requirements](#platfo
 
 ### Metadata changes
 
-By default, only packages whose version changed are reported. With `--with-metadata`, a package whose version is the same is also reported as `Changed` if its type, source reference or dist reference differs (and for Drupal packages, its dist checksum). The differing value is shown next to the version, for example `1.0.0 (ref: abc1234)` or `1.0.0 [type: metapackage]`. Without this option, none of these are shown, even next to packages with a different version.
+By default, only packages whose version changed are reported. With `--with-metadata`, a package whose version is the same is also reported as `Changed` if its type, source reference or dist reference differs (and for Drupal packages, its dist checksum). The differing value is shown next to the version, for example `1.0.0 (ref: abc1234)` or `1.0.0 [type: metapackage]`. The JSON and CSV formats show them in [separate fields](docs/formatters.md#json-json) instead, so the versions stay plain. Without this option, none of these are shown, even next to packages with a different version.
 
 These changes count as changes with `--strict` too (flags `2` or `4`), but only when `--with-metadata` is used, so existing `--strict` runs are not affected.
 

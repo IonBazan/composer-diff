@@ -43,7 +43,7 @@ OUTPUT;
         $this->getFormatter($output)->renderSingle(new DiffEntries([
             new DiffEntry(new InstallOperation($this->getPackage('a/package-1', "1.0%0D\r2"))),
             new DiffEntry(new InstallOperation($this->getPackage('a/package-2', '1.0'))),
-        ]), 'Title: a, b%', false, false);
+        ]), 'Title: a, b%', false, false, false);
 
         $this->assertSame(
             '::notice title=Title%3A a%2C b%25:: - Install a/package-1 (1.0%250D%0D2)%0A - Install a/package-2 (1.0)'.PHP_EOL,

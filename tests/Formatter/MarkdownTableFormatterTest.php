@@ -165,7 +165,7 @@ OUTPUT;
         $output = new BufferedOutput();
         $this->getFormatter($output)->renderSingle(new DiffEntries([
             new DiffEntry(new UpdateOperation($this->getPackage('php', '^7.4 || ^8.0'), $this->getPackage('php', '^8.1'))),
-        ]), 'Prod Packages', false, false);
+        ]), 'Prod Packages', false, false, false);
 
         $this->assertSame(<<<'OUTPUT'
 | Prod Packages | Operation | Base           | Target |

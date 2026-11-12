@@ -111,7 +111,7 @@ Use <info>--with-links</info> to include release and compare URLs in the report:
     <info>%command.full_name% --with-links</info>
 
 Packages with the same version are not reported by default. Use <info>--with-metadata</info> to also report changes to their type or references,
-such as a tag that has been moved to a different commit. Those differences are shown next to the versions:
+such as a tag that has been moved to a different commit. Those differences are shown next to the versions, or in separate fields with <comment>json</comment> and <comment>csv</comment>:
 
     <info>%command.full_name% --with-metadata</info>
     
@@ -226,7 +226,7 @@ EOF
             $extensionExitCode = $event->getExitCode();
         }
 
-        $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses);
+        $formatter->render($prodOperations, $devOperations, $withUrls, $withLicenses, $withMetadata);
 
         return ($input->getOption('strict') ? $this->getExitCode($prodOperations, $devOperations) : 0) | $extensionExitCode;
     }

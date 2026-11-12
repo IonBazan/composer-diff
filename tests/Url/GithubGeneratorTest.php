@@ -100,27 +100,17 @@ class GithubGeneratorTest extends GeneratorTest
             'same version, moved tag' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                'https://github.com/acme/package/compare/d46283075d76ed244f7825b378eeb1cee246af73...9b860214d58c48b5cbe99bdb17914d0eb723c9cd',
+                'https://github.com/acme/package/compare/d462830...9b86021',
             ],
             'same version, moved tag with head fork' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/IonBazan/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                'https://github.com/acme/package/compare/d46283075d76ed244f7825b378eeb1cee246af73...IonBazan:9b860214d58c48b5cbe99bdb17914d0eb723c9cd',
-            ],
-            'same version, same reference' => [
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', 'd46283075d76ed244f7825b378eeb1cee246af73'),
-                null,
+                'https://github.com/acme/package/compare/d462830...IonBazan:9b86021',
             ],
             'same version, missing reference' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package.git', '9b860214d58c48b5cbe99bdb17914d0eb723c9cd'),
-                null,
-            ],
-            'dev versions, same short reference' => [
-                $this->getPackageWithSource('acme/package', 'dev-master', 'https://github.com/acme/package.git', 'd462830aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
-                $this->getPackageWithSource('acme/package', 'dev-master', 'https://github.com/acme/package.git', 'd462830bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
-                'https://github.com/acme/package/compare/d462830aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...d462830bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                'https://github.com/acme/package/compare/3.12.1...9b86021',
             ],
             'compare with base fork' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/IonBazan/package.git'),
@@ -131,6 +121,11 @@ class GithubGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/acme/package.git'),
                 $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/IonBazan/package.git'),
                 'https://github.com/acme/package/compare/3.12.0...IonBazan:3.12.1',
+            ],
+            'compare with fork under the same owner' => [
+                $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/acme/package.git'),
+                $this->getPackageWithSource('acme/package', '3.12.1', 'https://github.com/acme/package-fork.git'),
+                'https://github.com/acme/package/compare/3.12.0...acme:3.12.1',
             ],
             'compare with different repository provider' => [
                 $this->getPackageWithSource('acme/package', '3.12.0', 'https://github.com/acme/package.git'),

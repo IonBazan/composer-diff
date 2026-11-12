@@ -25,7 +25,7 @@ class DrupalGenerator extends GitlabGenerator
     protected function getCompareRef(PackageInterface $package): string
     {
         if (!$package->isDev()) {
-            return $package->getDistReference();
+            return $package->getDistReference() ?: $package->getPrettyVersion();
         }
 
         return parent::getCompareRef($package);

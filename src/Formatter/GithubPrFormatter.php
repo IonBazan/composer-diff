@@ -7,7 +7,7 @@ use function count;
 
 class GithubPrFormatter extends MarkdownTableFormatter
 {
-    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses): void
+    public function renderSingle(DiffEntries $entries, string $title, bool $withUrls, bool $withLicenses, bool $withMetadata): void
     {
         if (!count($entries)) {
             return;
@@ -16,7 +16,7 @@ class GithubPrFormatter extends MarkdownTableFormatter
         $this->output->writeln('<details>');
         $this->output->writeln(sprintf('<summary>%s (%d packages)</summary>', $title, count($entries)));
         $this->output->writeln('');
-        parent::renderSingle($entries, $title, $withUrls, $withLicenses);
+        parent::renderSingle($entries, $title, $withUrls, $withLicenses, $withMetadata);
         $this->output->writeln('</details>');
         $this->output->writeln('');
     }

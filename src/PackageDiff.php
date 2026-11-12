@@ -61,7 +61,7 @@ class PackageDiff
                 continue;
             }
 
-            $entries[] = new DiffEntry($operation, $this->urlGenerator, $direct, $withMetadata);
+            $entries[] = new DiffEntry($operation, $this->urlGenerator, $direct, $withMetadata, $this->getReferenceFields($package));
         }
 
         return new DiffEntries($entries);
@@ -289,6 +289,7 @@ class PackageDiff
 
         foreach (['require', 'require-dev'] as $key) {
             foreach (array_keys($data[$key] ?? []) as $name) {
+                /* @infection-ignore-all Equivalent mutant: the cast is only there for PHPStan, as strtolower() casts numeric keys anyway */
                 $packages[] = strtolower((string) $name);
             }
         }
