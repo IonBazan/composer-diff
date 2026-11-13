@@ -178,7 +178,7 @@ With `--with-metadata`, `version_base` and `version_target` stay plain versions,
 (`null` when there is nothing to report):
 
 - `reference_field` - which reference changed while the version stayed the same: `ref`, `dist-ref` or `sha1` (Drupal only)
-- `reference_base` and `reference_target` - that reference before and after the change, shortened to 7 characters
+- `reference_base` and `reference_target` - that reference before and after the change, with commit hashes shortened to 7 characters
 - `type_base` and `type_target` - the package type before and after the change, when it changed
 
 ```json

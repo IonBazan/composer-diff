@@ -10,7 +10,7 @@ URL generators are used to generate URLs for the packages listed in a diff:
 They are chosen automatically based on the package URL or other conditions specified in `supportsPackage()` method.
 
 When both packages have the same version, for example a tag moved to another commit and reported with `--with-metadata`,
-the compare URL uses their short commit hashes instead. If the source reference is the same too, the release URL is shown instead,
+the built-in generators use their short commit hashes in the compare URL instead. If the source reference is the same too, the release URL is shown instead,
 as there is nothing to compare.
 
 Each generator must have following methods:

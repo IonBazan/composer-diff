@@ -253,7 +253,7 @@ class GiteaGenerator extends GitGenerator
 
     public function getCompareUrl(PackageInterface $initialPackage, PackageInterface $targetPackage): ?string
     {
-        return sprintf('%s/compare/%s...%s', $this->getRepositoryUrl($targetPackage), $this->getCompareRef($initialPackage), $this->getCompareRef($targetPackage));
+        return sprintf('%s/compare/%s...%s', $this->getRepositoryUrl($targetPackage), $this->getCompareRefAgainst($initialPackage, $targetPackage), $this->getCompareRefAgainst($targetPackage, $initialPackage));
     }
 
     public function getReleaseUrl(PackageInterface $package): ?string
@@ -267,6 +267,10 @@ class GiteaGenerator extends GitGenerator
     }
 }
 ```
+
+`getCompareRefAgainst()` returns the same ref as `getCompareRef()`, unless both packages have the same version (such as a
+moved tag reported with `--with-metadata`). Then it returns the short commit hash, so the compare URL still points to two
+different revisions.
 
 Generators from extensions are checked before the built-in ones, so an extension can take over packages that a built-in
 generator would also match. The first generator whose `supportsPackage()` returns `true` is used.
