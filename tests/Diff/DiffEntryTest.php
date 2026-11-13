@@ -38,8 +38,8 @@ class DiffEntryTest extends TestCase
     public function testUsesGivenReferenceFields(): void
     {
         $operation = new UpdateOperation(
-            $this->createPackage('1.0.0', 'library', null, null, 'abc1234567'),
-            $this->createPackage('1.0.0', 'library', null, null, 'def7654321')
+            $this->createPackage('1.0.0', 'library', null, null, 'abc1234567000000000000000000000000000000'),
+            $this->createPackage('1.0.0', 'library', null, null, 'def7654321000000000000000000000000000000')
         );
 
         $entry = new DiffEntry($operation, null, false, true, ['sha1' => 'getDistSha1Checksum']);
@@ -54,8 +54,8 @@ class DiffEntryTest extends TestCase
     public function testReferencesAreNotShownWhenVersionsDiffer(): void
     {
         $entry = new DiffEntry(new UpdateOperation(
-            $this->createPackage('1.0.0', 'library', 'abc1234567'),
-            $this->createPackage('1.1.0', 'library', 'def7654321')
+            $this->createPackage('1.0.0', 'library', 'abc1234567000000000000000000000000000000'),
+            $this->createPackage('1.1.0', 'library', 'def7654321000000000000000000000000000000')
         ), null, false, true);
         $this->assertSame('upgrade', $entry->getType());
         $this->assertSame('1.0.0', $entry->getBaseVersion());
@@ -76,8 +76,8 @@ class DiffEntryTest extends TestCase
     public function testMetadataIsNotShownByDefault(): void
     {
         $entry = new DiffEntry(new UpdateOperation(
-            $this->createPackage('1.0.0', 'library', 'abc1234567'),
-            $this->createPackage('1.0.0', 'metapackage', 'def7654321')
+            $this->createPackage('1.0.0', 'library', 'abc1234567000000000000000000000000000000'),
+            $this->createPackage('1.0.0', 'metapackage', 'def7654321000000000000000000000000000000')
         ));
         $this->assertSame('change', $entry->getType());
         $this->assertSame('1.0.0', $entry->getBaseVersion());
@@ -242,20 +242,26 @@ class DiffEntryTest extends TestCase
             'source reference' => [
                 '1.0.0 (ref: abc1234)',
                 '1.0.0 (ref: def7654)',
-                $this->createPackage('1.0.0', 'library', 'abc1234567'),
-                $this->createPackage('1.0.0', 'library', 'def7654321'),
+                $this->createPackage('1.0.0', 'library', 'abc1234567000000000000000000000000000000'),
+                $this->createPackage('1.0.0', 'library', 'def7654321000000000000000000000000000000'),
             ],
             'dist reference' => [
                 '1.0.0 (dist-ref: abc1234)',
                 '1.0.0 (dist-ref: def7654)',
-                $this->createPackage('1.0.0', 'library', null, 'abc1234567'),
-                $this->createPackage('1.0.0', 'library', null, 'def7654321'),
+                $this->createPackage('1.0.0', 'library', null, 'abc1234567000000000000000000000000000000'),
+                $this->createPackage('1.0.0', 'library', null, 'def7654321000000000000000000000000000000'),
             ],
             'short reference' => [
                 '2.0.1 (ref: 2.0.1)',
                 '2.0.1 (ref: 2.0.2)',
                 $this->createPackage('2.0.1', 'library', '2.0.1'),
                 $this->createPackage('2.0.1', 'library', '2.0.2'),
+            ],
+            'reference that is not a commit hash' => [
+                '1.0.0 (dist-ref: 8.x-1.10)',
+                '1.0.0 (dist-ref: 8.x-1.11)',
+                $this->createPackage('1.0.0', 'library', null, '8.x-1.10'),
+                $this->createPackage('1.0.0', 'library', null, '8.x-1.11'),
             ],
             'type' => [
                 '1.0.0 [type: library]',
@@ -266,8 +272,8 @@ class DiffEntryTest extends TestCase
             'reference and type' => [
                 '1.0.0 (ref: abc1234) [type: library]',
                 '1.0.0 (ref: def7654) [type: metapackage]',
-                $this->createPackage('1.0.0', 'library', 'abc1234567'),
-                $this->createPackage('1.0.0', 'metapackage', 'def7654321'),
+                $this->createPackage('1.0.0', 'library', 'abc1234567000000000000000000000000000000'),
+                $this->createPackage('1.0.0', 'metapackage', 'def7654321000000000000000000000000000000'),
             ],
         ];
     }
@@ -348,8 +354,8 @@ class DiffEntryTest extends TestCase
     public function testToArrayWithMetadata(): void
     {
         $entry = new DiffEntry(new UpdateOperation(
-            $this->createPackage('1.0.0', 'library', 'abc1234567'),
-            $this->createPackage('1.0.0', 'metapackage', 'def7654321')
+            $this->createPackage('1.0.0', 'library', 'abc1234567000000000000000000000000000000'),
+            $this->createPackage('1.0.0', 'metapackage', 'def7654321000000000000000000000000000000')
         ), null, false, true);
 
         $this->assertSame('1.0.0 (ref: abc1234) [type: library]', $entry->getBaseVersion());

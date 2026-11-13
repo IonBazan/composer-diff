@@ -329,7 +329,9 @@ class DiffEntry
 
     private function getReference(PackageInterface $package, string $field): string
     {
-        return substr($package->{$this->referenceFields[$field]}(), 0, GitGenerator::SHORT_REFERENCE_LENGTH);
+        $reference = $package->{$this->referenceFields[$field]}();
+
+        return GitGenerator::REFERENCE_LENGTH === \strlen($reference) ? substr($reference, 0, GitGenerator::SHORT_REFERENCE_LENGTH) : $reference;
     }
 
     private function hasTypeChange(): bool

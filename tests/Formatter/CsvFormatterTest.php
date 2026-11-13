@@ -165,7 +165,7 @@ OUTPUT;
     private function getMetadataEntries(): DiffEntries
     {
         return new DiffEntries([
-            new DiffEntry(new UpdateOperation($this->createPackage('a/package-1', '1.0.0', 'library', 'abc1234567'), $this->createPackage('a/package-1', '1.0.0', 'library', 'def7654321')), null, false, true),
+            new DiffEntry(new UpdateOperation($this->createPackage('a/package-1', '1.0.0', 'library', 'abc1234567000000000000000000000000000000'), $this->createPackage('a/package-1', '1.0.0', 'library', 'def7654321000000000000000000000000000000')), null, false, true),
             new DiffEntry(new UpdateOperation($this->createPackage('a/package-2', '1.0.0', 'library'), $this->createPackage('a/package-2', '1.1.0', 'metapackage')), null, false, true),
             new DiffEntry(new InstallOperation($this->createPackage('a/package-3', '1.0.0', 'library')), null, false, true),
         ]);

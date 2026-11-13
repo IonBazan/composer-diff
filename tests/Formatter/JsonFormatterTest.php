@@ -269,9 +269,9 @@ class JsonFormatterTest extends FormatterTest
     public function testRenderWithMetadata(): void
     {
         $package = new Package('a/package-1', '1.0.0.0', '1.0.0');
-        $package->setSourceReference('abc1234567');
+        $package->setSourceReference('abc1234567000000000000000000000000000000');
         $movedPackage = new Package('a/package-1', '1.0.0.0', '1.0.0');
-        $movedPackage->setSourceReference('def7654321');
+        $movedPackage->setSourceReference('def7654321000000000000000000000000000000');
         $stream = fopen('php://memory', 'wb', false);
         assert(false !== $stream);
         $output = new StreamOutput($stream);
