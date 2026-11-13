@@ -367,3 +367,6 @@ Extensions can rely on these classes and interfaces. Their behaviour only change
 - `IonBazan\ComposerDiff\Diff\DiffEntries` and `DiffEntry`
 
 Other classes, such as the command and the formatter and URL generator containers, are internal and may change in any release.
+
+`GitGenerator::getUser()` and `GitGenerator::getRepo()` are deprecated since 2.5.1 and will be removed in 3.0. Use
+`getRepositoryPath()` instead.

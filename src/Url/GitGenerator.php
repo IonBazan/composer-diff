@@ -47,6 +47,30 @@ abstract class GitGenerator implements UrlGenerator
     }
 
     /**
+     * @deprecated since 2.5.1, use getRepositoryPath() instead
+     */
+    protected function getUser(PackageInterface $package): string
+    {
+        return preg_replace(
+            "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
+            '$1',
+            $this->getRepositoryUrl($package)
+        );
+    }
+
+    /**
+     * @deprecated since 2.5.1, use getRepositoryPath() instead
+     */
+    protected function getRepo(PackageInterface $package): string
+    {
+        return preg_replace(
+            "/^https:\/\/{$this->getQuotedDomain()}\/(.+)\/([^\/]+)$/",
+            '$2',
+            $this->getRepositoryUrl($package)
+        );
+    }
+
+    /**
      * Gets the repository path after the domain, e.g. "owner/repo" or "group/subgroup/repo".
      */
     protected function getRepositoryPath(PackageInterface $package): string
