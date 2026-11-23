@@ -29,6 +29,10 @@ class BitBucketGeneratorTest extends GeneratorTest
                 $this->getPackageWithSource('acme/package', '3.12.1', 'git@bitbucket.org:acme/package'),
                 'https://bitbucket.org/acme/package/src/3.12.1',
             ],
+            'ssh subdomain' => [
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@ssh.bitbucket.org:acme/package.git'),
+                'https://bitbucket.org/acme/package/src/3.12.1',
+            ],
             'dev version' => [
                 $this->getPackageWithSource('acme/package', 'dev-master', 'git@bitbucket.org:acme/package', 'd46283075d76ed244f7825b378eeb1cee246af73'),
                 'https://bitbucket.org/acme/package/src/d46283075d76ed244f7825b378eeb1cee246af73',
@@ -56,6 +60,10 @@ class BitBucketGeneratorTest extends GeneratorTest
             ],
             'ssh without .git' => [
                 $this->getPackageWithSource('acme/package', '3.12.1', 'git@bitbucket.org:acme/package'),
+                'https://bitbucket.org/acme/package',
+            ],
+            'ssh subdomain' => [
+                $this->getPackageWithSource('acme/package', '3.12.1', 'git@ssh.bitbucket.org:acme/package.git'),
                 'https://bitbucket.org/acme/package',
             ],
             'dev version' => [
