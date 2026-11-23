@@ -81,7 +81,7 @@ abstract class GitGenerator implements UrlGenerator
     protected function getRepositoryUrl(PackageInterface $package): string
     {
         $httpsUrl = preg_replace(
-            "/^git@(?:git\.)?({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
+            "/^git@(?:git\.|ssh\.)?({$this->getQuotedDomain()}):(.+)\/([^\/]+)(\.git)?$/",
             'https://$1/$2/$3',
             $package->getSourceUrl()
         );
